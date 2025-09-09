@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간표 데이터 업로드</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2d3748; margin-bottom: 10px; }
+        .subtitle { color: #718096; margin-bottom: 30px; }
+        .upload-area { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 40px; text-align: center; margin-bottom: 20px; }
+        .upload-area.dragover { border-color: #3182ce; background: #ebf8ff; }
+        input[type="file"] { margin: 20px 0; }
+        button { background: #3182ce; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2c5282; }
+        button:disabled { background: #a0aec0; cursor: not-allowed; }
+        .checkbox-container { margin: 15px 0; }
+        .progress { margin-top: 20px; display: none; }
+        .progress-bar { width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #3182ce; transition: width 0.3s; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 6px; }
+        .success { background: #f0fff4; border: 1px solid #9ae6b4; color: #2d5016; }
+        .error { background: #fed7d7; border: 1px solid #feb2b2; color: #742a2a; }
+        .warning { background: #fefcbf; border: 1px solid #f6e05e; color: #744210; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 시간표 데이터 업로드</h1>
+        <p class="subtitle">CSV 파일을 업로드하여 강의 데이터를 Supabase에 추가합니다</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <div>📁 CSV 파일을 선택하거나 드래그 앤 드롭하세요</div>
+            <input type="file" id="csvFile" accept=".csv" />
+        </div>
+        
+        <div class="checkbox-container">
+            <label>
+                <input type="checkbox" id="clearExisting"> 
+                기존 데이터를 삭제하고 새로 업로드 (⚠️ 주의)
+            </label>
+        </div>
+        
+        <button onclick="uploadCSV()" id="uploadBtn">업로드 시작</button>
+        
+        <div class="progress" id="progress">
+            <div>업로드 중...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('csvFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progress = document.getElementById('progress');
+        const result = document.getElementById('result');
+
+        // 드래그 앤 드롭 처리
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+        });
+
+        async function uploadCSV() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('CSV 파일을 선택해주세요');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csvFile', file);
+            formData.append('clearExisting', document.getElementById('clearExisting').checked);
+
+            uploadBtn.disabled = true;
+            progress.style.display = 'block';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/upload-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    result.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ 업로드 완료!</h3>
+                            <p>번들: ${data.bundles}개, 세션: ${data.sessions}개가 성공적으로 업로드되었습니다.</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ 업로드 실패</h3>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ 연결 오류</h3>
+                        <p>서버와 연결할 수 없습니다: ${error.message}</p>
+                    </div>
+                `;
+            }
+
+            uploadBtn.disabled = false;
+            progress.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
