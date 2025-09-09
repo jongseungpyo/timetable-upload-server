@@ -8,11 +8,21 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 환경변수 검증
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+console.log('🔍 환경변수 확인:');
+console.log('SUPABASE_URL:', SUPABASE_URL ? '✅ 설정됨' : '❌ 없음');
+console.log('SUPABASE_KEY:', SUPABASE_KEY ? '✅ 설정됨' : '❌ 없음');
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('❌ 필수 환경변수가 설정되지 않았습니다');
+  process.exit(1);
+}
+
 // Supabase 클라이언트 설정
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // 관리자 권한으로 업로드
-);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 미들웨어
 app.use(cors());
