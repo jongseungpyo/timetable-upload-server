@@ -116,14 +116,15 @@ app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
       if (columns.length < 17) continue; // 필수 컬럼 체크
       
       const bundleId = generateUUID();
-      const teacher = columns[0];
-      const subject = columns[1]; 
-      const targetSchool = columns[2];
-      const schoolLevel = columns[3];
-      const targetGrade = columns[4];
-      const topic = columns[5];
-      const academy = columns[6];
-      const region = columns[8];
+      const teacher = columns[0];        // 강사명
+      const subject = columns[1];        // 과목
+      const targetSchool = columns[2];   // 대상 학교
+      const schoolLevel = columns[3];    // 초,중,고
+      const targetGrade = columns[4];    // 대상 학년
+      const topic = columns[5];          // 주제
+      const academy = columns[6];        // 출강 학원
+      const startDate = columns[7];      // 개강 일자
+      const region = columns[8];         // 지역
       
       // 학교 코드 변환
       const schoolCodes = convertSchoolNames(targetSchool);
