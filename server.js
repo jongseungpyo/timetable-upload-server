@@ -8,16 +8,30 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 환경변수 디버깅
+console.log('🔍 모든 환경변수 확인:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('모든 환경변수:', Object.keys(process.env).filter(key => key.startsWith('SUPABASE')));
+
 // 환경변수 검증
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-console.log('🔍 환경변수 확인:');
-console.log('SUPABASE_URL:', SUPABASE_URL ? '✅ 설정됨' : '❌ 없음');
-console.log('SUPABASE_KEY:', SUPABASE_KEY ? '✅ 설정됨' : '❌ 없음');
+console.log('🔍 Supabase 환경변수 확인:');
+console.log('SUPABASE_URL:', SUPABASE_URL ? `✅ ${SUPABASE_URL.substring(0, 30)}...` : '❌ 없음');
+console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ 설정됨' : '❌ 없음');
+console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ 설정됨' : '❌ 없음');
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('❌ 필수 환경변수가 설정되지 않았습니다');
+if (!SUPABASE_URL) {
+  console.error('❌ SUPABASE_URL 환경변수가 설정되지 않았습니다');
+  console.error('Railway Variables에서 SUPABASE_URL을 확인해주세요');
+  process.exit(1);
+}
+
+if (!SUPABASE_KEY) {
+  console.error('❌ SUPABASE 키 환경변수가 설정되지 않았습니다');
+  console.error('SUPABASE_SERVICE_ROLE_KEY 또는 SUPABASE_ANON_KEY를 설정해주세요');
   process.exit(1);
 }
 
