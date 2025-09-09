@@ -14,9 +14,9 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
 console.log('모든 환경변수:', Object.keys(process.env).filter(key => key.startsWith('SUPABASE')));
 
-// 환경변수 검증 (Railway 환경변수 문제로 임시 하드코딩)
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://auacvzqliidfzbyzkoav.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1YWN2enFsaWlkZnpieXprb2F2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5NTg1MTUsImV4cCI6MjA3MTUzNDUxNX0.nKYDKMNUdvQ4K5-M7rU7DC8rUgRXMr7ETyyCRlRB6Z4';
+// 환경변수 검증
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 console.log('🔍 Supabase 환경변수 확인:');
 console.log('SUPABASE_URL:', SUPABASE_URL ? `✅ ${SUPABASE_URL.substring(0, 30)}...` : '❌ 없음');
