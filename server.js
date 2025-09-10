@@ -94,6 +94,36 @@ async function initializeRailwayDB() {
       CREATE INDEX IF NOT EXISTS idx_submissions_submitted_at ON submissions(submitted_at DESC);
     `);
     
+    // 관리자 계정 테이블 생성
+    await railwayDB.query(`
+      CREATE TABLE IF NOT EXISTS admin_users (
+        admin_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name TEXT NOT NULL,
+        role TEXT DEFAULT 'admin' CHECK (role IN ('admin', 'super_admin')),
+        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
+        last_login_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username);
+    `);
+    
+    // 기본 관리자 계정 생성 (없을 경우)
+    const defaultAdmin = await railwayDB.query('SELECT admin_id FROM admin_users WHERE username = $1', ['admin']);
+    if (defaultAdmin.rows.length === 0) {
+      const bcrypt = require('bcrypt'); // bcrypt 로드
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await railwayDB.query(`
+        INSERT INTO admin_users (username, password_hash, name, role)
+        VALUES ($1, $2, $3, $4)
+      `, ['admin', hashedPassword, '기본 관리자', 'super_admin']);
+      
+      console.log('👤 기본 관리자 계정 생성: admin/admin123');
+    }
+    
     console.log('✅ Railway DB submissions 테이블 준비 완료');
   } catch (error) {
     console.error('❌ Railway PostgreSQL 초기화 실패:', error);
@@ -590,25 +620,80 @@ app.get('/admin/login', (req, res) => {
   res.sendFile(__dirname + '/public/admin-login.html');
 });
 
-// 관리자 로그인 처리  
+// 관리자 로그인 처리 (DB 기반)
 app.post('/admin/login', adminLimiter, async (req, res) => {
   try {
-    const { password } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'; // 기본값
+    const { username, password } = req.body;
     
-    if (password === adminPassword) {
-      req.session.isAdmin = true;
-      req.session.loginTime = new Date();
-      
-      console.log(`🔓 관리자 로그인: IP ${req.ip}`);
-      
-      res.json({ success: true });
-    } else {
-      console.log(`❌ 관리자 로그인 실패: IP ${req.ip}`);
-      res.status(401).json({ error: '비밀번호가 틀렸습니다' });
+    if (!username || !password) {
+      return res.status(400).json({ error: '아이디와 비밀번호를 모두 입력해주세요' });
     }
+
+    if (!railwayDB) {
+      // Railway DB 없을 때 fallback
+      const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+      if (username === 'admin' && password === adminPassword) {
+        req.session.isAdmin = true;
+        req.session.loginTime = new Date();
+        req.session.adminInfo = { username: 'admin', name: '기본 관리자' };
+        
+        console.log(`🔓 관리자 로그인 (fallback): ${username} (IP ${req.ip})`);
+        return res.json({ success: true });
+      } else {
+        return res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다' });
+      }
+    }
+
+    // DB에서 관리자 계정 확인
+    const result = await railwayDB.query(
+      'SELECT * FROM admin_users WHERE username = $1 AND status = $2',
+      [username, 'active']
+    );
+    
+    if (result.rows.length === 0) {
+      console.log(`❌ 관리자 로그인 실패: 존재하지 않는 계정 ${username} (IP ${req.ip})`);
+      return res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다' });
+    }
+
+    const adminUser = result.rows[0];
+    
+    // 비밀번호 확인
+    const isValidPassword = await bcrypt.compare(password, adminUser.password_hash);
+    if (!isValidPassword) {
+      console.log(`❌ 관리자 로그인 실패: 잘못된 비밀번호 ${username} (IP ${req.ip})`);
+      return res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다' });
+    }
+
+    // 세션 생성
+    req.session.isAdmin = true;
+    req.session.loginTime = new Date();
+    req.session.adminInfo = {
+      admin_id: adminUser.admin_id,
+      username: adminUser.username,
+      name: adminUser.name,
+      role: adminUser.role
+    };
+    
+    // 마지막 로그인 시간 업데이트
+    await railwayDB.query(
+      'UPDATE admin_users SET last_login_at = NOW(), updated_at = NOW() WHERE admin_id = $1',
+      [adminUser.admin_id]
+    );
+    
+    console.log(`🔓 관리자 로그인 성공: ${adminUser.name} (${username}) - IP ${req.ip}`);
+    
+    res.json({ 
+      success: true,
+      admin: {
+        name: adminUser.name,
+        username: adminUser.username,
+        role: adminUser.role
+      }
+    });
+
   } catch (error) {
-    res.status(500).json({ error: '로그인 처리 중 오류 발생' });
+    console.error('❌ 관리자 로그인 처리 실패:', error);
+    res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다' });
   }
 });
 

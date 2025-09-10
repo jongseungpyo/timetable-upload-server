@@ -4,21 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 로그인 - 타임빌더</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    </style>
+    <!-- Tailwind CSS (프로덕션용) -->
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="min-h-screen bg-gray-50 font-sans">
     <div class="min-h-screen flex">
@@ -86,8 +73,30 @@
                     <div class="px-6 py-8">
                         <form id="loginForm" class="space-y-6">
                             <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                                    관리자 아이디
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="username" 
+                                        name="username" 
+                                        required 
+                                        autocomplete="username"
+                                        class="block w-full px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        placeholder="아이디를 입력하세요"
+                                    >
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                                    관리자 비밀번호
+                                    비밀번호
                                 </label>
                                 <div class="relative">
                                     <input 
@@ -159,11 +168,12 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             const result = document.getElementById('loginResult');
             
-            console.log('🔍 로그인 시도 - 비밀번호 길이:', password.length);
+            console.log('🔍 관리자 로그인 시도:', { username, passwordLength: password.length });
             
             loginBtn.disabled = true;
             loginBtn.innerHTML = `
@@ -181,7 +191,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ username, password })
                 });
 
                 console.log('📡 서버 응답 상태:', response.status);
