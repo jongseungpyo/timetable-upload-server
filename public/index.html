@@ -45,6 +45,16 @@
                     </div>
                 </div>
                 
+                <!-- Login Button -->
+                <div class="hidden md:block">
+                    <button onclick="showLoginModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        로그인
+                    </button>
+                </div>
+
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
                     <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 focus:outline-none">
@@ -62,6 +72,7 @@
                 <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">메인</a>
                 <a href="#timetable" onclick="showSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
                 <a href="#advertising" onclick="showSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
+                <button onclick="showLoginModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">로그인</button>
             </div>
         </div>
     </nav>
@@ -424,6 +435,114 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">학원/강사 로그인</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Login/Register Tabs -->
+            <div class="px-6 py-2 border-b border-gray-100">
+                <div class="flex space-x-4">
+                    <button onclick="showLoginTab('login')" id="loginTab" class="auth-tab active px-3 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">로그인</button>
+                    <button onclick="showLoginTab('register')" id="registerTab" class="auth-tab px-3 py-2 text-sm font-medium text-gray-600 border-b-2 border-transparent">회원가입</button>
+                </div>
+            </div>
+            
+            <div class="px-6 py-6">
+                <!-- Login Form -->
+                <div id="loginFormContainer">
+                    <form id="academyLoginForm" class="space-y-4">
+                        <div>
+                            <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                            <input type="email" id="loginEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                            <input type="password" id="loginPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                            로그인
+                        </button>
+                        <div id="loginModalResult"></div>
+                    </form>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="registerFormContainer" class="hidden">
+                    <form id="academyRegisterForm" class="space-y-4">
+                        <div>
+                            <label for="registerAcademyName" class="block text-sm font-medium text-gray-700 mb-1">학원명 *</label>
+                            <input type="text" id="registerAcademyName" name="academyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="registerContactName" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
+                                <input type="text" id="registerContactName" name="contactName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="registerPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                                <input type="tel" id="registerPhone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+                            <input type="email" id="registerEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 *</label>
+                            <input type="password" id="registerPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                            회원가입
+                        </button>
+                        <div id="registerModalResult"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academy Dashboard Modal -->
+    <div id="dashboardModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">나의 제출 내역</h3>
+                    <div class="flex items-center space-x-2">
+                        <span id="academyWelcome" class="text-sm text-gray-600"></span>
+                        <button onclick="academyLogout()" class="text-sm text-red-600 hover:text-red-700">로그아웃</button>
+                        <button onclick="closeDashboardModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <div id="academySubmissions">
+                    <div class="text-center py-8">
+                        <svg class="animate-spin w-8 h-8 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-gray-500">제출 내역을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentSection = 'home';
 
@@ -619,6 +738,197 @@
                     ${message}
                 </div>
             `;
+        }
+
+        // 로그인 모달 관리
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function showLoginTab(tab) {
+            // 탭 버튼 업데이트
+            document.querySelectorAll('.auth-tab').forEach(t => {
+                t.classList.remove('text-blue-600', 'border-blue-600');
+                t.classList.add('text-gray-600', 'border-transparent');
+            });
+            
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('text-blue-600', 'border-blue-600');
+                document.getElementById('loginFormContainer').classList.remove('hidden');
+                document.getElementById('registerFormContainer').classList.add('hidden');
+            } else {
+                document.getElementById('registerTab').classList.add('text-blue-600', 'border-blue-600');
+                document.getElementById('loginFormContainer').classList.add('hidden');
+                document.getElementById('registerFormContainer').classList.remove('hidden');
+            }
+        }
+
+        // 학원 대시보드 모달 관리
+        function showDashboardModal() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+            loadAcademySubmissions();
+        }
+
+        function closeDashboardModal() {
+            document.getElementById('dashboardModal').classList.add('hidden');
+        }
+
+        // 학원 로그인 처리
+        document.getElementById('academyLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/api/academy/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('academyToken', data.token);
+                    localStorage.setItem('academyInfo', JSON.stringify(data.academy));
+                    
+                    closeLoginModal();
+                    showDashboardModal();
+                    
+                    document.getElementById('academyWelcome').textContent = `${data.academy.academy_name}님`;
+                } else {
+                    showAlert(data.error, 'error', 'loginModalResult');
+                }
+            } catch (error) {
+                showAlert(`로그인 오류: ${error.message}`, 'error', 'loginModalResult');
+            }
+        });
+
+        // 학원 회원가입 처리
+        document.getElementById('academyRegisterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/api/academy/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        academyName: formData.get('academyName'),
+                        contactName: formData.get('contactName'),
+                        phone: formData.get('phone'),
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('회원가입이 완료되었습니다. 로그인해주세요.', 'success', 'registerModalResult');
+                    setTimeout(() => {
+                        showLoginTab('login');
+                    }, 1500);
+                } else {
+                    showAlert(data.error, 'error', 'registerModalResult');
+                }
+            } catch (error) {
+                showAlert(`회원가입 오류: ${error.message}`, 'error', 'registerModalResult');
+            }
+        });
+
+        // 학원 제출 내역 로드
+        async function loadAcademySubmissions() {
+            const token = localStorage.getItem('academyToken');
+            if (!token) return;
+
+            try {
+                const response = await fetch('/api/academy/submissions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    renderAcademySubmissions(data.submissions);
+                } else {
+                    document.getElementById('academySubmissions').innerHTML = `
+                        <div class="text-center py-8 text-red-500">
+                            제출 내역을 불러오는데 실패했습니다
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('academySubmissions').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        연결 오류: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderAcademySubmissions(submissions) {
+            const container = document.getElementById('academySubmissions');
+            
+            if (submissions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">제출 내역이 없습니다</h3>
+                        <p class="text-gray-500 mb-4">아직 제출한 시간표가 없습니다.</p>
+                        <button onclick="closeDashboardModal(); showSection('timetable')" class="text-blue-600 hover:text-blue-700">지금 시간표 제출하기</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = submissions.map(submission => {
+                const statusColors = {
+                    'pending': 'bg-yellow-100 text-yellow-800',
+                    'reviewing': 'bg-blue-100 text-blue-800',
+                    'approved': 'bg-green-100 text-green-800',
+                    'rejected': 'bg-red-100 text-red-800'
+                };
+
+                const statusTexts = {
+                    'pending': '승인 대기',
+                    'reviewing': '검토 중',
+                    'approved': '승인 완료',
+                    'rejected': '거절됨'
+                };
+
+                return `
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-medium text-gray-900">${submission.academy_name}</h4>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full ${statusColors[submission.status]}">
+                                ${statusTexts[submission.status]}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div>제출일: ${new Date(submission.submitted_at).toLocaleDateString('ko-KR')}</div>
+                            <div>담당자: ${submission.contact_name}</div>
+                            ${submission.rejection_reason ? `<div class="text-red-600">거절 사유: ${submission.rejection_reason}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function academyLogout() {
+            localStorage.removeItem('academyToken');
+            localStorage.removeItem('academyInfo');
+            closeDashboardModal();
         }
     </script>
 </body>

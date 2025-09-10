@@ -103,6 +103,40 @@ async function initializeRailwayDB() {
 // DB 초기화 실행
 initializeRailwayDB();
 
+// JWT 토큰 생성/검증 헬퍼
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'academy-jwt-secret-2025';
+
+function generateToken(academyData) {
+  return jwt.sign(academyData, JWT_SECRET, { expiresIn: '7d' });
+}
+
+function verifyToken(token) {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+}
+
+// 학원 인증 미들웨어
+function requireAcademyAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: '인증 토큰이 필요합니다' });
+  }
+
+  const token = authHeader.substring(7);
+  const decoded = verifyToken(token);
+  
+  if (!decoded) {
+    return res.status(401).json({ error: '유효하지 않은 토큰입니다' });
+  }
+
+  req.academy = decoded;
+  next();
+}
+
 // 보안 미들웨어 (CSP 완화)
 app.use(helmet({
   contentSecurityPolicy: {
@@ -803,6 +837,158 @@ app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJ
   } catch (error) {
     console.error('거절 처리 실패:', error);
     res.status(500).json({ error: '거절 처리 실패' });
+  }
+});
+
+// ===== 학원/강사 계정 관리 =====
+
+// 학원 회원가입
+app.post('/api/academy/register', async (req, res) => {
+  try {
+    const { academyName, contactName, phone, email, password } = req.body;
+    
+    if (!academyName || !contactName || !phone || !email || !password) {
+      return res.status(400).json({ error: '모든 필수 항목을 입력해주세요' });
+    }
+
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    // 이메일 중복 체크
+    const existingUser = await railwayDB.query(
+      'SELECT academy_id FROM academies WHERE email = $1', [email]
+    );
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: '이미 등록된 이메일입니다' });
+    }
+
+    // academies 테이블 생성
+    await railwayDB.query(`
+      CREATE TABLE IF NOT EXISTS academies (
+        academy_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        academy_name TEXT NOT NULL,
+        contact_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_academies_email ON academies(email);
+    `);
+
+    // 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 학원 등록
+    const result = await railwayDB.query(`
+      INSERT INTO academies (academy_name, contact_name, phone, email, password_hash)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING academy_id, academy_name, contact_name, email
+    `, [academyName, contactName, phone, email, hashedPassword]);
+
+    const academy = result.rows[0];
+    console.log(`👥 새로운 학원 가입: ${academyName} (${email})`);
+    
+    res.json({
+      success: true,
+      message: '회원가입이 완료되었습니다',
+      academy: {
+        academy_id: academy.academy_id,
+        academy_name: academy.academy_name,
+        email: academy.email
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 학원 회원가입 실패:', error);
+    res.status(500).json({ error: '회원가입 처리 중 오류가 발생했습니다' });
+  }
+});
+
+// 학원 로그인
+app.post('/api/academy/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: '이메일과 비밀번호를 입력해주세요' });
+    }
+
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    // 사용자 조회
+    const result = await railwayDB.query(
+      'SELECT * FROM academies WHERE email = $1 AND status = $2',
+      [email, 'active']
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다' });
+    }
+
+    const academy = result.rows[0];
+    
+    // 비밀번호 확인
+    const isValidPassword = await bcrypt.compare(password, academy.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다' });
+    }
+
+    // JWT 토큰 생성
+    const tokenData = {
+      academy_id: academy.academy_id,
+      academy_name: academy.academy_name,
+      email: academy.email
+    };
+    
+    const token = generateToken(tokenData);
+    
+    console.log(`🔓 학원 로그인: ${academy.academy_name} (${email})`);
+    
+    res.json({
+      success: true,
+      token: token,
+      academy: tokenData
+    });
+
+  } catch (error) {
+    console.error('❌ 학원 로그인 실패:', error);
+    res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다' });
+  }
+});
+
+// 학원 제출 내역 조회
+app.get('/api/academy/submissions', requireAcademyAuth, async (req, res) => {
+  try {
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    // 해당 학원의 제출 내역만 조회
+    const result = await railwayDB.query(`
+      SELECT submission_id, academy_name, contact_name, phone, email, notes, status, rejection_reason, submitted_at, reviewed_at
+      FROM submissions 
+      WHERE email = $1 OR contact_name = $2
+      ORDER BY submitted_at DESC
+    `, [req.academy.email, req.academy.contact_name]);
+
+    console.log(`📊 학원 제출 내역 조회: ${req.academy.academy_name} (${result.rows.length}개)`);
+    
+    res.json({
+      success: true,
+      submissions: result.rows
+    });
+
+  } catch (error) {
+    console.error('❌ 학원 제출 내역 조회 실패:', error);
+    res.status(500).json({ error: '제출 내역 조회 실패' });
   }
 });
 
