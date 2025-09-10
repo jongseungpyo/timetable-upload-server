@@ -71,15 +71,17 @@ const adminLimiter = rateLimit({
   message: '로그인 시도 횟수가 초과되었습니다.'
 });
 
-// 세션 관리
+// 세션 관리 (Railway 호환)
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+  secret: process.env.SESSION_SECRET || 'timetable-admin-secret-key-2025',
   resave: false,
   saveUninitialized: false,
+  name: 'timetable.sid', // 세션 이름 설정
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // HTTPS에서만
+    secure: false, // Railway에서 HTTPS 프록시 문제로 임시 false
     httpOnly: true, // XSS 방지
-    maxAge: 24 * 60 * 60 * 1000 // 24시간
+    maxAge: 24 * 60 * 60 * 1000, // 24시간
+    sameSite: 'lax' // CSRF 방지
   }
 }));
 
@@ -91,7 +93,15 @@ app.use(express.static('public'));
 
 // 관리자 인증 미들웨어
 function requireAuth(req, res, next) {
+  console.log('🔍 인증 체크:', {
+    path: req.path,
+    sessionId: req.session.id,
+    isAdmin: req.session.isAdmin,
+    loginTime: req.session.loginTime
+  });
+
   if (!req.session.isAdmin) {
+    console.log('❌ 인증 실패: isAdmin =', req.session.isAdmin);
     if (req.path.startsWith('/api/')) {
       return res.status(401).json({ error: '인증이 필요합니다' });
     }
@@ -99,16 +109,20 @@ function requireAuth(req, res, next) {
   }
   
   // 세션 만료 체크 (24시간)
-  const loginTime = new Date(req.session.loginTime);
-  const now = new Date();
-  if (now - loginTime > 24 * 60 * 60 * 1000) {
-    req.session.destroy();
-    if (req.path.startsWith('/api/')) {
-      return res.status(401).json({ error: '세션이 만료되었습니다' });
+  if (req.session.loginTime) {
+    const loginTime = new Date(req.session.loginTime);
+    const now = new Date();
+    if (now - loginTime > 24 * 60 * 60 * 1000) {
+      console.log('⏰ 세션 만료:', { loginTime, now });
+      req.session.destroy();
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ error: '세션이 만료되었습니다' });
+      }
+      return res.redirect('/admin/login');
     }
-    return res.redirect('/admin/login');
   }
   
+  console.log('✅ 인증 성공');
   next();
 }
 
