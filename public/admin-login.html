@@ -20,79 +20,137 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <!-- Login Card -->
-        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 text-center">
-                <div class="text-4xl mb-2">🔐</div>
-                <h1 class="text-2xl font-bold text-white">관리자 로그인</h1>
-                <p class="text-blue-100 text-sm mt-2">타임빌더 관리 시스템</p>
-            </div>
+<body class="min-h-screen bg-gray-50 font-sans">
+    <div class="min-h-screen flex">
+        <!-- Left Side - Branding -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden">
+            <div class="absolute inset-0 bg-black/20"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent"></div>
             
-            <!-- Form -->
-            <div class="p-8">
-                <form id="loginForm" class="space-y-6">
-                    <div class="space-y-2">
-                        <label for="password" class="text-sm font-medium text-gray-700">
-                            관리자 비밀번호
-                        </label>
-                        <div class="relative">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                required 
-                                autocomplete="current-password"
-                                class="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="비밀번호를 입력하세요"
-                            >
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </div>
+            <div class="relative z-10 flex flex-col justify-center px-12 text-white">
+                <div class="mb-8">
+                    <div class="text-7xl mb-6">🏫</div>
+                    <h1 class="text-5xl font-bold mb-6 leading-tight">타임빌더<br>관리 시스템</h1>
+                    <p class="text-xl text-blue-100 leading-relaxed mb-8">
+                        학생들의 시간표 관리를 위한<br>
+                        통합 플랫폼 관리 시스템
+                    </p>
+                </div>
+                
+                <div class="space-y-4 text-blue-100">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-500/30 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
                         </div>
+                        시간표 데이터 관리
                     </div>
-
-                    <button 
-                        type="submit" 
-                        id="loginBtn"
-                        class="w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-blue-600 text-white hover:bg-blue-700 h-11 px-8"
-                    >
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                        </svg>
-                        로그인
-                    </button>
-
-                    <div id="loginResult"></div>
-                </form>
-
-                <!-- Back Link -->
-                <div class="mt-6 text-center">
-                    <a 
-                        href="/" 
-                        class="inline-flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                        시간표 제출 페이지로 돌아가기
-                    </a>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-500/30 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        학원 제출 승인 시스템
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-500/30 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        실시간 데이터 분석
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Security Notice -->
-        <div class="mt-8 text-center">
-            <div class="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur rounded-lg text-xs text-gray-600">
-                <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                보안 연결로 보호됨
+
+        <!-- Right Side - Login Form -->
+        <div class="flex-1 flex items-center justify-center px-6 py-12 lg:px-8">
+            <div class="w-full max-w-sm">
+                <!-- Login Card -->
+                <div class="bg-white shadow-xl rounded-2xl border border-gray-200 overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-6 py-8 text-center border-b border-gray-100">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-4 shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">관리자 로그인</h2>
+                        <p class="text-gray-600 text-sm">시스템에 액세스하려면 인증이 필요합니다</p>
+                    </div>
+                    
+                    <!-- Form -->
+                    <div class="px-6 py-8">
+                        <form id="loginForm" class="space-y-6">
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                    관리자 비밀번호
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="password" 
+                                        id="password" 
+                                        name="password" 
+                                        required 
+                                        autocomplete="current-password"
+                                        class="block w-full px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        placeholder="비밀번호를 입력하세요"
+                                    >
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                id="loginBtn"
+                                class="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium rounded-lg shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+                            >
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                </svg>
+                                로그인
+                            </button>
+
+                            <div id="loginResult"></div>
+                        </form>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+                        <a 
+                            href="/" 
+                            class="inline-flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            메인 페이지로 돌아가기
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Debug Info (임시) -->
+                <div class="mt-4 text-xs text-center text-gray-500">
+                    기본 비밀번호: admin123
+                </div>
+
+                <!-- Security Badge -->
+                <div class="mt-8 text-center">
+                    <div class="inline-flex items-center px-4 py-2 bg-white/95 backdrop-blur rounded-full text-sm text-gray-700 shadow-lg border border-gray-200">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        보안 연결로 보호됨
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -105,9 +163,11 @@
             const loginBtn = document.getElementById('loginBtn');
             const result = document.getElementById('loginResult');
             
+            console.log('🔍 로그인 시도 - 비밀번호 길이:', password.length);
+            
             loginBtn.disabled = true;
             loginBtn.innerHTML = `
-                <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -124,38 +184,78 @@
                     body: JSON.stringify({ password })
                 });
 
+                console.log('📡 서버 응답 상태:', response.status);
+                
                 if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ 로그인 성공:', data);
+                    
                     result.innerHTML = `
-                        <div class="bg-green-50 border border-green-200 text-green-800 rounded-md p-3 text-sm">
-                            로그인 성공! 대시보드로 이동 중...
+                        <div class="mt-4 bg-green-50 border border-green-200 text-green-800 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <div class="font-medium">로그인 성공!</div>
+                                    <div class="text-sm">대시보드로 이동 중...</div>
+                                </div>
+                            </div>
                         </div>
                     `;
+                    
                     setTimeout(() => {
                         window.location.href = '/admin/dashboard';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    const data = await response.json();
+                    const data = await response.json().catch(() => ({ error: '서버 응답을 읽을 수 없습니다' }));
+                    console.error('❌ 로그인 실패:', data);
+                    
                     result.innerHTML = `
-                        <div class="bg-red-50 border border-red-200 text-red-800 rounded-md p-3 text-sm">
-                            ${data.error}
+                        <div class="mt-4 bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <div class="font-medium">로그인 실패</div>
+                                    <div class="text-sm">${data.error}</div>
+                                </div>
+                            </div>
                         </div>
                     `;
                 }
             } catch (error) {
+                console.error('🔌 네트워크 오류:', error);
                 result.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 text-red-800 rounded-md p-3 text-sm">
-                        연결 오류: ${error.message}
+                    <div class="mt-4 bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <div class="font-medium">연결 오류</div>
+                                <div class="text-sm">${error.message}</div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
 
             loginBtn.disabled = false;
             loginBtn.innerHTML = `
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                 </svg>
                 로그인
             `;
+        });
+        
+        // 엔터키 지원
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
         });
     </script>
 </body>
