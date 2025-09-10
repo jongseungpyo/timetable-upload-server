@@ -758,5 +758,6 @@ app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJ
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 서버 시작: http://localhost:${PORT}`);
-  console.log(`📊 Supabase URL: ${process.env.SUPABASE_URL}`);
+  console.log(`📊 Supabase URL: ${SUPABASE_URL ? 'Connected' : 'Not connected'}`);
+  console.log(`🗃️ Railway DB: ${process.env.DATABASE_URL ? 'Connected' : 'Not connected'}`);
 });
