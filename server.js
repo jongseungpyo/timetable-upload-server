@@ -445,7 +445,13 @@ app.post('/admin/login', adminLimiter, async (req, res) => {
 
 // 관리자 대시보드
 app.get('/admin/dashboard', requireAuth, (req, res) => {
+  console.log('🎯 대시보드 접근:', req.session.isAdmin);
   res.sendFile(__dirname + '/public/admin-dashboard.html');
+});
+
+// 관리자 메인 라우트 (리디렉션용)
+app.get('/admin', requireAuth, (req, res) => {
+  res.redirect('/admin/dashboard');
 });
 
 // 관리자 로그아웃
