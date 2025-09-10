@@ -28,6 +28,9 @@ console.log('SUPABASE_URL:', SUPABASE_URL ? `✅ ${SUPABASE_URL.substring(0, 30)
 console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ 설정됨' : '❌ 없음');
 console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ 설정됨' : '❌ 없음');
 
+console.log('🔍 Railway DB 환경변수 확인:');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? `✅ ${process.env.DATABASE_URL.substring(0, 30)}...` : '❌ 없음');
+
 if (!SUPABASE_URL) {
   console.error('❌ SUPABASE_URL 환경변수가 설정되지 않았습니다');
   console.error('Railway Variables에서 SUPABASE_URL을 확인해주세요');
@@ -44,13 +47,25 @@ if (!SUPABASE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Railway PostgreSQL 연결 설정 (임시 데이터용)
-const railwayDB = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+let railwayDB = null;
+
+if (process.env.DATABASE_URL) {
+  railwayDB = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  });
+  console.log('🔗 Railway PostgreSQL 설정 완료');
+} else {
+  console.log('⚠️ DATABASE_URL 없음 - Railway PostgreSQL을 추가해주세요');
+}
 
 // Railway DB 연결 테스트 및 테이블 생성
 async function initializeRailwayDB() {
+  if (!railwayDB) {
+    console.log('⏭️ Railway PostgreSQL 없음 - Supabase fallback 사용');
+    return;
+  }
+  
   try {
     await railwayDB.query('SELECT NOW()');
     console.log('✅ Railway PostgreSQL 연결 성공');
