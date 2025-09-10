@@ -42,8 +42,19 @@ if (!SUPABASE_KEY) {
 // Supabase 클라이언트 설정
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 보안 미들웨어
-app.use(helmet()); // 기본 보안 헤더
+// 보안 미들웨어 (CSP 완화)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"]
+    }
+  }
+}));
 
 // Rate limiting (API 남용 방지)
 const limiter = rateLimit({
