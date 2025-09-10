@@ -4,7 +4,9 @@
   "description": "CSV 업로드 및 데이터 관리 서버",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "build-css": "tailwindcss -i ./src/styles.css -o ./public/styles.css --watch",
+    "build-css-prod": "tailwindcss -i ./src/styles.css -o ./public/styles.css --minify",
+    "start": "npm run build-css-prod && node server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
@@ -22,7 +24,10 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
   },
   "engines": {
     "node": ">=20.0.0"
