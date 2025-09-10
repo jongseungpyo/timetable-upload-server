@@ -7,6 +7,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
@@ -39,8 +40,53 @@ if (!SUPABASE_KEY) {
   process.exit(1);
 }
 
-// Supabase 클라이언트 설정
+// Supabase 클라이언트 설정 (최종 데이터용)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Railway PostgreSQL 연결 설정 (임시 데이터용)
+const railwayDB = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+// Railway DB 연결 테스트 및 테이블 생성
+async function initializeRailwayDB() {
+  try {
+    await railwayDB.query('SELECT NOW()');
+    console.log('✅ Railway PostgreSQL 연결 성공');
+    
+    // submissions 테이블 생성
+    await railwayDB.query(`
+      CREATE TABLE IF NOT EXISTS submissions (
+        submission_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        academy_name TEXT NOT NULL,
+        instructor_name TEXT,
+        contact_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT,
+        notes TEXT,
+        csv_data JSONB NOT NULL,
+        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'approved', 'rejected')),
+        rejection_reason TEXT,
+        submitted_at TIMESTAMPTZ DEFAULT now(),
+        reviewed_at TIMESTAMPTZ,
+        reviewed_by TEXT,
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_submissions_status ON submissions(status);
+      CREATE INDEX IF NOT EXISTS idx_submissions_submitted_at ON submissions(submitted_at DESC);
+    `);
+    
+    console.log('✅ Railway DB submissions 테이블 준비 완료');
+  } catch (error) {
+    console.error('❌ Railway PostgreSQL 초기화 실패:', error);
+  }
+}
+
+// DB 초기화 실행
+initializeRailwayDB();
 
 // 보안 미들웨어 (CSP 완화)
 app.use(helmet({
@@ -384,9 +430,17 @@ app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => 
       submitted_at: new Date().toISOString()
     };
     
-    // submissions 테이블에 저장 (실제 DB 반영 전)
-    const { error } = await supabase.from('submissions').insert(submission);
-    if (error) throw error;
+    // Railway DB submissions 테이블에 저장
+    await railwayDB.query(`
+      INSERT INTO submissions (
+        submission_id, academy_name, instructor_name, contact_name, 
+        phone, email, notes, csv_data, status, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `, [
+      submissionId, submission.academy_name, submission.instructor_name,
+      submission.contact_name, submission.phone, submission.email,
+      submission.notes, submission.csv_data, 'pending', new Date()
+    ]);
 
     console.log(`📥 새로운 시간표 제출: ${req.body.academyName} (ID: ${submissionId})`);
     
@@ -474,17 +528,18 @@ app.post('/admin/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// 대시보드 통계 API
+// 대시보드 통계 API (Railway + Supabase 혼용)
 app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBOARD'), async (req, res) => {
   try {
-    // 제출 현황 조회
-    const { data: submissions, error: submissionError } = await supabase
-      .from('submissions')
-      .select('status, submitted_at, academy_name')
-      .order('submitted_at', { ascending: false })
-      .limit(10);
-
-    if (submissionError) throw submissionError;
+    // Railway DB에서 제출 현황 조회
+    const submissionsResult = await railwayDB.query(`
+      SELECT status, submitted_at, academy_name 
+      FROM submissions 
+      ORDER BY submitted_at DESC 
+      LIMIT 10
+    `);
+    
+    const submissions = submissionsResult.rows;
 
     // 전체 번들 수 조회
     const { count: totalBundles, error: bundleError } = await supabase
@@ -528,44 +583,36 @@ app.get('/admin/submissions', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/admin-submissions.html');
 });
 
-// 제출 목록 API
+// 제출 목록 API (Railway DB 사용)
 app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSIONS'), async (req, res) => {
   try {
-    console.log('📋 제출 목록 API 호출됨');
+    console.log('📋 제출 목록 API 호출됨 (Railway DB)');
     
-    const { data: submissions, error } = await supabase
-      .from('submissions')
-      .select('*')
-      .order('submitted_at', { ascending: false });
+    const result = await railwayDB.query(`
+      SELECT * FROM submissions 
+      ORDER BY submitted_at DESC
+    `);
 
-    if (error) {
-      console.error('Supabase 에러:', error);
-      throw error;
-    }
-
-    console.log(`📊 제출 목록 조회 성공: ${submissions?.length || 0}개`);
-    res.json({ submissions: submissions || [] });
+    const submissions = result.rows;
+    console.log(`📊 제출 목록 조회 성공: ${submissions.length}개`);
+    
+    res.json({ submissions });
   } catch (error) {
     console.error('제출 목록 조회 실패:', error);
     res.status(500).json({ error: '제출 목록 로드 실패: ' + error.message });
   }
 });
 
-// 검토 확인 (상태를 reviewing으로 변경)
+// 검토 확인 (상태를 reviewing으로 변경) - Railway DB 사용
 app.post('/api/admin/submissions/:id/review', requireAuth, logAdminActivity('MARK_REVIEWING'), async (req, res) => {
   try {
     const { id } = req.params;
     
-    const { error } = await supabase
-      .from('submissions')
-      .update({ 
-        status: 'reviewing',
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: 'admin'
-      })
-      .eq('submission_id', id);
-
-    if (error) throw error;
+    await railwayDB.query(`
+      UPDATE submissions 
+      SET status = 'reviewing', reviewed_at = NOW(), reviewed_by = 'admin', updated_at = NOW()
+      WHERE submission_id = $1
+    `, [id]);
 
     console.log(`📝 제출 검토 시작: ${id}`);
     res.json({ success: true });
@@ -585,14 +632,16 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
       return res.status(400).json({ error: '시즌을 선택해주세요' });
     }
 
-    // 제출 데이터 가져오기
-    const { data: submission, error: fetchError } = await supabase
-      .from('submissions')
-      .select('*')
-      .eq('submission_id', id)
-      .single();
+    // Railway DB에서 제출 데이터 가져오기
+    const result = await railwayDB.query(`
+      SELECT * FROM submissions WHERE submission_id = $1
+    `, [id]);
 
-    if (fetchError) throw fetchError;
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '제출 데이터를 찾을 수 없습니다' });
+    }
+
+    const submission = result.rows[0];
 
     const csvData = JSON.parse(submission.csv_data);
     const bundles = [];
@@ -649,17 +698,12 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
 
     if (sessionError) throw sessionError;
 
-    // 제출 상태를 승인으로 변경
-    const { error: updateError } = await supabase
-      .from('submissions')
-      .update({ 
-        status: 'approved',
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: 'admin'
-      })
-      .eq('submission_id', id);
-
-    if (updateError) throw updateError;
+    // Railway DB에서 제출 상태를 승인으로 변경
+    await railwayDB.query(`
+      UPDATE submissions 
+      SET status = 'approved', reviewed_at = NOW(), reviewed_by = 'admin', updated_at = NOW()
+      WHERE submission_id = $1
+    `, [id]);
 
     console.log(`✅ 시간표 승인 완료: ${submission.academy_name} → ${season} (번들 ${bundles.length}개, 세션 ${sessions.length}개)`);
     
@@ -676,23 +720,17 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
   }
 });
 
-// 거절
+// 거절 (Railway DB 사용)
 app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJECT_SUBMISSION'), async (req, res) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;
     
-    const { error } = await supabase
-      .from('submissions')
-      .update({ 
-        status: 'rejected',
-        rejection_reason: reason,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: 'admin'
-      })
-      .eq('submission_id', id);
-
-    if (error) throw error;
+    await railwayDB.query(`
+      UPDATE submissions 
+      SET status = 'rejected', rejection_reason = $2, reviewed_at = NOW(), reviewed_by = 'admin', updated_at = NOW()
+      WHERE submission_id = $1
+    `, [id, reason]);
 
     console.log(`❌ 시간표 거절: ${id} (사유: ${reason})`);
     res.json({ success: true });
