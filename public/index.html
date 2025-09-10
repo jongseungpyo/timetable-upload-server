@@ -3,97 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시간표 데이터 업로드</title>
+    <title>타임빌더 - 시간표 제출 포털</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2d3748; margin-bottom: 10px; }
-        .subtitle { color: #718096; margin-bottom: 30px; }
-        .upload-area { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 40px; text-align: center; margin-bottom: 20px; }
-        .upload-area.dragover { border-color: #3182ce; background: #ebf8ff; }
-        input[type="file"] { margin: 20px 0; }
-        button { background: #3182ce; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; }
-        button:hover { background: #2c5282; }
-        button:disabled { background: #a0aec0; cursor: not-allowed; }
-        .checkbox-container { margin: 15px 0; }
-        .progress { margin-top: 20px; display: none; }
-        .progress-bar { width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #3182ce; transition: width 0.3s; }
-        .result { margin-top: 20px; padding: 15px; border-radius: 6px; }
-        .success { background: #f0fff4; border: 1px solid #9ae6b4; color: #2d5016; }
-        .error { background: #fed7d7; border: 1px solid #feb2b2; color: #742a2a; }
-        .warning { background: #fefcbf; border: 1px solid #f6e05e; color: #744210; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🏫 타임빌더 - 시간표 제출</h1>
-        <p class="subtitle">학원/강사님의 시간표를 제출해주세요. 검토 후 앱에 반영됩니다.</p>
-        
-        <div class="upload-area" id="uploadArea">
-            <div>📁 CSV 파일을 선택하거나 드래그 앤 드롭하세요</div>
-            <input type="file" id="csvFile" accept=".csv" />
-        </div>
-        
-        <div class="checkbox-container">
-            <label>
-                <input type="checkbox" id="clearExisting"> 
-                기존 데이터를 삭제하고 새로 업로드 (⚠️ 주의)
-            </label>
-        </div>
-        
-        <button onclick="uploadCSV()" id="uploadBtn">업로드 시작</button>
-        
-        <div class="progress" id="progress">
-            <div>업로드 중...</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" onclick="showSection('home')" class="nav-link active px-3 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50">
+                            메인
+                        </a>
+                        <a href="#timetable" onclick="showSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                            시간표 제출
+                        </a>
+                        <a href="#advertising" onclick="showSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                            광고 문의
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         
-        <div id="result"></div>
-    </div>
+        <!-- Mobile Navigation -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">메인</a>
+                <a href="#timetable" onclick="showSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
+                <a href="#advertising" onclick="showSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Home Section -->
+        <section id="homeSection" class="section">
+            <!-- Hero Section -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                    학생을 위한 <span class="text-blue-600">맞춤 시간표</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    타임빌더는 학생들이 자신에게 맞는 학원 수업을 쉽게 찾고 관리할 수 있도록 도와주는 플랫폼입니다. 
+                    학원과 강사님들의 참여로 더욱 풍부한 시간표 정보를 제공합니다.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="showSection('timetable')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        시간표 제출하기
+                    </button>
+                    <a href="https://apps.apple.com/kr/app/타임빌더" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors" target="_blank">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                        앱 다운로드
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">맞춤 검색</h3>
+                    <p class="text-gray-600">학교, 학년, 과목별로 나에게 맞는 수업을 쉽게 찾아보세요.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-2xl mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">시간표 관리</h3>
+                    <p class="text-gray-600">나만의 시간표를 만들고 충돌 없이 수업을 배치하세요.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-2xl mb-4">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">실시간 업데이트</h3>
+                    <p class="text-gray-600">새로운 수업과 변경사항이 실시간으로 반영됩니다.</p>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-center text-white">
+                <h3 class="text-2xl md:text-3xl font-bold mb-4">학원 운영자이신가요?</h3>
+                <p class="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
+                    타임빌더에 학원의 시간표 정보를 등록하고 더 많은 학생들과 만나보세요
+                </p>
+                <button onclick="showSection('timetable')" class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    지금 시간표 제출하기
+                </button>
+            </div>
+        </section>
+
+        <!-- Timetable Submission Section -->
+        <section id="timetableSection" class="section hidden">
+            <!-- 기존 submit.html 내용을 여기에 포함 -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">시간표 제출</h1>
+                <p class="text-lg text-gray-600">
+                    학원/강사님의 강의 시간표를 제출해주세요. 검토 후 타임빌더 앱에 반영됩니다.
+                </p>
+            </div>
+
+            <!-- Requirements Card -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                <h3 class="font-semibold text-blue-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    제출 요구사항
+                </h3>
+                <ul class="space-y-2 text-blue-800">
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        CSV 파일 형식으로 제출 (Excel에서 "다른 이름으로 저장" → CSV 선택)
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        강사명, 과목, 대상 학교, 주제, 출강 학원 등 필수 정보 포함
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        시간표는 일주일 단위로 작성 (일요일~토요일)
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Submission Form -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">시간표 제출 정보</h3>
+                </div>
+                
+                <form id="timetableForm" class="p-6 space-y-6">
+                    <!-- Academy Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="academyName" class="text-sm font-medium text-gray-700">학원/기관명 *</label>
+                            <input 
+                                type="text" 
+                                id="academyName" 
+                                name="academyName" 
+                                required
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                        <div class="space-y-2">
+                            <label for="instructorName" class="text-sm font-medium text-gray-700">담당 강사명</label>
+                            <input 
+                                type="text" 
+                                id="instructorName" 
+                                name="instructorName"
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="contactName" class="text-sm font-medium text-gray-700">연락담당자 *</label>
+                            <input 
+                                type="text" 
+                                id="contactName" 
+                                name="contactName" 
+                                required
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                        <div class="space-y-2">
+                            <label for="phone" class="text-sm font-medium text-gray-700">연락처 *</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                required
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="email" class="text-sm font-medium text-gray-700">이메일</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="notes" class="text-sm font-medium text-gray-700">참고사항</label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            rows="3" 
+                            placeholder="특별한 요청사항이나 참고할 내용이 있으시면 적어주세요"
+                            class="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        ></textarea>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="space-y-2">
+                        <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 CSV 파일 *</label>
+                        <div 
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" 
+                            id="uploadArea"
+                        >
+                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <div class="text-lg font-medium text-gray-900 mb-2">CSV 파일을 선택하세요</div>
+                            <div class="text-sm text-gray-500">또는 여기로 드래그하세요</div>
+                            <input type="file" id="csvFile" name="csvFile" accept=".csv" required class="hidden">
+                            <div id="fileName" class="mt-4 text-sm font-medium text-green-600"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-8"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                            시간표 제출하기
+                        </button>
+                    </div>
+
+                    <!-- Progress -->
+                    <div id="progress" class="hidden">
+                        <div class="text-center mb-4 text-sm text-gray-600">업로드 중...</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progressFill" class="bg-blue-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 60%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result -->
+                    <div id="timetableResult"></div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Advertising Section -->
+        <section id="advertisingSection" class="section hidden">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">광고 및 제휴 문의</h1>
+                <p class="text-lg text-gray-600">
+                    타임빌더 앱 내 광고나 제휴 제안이 있으시다면 아래 정보로 연락주세요.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Contact Info -->
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">연락처 정보</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm text-gray-500">이메일</div>
+                                <div class="font-medium text-gray-900">fine.time.table@gmail.com</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm text-gray-500">회사</div>
+                                <div class="font-medium text-gray-900">파인(Fine)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inquiry Form -->
+                <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">온라인 문의</h3>
+                    
+                    <form id="inquiryForm" class="space-y-4">
+                        <div>
+                            <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">회사명/기관명 *</label>
+                            <input type="text" id="companyName" name="companyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="contactPerson" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
+                                <input type="text" id="contactPerson" name="contactPerson" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                                <input type="tel" id="contactPhone" name="contactPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+                            <input type="email" id="contactEmail" name="contactEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="inquiryType" class="block text-sm font-medium text-gray-700 mb-1">문의 유형 *</label>
+                            <select id="inquiryType" name="inquiryType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">선택해주세요</option>
+                                <option value="advertising">앱 내 광고</option>
+                                <option value="partnership">제휴 제안</option>
+                                <option value="sponsorship">후원</option>
+                                <option value="other">기타</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">문의 내용 *</label>
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                rows="5" 
+                                required
+                                placeholder="구체적인 문의 내용을 작성해주세요"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            ></textarea>
+                        </div>
+                        
+                        <button 
+                            type="submit" 
+                            id="inquiryBtn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors"
+                        >
+                            문의 보내기
+                        </button>
+                        
+                        <div id="inquiryResult"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600 mb-4">🏫 타임빌더</div>
+                <p class="text-gray-600 mb-6">학생들을 위한 맞춤 시간표 서비스</p>
+                <div class="text-sm text-gray-500">
+                    © 2025 파인(Fine). 모든 권리 보유. | 
+                    <a href="#" class="hover:text-gray-700">개인정보처리방침</a> | 
+                    <a href="#" class="hover:text-gray-700">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('csvFile');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const progress = document.getElementById('progress');
-        const result = document.getElementById('result');
+        let currentSection = 'home';
 
-        // 드래그 앤 드롭 처리
-        uploadArea.addEventListener('dragover', (e) => {
+        // 섹션 전환
+        function showSection(section) {
+            // 모든 섹션 숨기기
+            document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+            
+            // 선택된 섹션 보이기
+            document.getElementById(section + 'Section').classList.remove('hidden');
+            
+            // 네비게이션 활성 상태 업데이트
+            updateNavigation(section);
+            currentSection = section;
+        }
+
+        function updateNavigation(activeSection) {
+            // 데스크톱 네비게이션
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active', 'text-blue-600', 'bg-blue-50');
+                link.classList.add('text-gray-600');
+            });
+            
+            // 모바일 네비게이션
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.classList.remove('active', 'text-blue-600', 'bg-blue-50');
+                link.classList.add('text-gray-600');
+            });
+            
+            // 활성 링크 스타일링
+            const activeDesktopLink = document.querySelector(`a[href="#${activeSection}"].nav-link`);
+            const activeMobileLink = document.querySelector(`a[href="#${activeSection}"].mobile-nav-link`);
+            
+            if (activeDesktopLink) {
+                activeDesktopLink.classList.add('active', 'text-blue-600', 'bg-blue-50');
+                activeDesktopLink.classList.remove('text-gray-600');
+            }
+            
+            if (activeMobileLink) {
+                activeMobileLink.classList.add('active', 'text-blue-600', 'bg-blue-50');
+                activeMobileLink.classList.remove('text-gray-600');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // 시간표 제출 폼 처리
+        document.getElementById('timetableForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            fileInput.files = e.dataTransfer.files;
-        });
-
-        async function uploadCSV() {
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('CSV 파일을 선택해주세요');
+            
+            const formData = new FormData(e.target);
+            const submitBtn = document.getElementById('submitBtn');
+            const progress = document.getElementById('progress');
+            const result = document.getElementById('timetableResult');
+            
+            if (!formData.get('csvFile') || formData.get('csvFile').size === 0) {
+                showAlert('CSV 파일을 선택해주세요.', 'error', 'timetableResult');
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('csvFile', file);
-            formData.append('clearExisting', document.getElementById('clearExisting').checked);
-
-            uploadBtn.disabled = true;
-            progress.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '제출 중...';
+            progress.classList.remove('hidden');
             result.innerHTML = '';
 
             try {
-                const response = await fetch('/api/upload-csv', {
+                const response = await fetch('/api/submit-timetable', {
                     method: 'POST',
                     body: formData
                 });
@@ -101,31 +501,124 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    result.innerHTML = `
-                        <div class="result success">
-                            <h3>✅ 업로드 완료!</h3>
-                            <p>번들: ${data.bundles}개, 세션: ${data.sessions}개가 성공적으로 업로드되었습니다.</p>
+                    showAlert(`
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <div class="font-semibold">제출 완료!</div>
+                                <div class="text-sm mt-1">제출 ID: <code class="bg-gray-100 px-2 py-1 rounded">${data.submissionId}</code></div>
+                                <div class="text-sm text-gray-600 mt-2">검토 후 2-3일 내에 결과를 알려드리겠습니다.</div>
+                            </div>
                         </div>
-                    `;
+                    `, 'success', 'timetableResult');
+                    
+                    e.target.reset();
+                    document.getElementById('fileName').textContent = '';
                 } else {
-                    result.innerHTML = `
-                        <div class="result error">
-                            <h3>❌ 업로드 실패</h3>
-                            <p>${data.error}</p>
-                        </div>
-                    `;
+                    showAlert(data.error, 'error', 'timetableResult');
                 }
             } catch (error) {
-                result.innerHTML = `
-                    <div class="result error">
-                        <h3>❌ 연결 오류</h3>
-                        <p>서버와 연결할 수 없습니다: ${error.message}</p>
-                    </div>
-                `;
+                showAlert(`연결 오류: ${error.message}`, 'error', 'timetableResult');
             }
 
-            uploadBtn.disabled = false;
-            progress.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                시간표 제출하기
+            `;
+            progress.classList.add('hidden');
+        });
+
+        // 문의 폼 처리
+        document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const inquiryBtn = document.getElementById('inquiryBtn');
+            const result = document.getElementById('inquiryResult');
+            
+            inquiryBtn.disabled = true;
+            inquiryBtn.textContent = '전송 중...';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/submit-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        companyName: formData.get('companyName'),
+                        contactPerson: formData.get('contactPerson'),
+                        phone: formData.get('contactPhone'),
+                        email: formData.get('contactEmail'),
+                        inquiryType: formData.get('inquiryType'),
+                        message: formData.get('message')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('문의가 성공적으로 전송되었습니다. 빠른 시일 내에 답변드리겠습니다.', 'success', 'inquiryResult');
+                    e.target.reset();
+                } else {
+                    showAlert(data.error, 'error', 'inquiryResult');
+                }
+            } catch (error) {
+                showAlert(`전송 오류: ${error.message}`, 'error', 'inquiryResult');
+            }
+
+            inquiryBtn.disabled = false;
+            inquiryBtn.textContent = '문의 보내기';
+        });
+
+        // 파일 업로드 처리
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('csvFile');
+        const fileName = document.getElementById('fileName');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileName.textContent = `선택된 파일: ${files[0].name}`;
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.textContent = `선택된 파일: ${e.target.files[0].name}`;
+            }
+        });
+
+        function showAlert(message, type, containerId) {
+            const alertClasses = {
+                success: 'bg-green-50 border border-green-200 text-green-800',
+                error: 'bg-red-50 border border-red-200 text-red-800',
+                info: 'bg-blue-50 border border-blue-200 text-blue-800'
+            };
+            
+            document.getElementById(containerId).innerHTML = `
+                <div class="rounded-md p-4 ${alertClasses[type]}">
+                    ${message}
+                </div>
+            `;
         }
     </script>
 </body>

@@ -389,14 +389,65 @@ function generateUUID() {
 
 // ===== 공개 라우트 (학원/강사용) =====
 
-// 메인 페이지 - 시간표 제출 폼으로 리디렉션
+// 메인 페이지 - 새로운 포털 사이트
 app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+// 관리자 직접 업로드 (기존 기능 유지) - submit.html 사용
+app.get('/direct-upload', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/submit.html');
 });
 
-// 관리자 직접 업로드 (기존 기능 유지)
-app.get('/direct-upload', requireAuth, (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+// 광고 문의 제출 API
+app.post('/api/submit-inquiry', async (req, res) => {
+  try {
+    const { companyName, contactPerson, phone, email, inquiryType, message } = req.body;
+    
+    if (!companyName || !contactPerson || !phone || !email || !inquiryType || !message) {
+      return res.status(400).json({ error: '모든 필수 항목을 입력해주세요' });
+    }
+
+    const inquiryId = generateUUID();
+    
+    // Railway DB에 문의 저장 (inquiries 테이블 추가 필요)
+    if (railwayDB) {
+      await railwayDB.query(`
+        CREATE TABLE IF NOT EXISTS inquiries (
+          inquiry_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          company_name TEXT NOT NULL,
+          contact_person TEXT NOT NULL,
+          phone TEXT NOT NULL,
+          email TEXT NOT NULL,
+          inquiry_type TEXT NOT NULL,
+          message TEXT NOT NULL,
+          status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'closed')),
+          submitted_at TIMESTAMPTZ DEFAULT now(),
+          created_at TIMESTAMPTZ DEFAULT now()
+        )
+      `);
+      
+      await railwayDB.query(`
+        INSERT INTO inquiries (inquiry_id, company_name, contact_person, phone, email, inquiry_type, message, submitted_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [inquiryId, companyName, contactPerson, phone, email, inquiryType, message, new Date()]);
+    }
+
+    console.log(`💬 새로운 문의: ${companyName} (${inquiryType}) - ${inquiryId}`);
+    
+    res.json({
+      success: true,
+      inquiryId: inquiryId,
+      message: '문의가 성공적으로 접수되었습니다.'
+    });
+    
+  } catch (error) {
+    console.error('❌ 문의 접수 실패:', error);
+    res.status(500).json({ 
+      error: '문의 접수 중 오류가 발생했습니다',
+      details: error.message 
+    });
+  }
 });
 
 // 시간표 제출 API
