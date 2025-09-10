@@ -137,12 +137,13 @@ function requireAcademyAuth(req, res, next) {
   next();
 }
 
-// 보안 미들웨어 (CSP 완화)
+// 보안 미들웨어 (CSP 완화 - 인라인 이벤트 핸들러 허용)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-hashes'", "https://cdn.tailwindcss.com"],
+      scriptSrcAttr: ["'unsafe-inline'"], // onclick 등 인라인 이벤트 핸들러 허용
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       connectSrc: ["'self'"],
