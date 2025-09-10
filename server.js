@@ -531,17 +531,23 @@ app.get('/admin/submissions', requireAuth, (req, res) => {
 // 제출 목록 API
 app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSIONS'), async (req, res) => {
   try {
+    console.log('📋 제출 목록 API 호출됨');
+    
     const { data: submissions, error } = await supabase
       .from('submissions')
       .select('*')
       .order('submitted_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase 에러:', error);
+      throw error;
+    }
 
+    console.log(`📊 제출 목록 조회 성공: ${submissions?.length || 0}개`);
     res.json({ submissions: submissions || [] });
   } catch (error) {
     console.error('제출 목록 조회 실패:', error);
-    res.status(500).json({ error: '제출 목록 로드 실패' });
+    res.status(500).json({ error: '제출 목록 로드 실패: ' + error.message });
   }
 });
 
