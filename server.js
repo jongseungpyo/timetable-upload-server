@@ -521,6 +521,181 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
   }
 });
 
+// ===== 제출 검토 관련 라우트 =====
+
+// 제출 검토 페이지
+app.get('/admin/submissions', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/admin-submissions.html');
+});
+
+// 제출 목록 API
+app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSIONS'), async (req, res) => {
+  try {
+    const { data: submissions, error } = await supabase
+      .from('submissions')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ submissions: submissions || [] });
+  } catch (error) {
+    console.error('제출 목록 조회 실패:', error);
+    res.status(500).json({ error: '제출 목록 로드 실패' });
+  }
+});
+
+// 검토 확인 (상태를 reviewing으로 변경)
+app.post('/api/admin/submissions/:id/review', requireAuth, logAdminActivity('MARK_REVIEWING'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const { error } = await supabase
+      .from('submissions')
+      .update({ 
+        status: 'reviewing',
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: 'admin'
+      })
+      .eq('submission_id', id);
+
+    if (error) throw error;
+
+    console.log(`📝 제출 검토 시작: ${id}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('검토 확인 실패:', error);
+    res.status(500).json({ error: '검토 확인 실패' });
+  }
+});
+
+// 승인 확정 (실제 DB 반영)
+app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('APPROVE_SUBMISSION'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { season } = req.body;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 선택해주세요' });
+    }
+
+    // 제출 데이터 가져오기
+    const { data: submission, error: fetchError } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('submission_id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    const csvData = JSON.parse(submission.csv_data);
+    const bundles = [];
+    const sessions = [];
+
+    // 데이터 변환
+    for (const bundleData of csvData) {
+      const bundleId = generateUUID();
+      const schoolCodes = convertSchoolNames(bundleData.target_school);
+
+      bundles.push({
+        bundle_id: bundleId,
+        teacher_name: bundleData.teacher_name,
+        subject: bundleData.subject,
+        target_school_codes: schoolCodes,
+        school_level: bundleData.school_level,
+        target_grade: bundleData.target_grade,
+        topic: bundleData.topic,
+        academy: bundleData.academy,
+        region: bundleData.region,
+        published: true,
+        status: 'active',
+        updated_at: new Date().toISOString()
+      });
+
+      // 세션 데이터
+      for (const sessionData of bundleData.sessions) {
+        sessions.push({
+          session_id: generateUUID(),
+          bundle_id: bundleId,
+          weekday: sessionData.weekday,
+          start_time: sessionData.start_time,
+          end_time: sessionData.end_time,
+          status: 'active'
+        });
+      }
+    }
+
+    // 시즌별 테이블에 삽입
+    const bundleTableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // 번들 삽입
+    const { error: bundleError } = await supabase
+      .from(bundleTableName)
+      .insert(bundles);
+
+    if (bundleError) throw bundleError;
+
+    // 세션 삽입  
+    const { error: sessionError } = await supabase
+      .from(sessionTableName)
+      .insert(sessions);
+
+    if (sessionError) throw sessionError;
+
+    // 제출 상태를 승인으로 변경
+    const { error: updateError } = await supabase
+      .from('submissions')
+      .update({ 
+        status: 'approved',
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: 'admin'
+      })
+      .eq('submission_id', id);
+
+    if (updateError) throw updateError;
+
+    console.log(`✅ 시간표 승인 완료: ${submission.academy_name} → ${season} (번들 ${bundles.length}개, 세션 ${sessions.length}개)`);
+    
+    res.json({ 
+      success: true, 
+      message: `${season} 시즌에 ${bundles.length}개 번들이 반영되었습니다.`,
+      bundles: bundles.length,
+      sessions: sessions.length 
+    });
+
+  } catch (error) {
+    console.error('승인 처리 실패:', error);
+    res.status(500).json({ error: '승인 처리 실패: ' + error.message });
+  }
+});
+
+// 거절
+app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJECT_SUBMISSION'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    
+    const { error } = await supabase
+      .from('submissions')
+      .update({ 
+        status: 'rejected',
+        rejection_reason: reason,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: 'admin'
+      })
+      .eq('submission_id', id);
+
+    if (error) throw error;
+
+    console.log(`❌ 시간표 거절: ${id} (사유: ${reason})`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('거절 처리 실패:', error);
+    res.status(500).json({ error: '거절 처리 실패' });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 서버 시작: http://localhost:${PORT}`);
