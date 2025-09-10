@@ -34,10 +34,10 @@
                         <a href="#home" onclick="showSection('home')" class="nav-link active px-3 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50">
                             메인
                         </a>
-                        <a href="#timetable" onclick="showSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                        <a href="#timetable" onclick="checkAuthAndShowSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                             시간표 제출
                         </a>
-                        <a href="#advertising" onclick="showSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                        <a href="#advertising" onclick="checkAuthAndShowSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                             광고 문의
                         </a>
                     </div>
@@ -74,8 +74,8 @@
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">메인</a>
-                <a href="#timetable" onclick="showSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
-                <a href="#advertising" onclick="showSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
+                <a href="#timetable" onclick="checkAuthAndShowSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
+                <a href="#advertising" onclick="checkAuthAndShowSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
                 <div class="pt-2 border-t border-gray-100 space-y-2">
                     <button onclick="showLoginModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">로그인</button>
                     <button onclick="showRegisterModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">회원가입</button>
@@ -88,6 +88,9 @@
     <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <!-- Home Section -->
         <section id="homeSection" class="section">
+            <!-- Auth Message Area -->
+            <div id="authMessage" class="mb-4"></div>
+            
             <!-- Hero Section -->
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -98,7 +101,7 @@
                     학원과 강사님들의 참여로 더욱 풍부한 시간표 정보를 제공합니다.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="showSection('timetable')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <button onclick="checkAuthAndShowSection('timetable')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
@@ -152,7 +155,7 @@
                 <p class="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
                     타임빌더에 학원의 시간표 정보를 등록하고 더 많은 학생들과 만나보세요
                 </p>
-                <button onclick="showSection('timetable')" class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
+                <button onclick="checkAuthAndShowSection('timetable')" class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -575,6 +578,23 @@
     <script>
         let currentSection = 'home';
 
+        // 인증 체크 후 섹션 이동
+        function checkAuthAndShowSection(section) {
+            const token = localStorage.getItem('academyToken');
+            
+            if (!token) {
+                // 인증되지 않은 경우 로그인 모달 표시
+                showAlert('로그인이 필요한 서비스입니다.', 'info', 'authMessage');
+                setTimeout(() => {
+                    showLoginModal();
+                }, 1000);
+                return;
+            }
+            
+            // 인증된 경우 섹션 이동
+            showSection(section);
+        }
+
         // 섹션 전환
         function showSection(section) {
             // 모든 섹션 숨기기
@@ -819,6 +839,7 @@
                     localStorage.setItem('academyInfo', JSON.stringify(data.academy));
                     
                     closeLoginModal();
+                    updateAuthButtons(); // 버튼 상태 업데이트
                     showDashboardModal();
                     
                     document.getElementById('academyWelcome').textContent = `${data.academy.academy_name}님`;
@@ -949,7 +970,56 @@
             localStorage.removeItem('academyToken');
             localStorage.removeItem('academyInfo');
             closeDashboardModal();
+            updateAuthButtons(); // 버튼 상태 업데이트
+            showSection('home'); // 메인으로 이동
         }
+
+        // 인증 상태에 따라 네비게이션 버튼 업데이트
+        function updateAuthButtons() {
+            const token = localStorage.getItem('academyToken');
+            const authButtonsContainer = document.querySelector('.hidden.md\\:flex.items-center.space-x-3');
+            
+            if (token) {
+                // 로그인 상태: 대시보드 + 로그아웃 버튼
+                const academyInfo = JSON.parse(localStorage.getItem('academyInfo') || '{}');
+                authButtonsContainer.innerHTML = `
+                    <span class="text-sm text-gray-600 mr-2">${academyInfo.academy_name}님</span>
+                    <button onclick="showDashboardModal()" class="inline-flex items-center px-4 py-2 border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        내 제출 내역
+                    </button>
+                    <button onclick="academyLogout()" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        로그아웃
+                    </button>
+                `;
+            } else {
+                // 비로그인 상태: 로그인 + 회원가입 버튼
+                authButtonsContainer.innerHTML = `
+                    <button onclick="showLoginModal()" class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        로그인
+                    </button>
+                    <button onclick="showRegisterModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        회원가입
+                    </button>
+                `;
+            }
+        }
+
+        // 페이지 로드 시 인증 상태 체크
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthButtons();
+        });
     </script>
 </body>
 </html>
