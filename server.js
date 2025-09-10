@@ -3,6 +3,10 @@ const multer = require('multer');
 const csv = require('csv-parser');
 const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
@@ -38,10 +42,84 @@ if (!SUPABASE_KEY) {
 // Supabase 클라이언트 설정
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 미들웨어
+// 보안 미들웨어
+app.use(helmet()); // 기본 보안 헤더
+
+// Rate limiting (API 남용 방지)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15분
+  max: 100, // 최대 100회 요청
+  message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.'
+});
+app.use('/api/', limiter);
+
+// 관리자 로그인용 더 엄격한 제한
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15분  
+  max: 5, // 최대 5회 로그인 시도
+  message: '로그인 시도 횟수가 초과되었습니다.'
+});
+
+// 세션 관리
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS에서만
+    httpOnly: true, // XSS 방지
+    maxAge: 24 * 60 * 60 * 1000 // 24시간
+  }
+}));
+
+// 기본 미들웨어
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+// 관리자 인증 미들웨어
+function requireAuth(req, res, next) {
+  if (!req.session.isAdmin) {
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ error: '인증이 필요합니다' });
+    }
+    return res.redirect('/admin/login');
+  }
+  
+  // 세션 만료 체크 (24시간)
+  const loginTime = new Date(req.session.loginTime);
+  const now = new Date();
+  if (now - loginTime > 24 * 60 * 60 * 1000) {
+    req.session.destroy();
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ error: '세션이 만료되었습니다' });
+    }
+    return res.redirect('/admin/login');
+  }
+  
+  next();
+}
+
+// 관리자 활동 로깅 미들웨어
+function logAdminActivity(action) {
+  return (req, res, next) => {
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      action: action,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      sessionId: req.session.id
+    };
+    
+    console.log('🔍 Admin Activity:', logEntry);
+    
+    // DB에 로그 저장 (선택적)
+    supabase.from('admin_logs').insert(logEntry).catch(console.error);
+    
+    next();
+  };
+}
 
 // 파일 업로드 설정
 const upload = multer({ 
@@ -223,19 +301,193 @@ function generateUUID() {
   });
 }
 
-// 기본 라우트
+// ===== 공개 라우트 (학원/강사용) =====
+
+// 메인 페이지 - 시간표 제출 폼으로 리디렉션
 app.get('/', (req, res) => {
-  res.send(`
-    <h1>시간표 데이터 업로드 서버</h1>
-    <p>CSV 파일을 업로드하여 Supabase에 데이터를 추가할 수 있습니다.</p>
-    <form action="/api/upload-csv" method="post" enctype="multipart/form-data">
-      <input type="file" name="csvFile" accept=".csv" required>
-      <label>
-        <input type="checkbox" name="clearExisting" value="true"> 기존 데이터 삭제 후 업로드
-      </label>
-      <button type="submit">업로드</button>
-    </form>
-  `);
+  res.sendFile(__dirname + '/public/submit.html');
+});
+
+// 관리자 직접 업로드 (기존 기능 유지)
+app.get('/direct-upload', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+// 시간표 제출 API
+app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'CSV 파일이 필요합니다' });
+    }
+
+    const submissionId = generateUUID();
+    
+    // CSV 데이터 파싱
+    const csvContent = req.file.buffer.toString('utf-8');
+    const rows = csvContent.split('\n').slice(1);
+    
+    const bundles = [];
+    for (const row of rows) {
+      if (!row.trim()) continue;
+      const columns = row.split(',').map(col => col.replace(/"/g, '').trim());
+      if (columns.length < 17) continue;
+      
+      bundles.push({
+        teacher_name: columns[0],
+        subject: columns[1], 
+        target_school: columns[2],
+        school_level: columns[3],
+        target_grade: columns[4],
+        topic: columns[5],
+        academy: columns[6],
+        region: columns[8],
+        sessions: extractSessions(columns)
+      });
+    }
+
+    // 제출 데이터 저장 (승인 대기 상태)
+    const submission = {
+      submission_id: submissionId,
+      academy_name: req.body.academyName,
+      instructor_name: req.body.instructorName,
+      contact_name: req.body.contactName,
+      phone: req.body.phone,
+      email: req.body.email,
+      notes: req.body.notes,
+      csv_data: JSON.stringify(bundles),
+      status: 'pending',
+      submitted_at: new Date().toISOString()
+    };
+    
+    // submissions 테이블에 저장 (실제 DB 반영 전)
+    const { error } = await supabase.from('submissions').insert(submission);
+    if (error) throw error;
+
+    console.log(`📥 새로운 시간표 제출: ${req.body.academyName} (ID: ${submissionId})`);
+    
+    res.json({
+      success: true,
+      submissionId: submissionId,
+      message: '시간표가 성공적으로 제출되었습니다. 검토 후 연락드리겠습니다.'
+    });
+    
+  } catch (error) {
+    console.error('❌ 시간표 제출 실패:', error);
+    res.status(500).json({ 
+      error: '제출 중 오류가 발생했습니다',
+      details: error.message 
+    });
+  }
+});
+
+// 세션 추출 헬퍼 함수
+function extractSessions(columns) {
+  const sessions = [];
+  const days = [9, 10, 11, 12, 13, 14, 15]; // CSV 컬럼 인덱스
+  
+  for (let j = 0; j < days.length; j++) {
+    const timeSlot = columns[days[j]];
+    if (timeSlot && timeSlot.includes('~')) {
+      const [startTime, endTime] = timeSlot.split('~').map(t => t.trim());
+      sessions.push({
+        weekday: j,
+        start_time: startTime,
+        end_time: endTime
+      });
+    }
+  }
+  
+  return sessions;
+}
+
+// ===== 관리자 라우트 =====
+
+// 관리자 로그인 페이지
+app.get('/admin/login', (req, res) => {
+  if (req.session.isAdmin) {
+    return res.redirect('/admin/dashboard');
+  }
+  res.sendFile(__dirname + '/public/admin-login.html');
+});
+
+// 관리자 로그인 처리  
+app.post('/admin/login', adminLimiter, async (req, res) => {
+  try {
+    const { password } = req.body;
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'; // 기본값
+    
+    if (password === adminPassword) {
+      req.session.isAdmin = true;
+      req.session.loginTime = new Date();
+      
+      console.log(`🔓 관리자 로그인: IP ${req.ip}`);
+      
+      res.json({ success: true });
+    } else {
+      console.log(`❌ 관리자 로그인 실패: IP ${req.ip}`);
+      res.status(401).json({ error: '비밀번호가 틀렸습니다' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: '로그인 처리 중 오류 발생' });
+  }
+});
+
+// 관리자 대시보드
+app.get('/admin/dashboard', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/admin-dashboard.html');
+});
+
+// 관리자 로그아웃
+app.post('/admin/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ success: true });
+});
+
+// 대시보드 통계 API
+app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBOARD'), async (req, res) => {
+  try {
+    // 제출 현황 조회
+    const { data: submissions, error: submissionError } = await supabase
+      .from('submissions')
+      .select('status, submitted_at, academy_name')
+      .order('submitted_at', { ascending: false })
+      .limit(10);
+
+    if (submissionError) throw submissionError;
+
+    // 전체 번들 수 조회
+    const { count: totalBundles, error: bundleError } = await supabase
+      .from('bundles_2025_4')
+      .select('*', { count: 'exact', head: true });
+
+    if (bundleError) throw bundleError;
+
+    // 통계 계산
+    const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
+    const approvedSubmissions = submissions.filter(s => s.status === 'approved').length;
+    
+    // 최근 활동 생성
+    const recentActivity = submissions.slice(0, 5).map(submission => ({
+      type: submission.status === 'pending' ? 'submit' : 'approve',
+      description: submission.status === 'pending' 
+        ? `새로운 시간표 제출` 
+        : `시간표 승인 완료`,
+      academy: submission.academy_name,
+      timestamp: submission.submitted_at
+    }));
+
+    res.json({
+      pendingSubmissions,
+      approvedSubmissions,
+      totalBundles: totalBundles || 0,
+      inquiries: 0, // TODO: 문의사항 테이블 생성 후 구현
+      recentActivity
+    });
+
+  } catch (error) {
+    console.error('대시보드 통계 조회 실패:', error);
+    res.status(500).json({ error: '통계 데이터 로드 실패' });
+  }
 });
 
 // 서버 시작

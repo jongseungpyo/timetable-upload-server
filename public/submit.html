@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시간표 제출 - 타임빌더</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
+        
+        .header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem 0; }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #2563eb; }
+        
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 2rem; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 2rem; margin-bottom: 2rem; }
+        
+        h1 { color: #1e293b; margin-bottom: 0.5rem; font-size: 2rem; }
+        .subtitle { color: #64748b; margin-bottom: 2rem; font-size: 1.1rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 500; }
+        input, textarea, select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .upload-area { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 3rem 2rem; text-align: center; transition: all 0.3s; }
+        .upload-area:hover { border-color: #2563eb; background: #f8faff; }
+        .upload-area.dragover { border-color: #2563eb; background: #eff6ff; }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+        
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-secondary:hover { background: #4b5563; }
+        
+        .progress { margin-top: 1rem; display: none; }
+        .progress-bar { width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2563eb; transition: width 0.3s; animation: pulse 2s infinite; }
+        
+        .alert { padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+        .alert-success { background: #dcfce7; border: 1px solid #bbf7d0; color: #166534; }
+        .alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+        .alert-info { background: #dbeafe; border: 1px solid #bfdbfe; color: #1d4ed8; }
+        
+        .requirements { background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        .req-title { font-weight: 600; margin-bottom: 1rem; color: #374151; }
+        .req-list { list-style: none; }
+        .req-list li { padding: 0.25rem 0; color: #6b7280; }
+        .req-list li::before { content: "✓"; color: #10b981; margin-right: 0.5rem; font-weight: bold; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .footer { text-align: center; padding: 2rem; color: #9ca3af; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🏫 타임빌더 - 시간표 제출</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h1>시간표 데이터 제출</h1>
+            <p class="subtitle">학원/강사님의 강의 시간표를 제출해주세요. 검토 후 앱에 반영됩니다.</p>
+            
+            <div class="requirements">
+                <div class="req-title">📋 제출 요구사항</div>
+                <ul class="req-list">
+                    <li>CSV 파일 형식으로 제출 (Excel에서 "다른 이름으로 저장" → CSV 선택)</li>
+                    <li>강사명, 과목, 대상 학교, 주제, 출강 학원 등 필수 정보 포함</li>
+                    <li>시간표는 일주일 단위로 작성 (일요일~토요일)</li>
+                    <li>연락처는 검토 과정에서만 사용되며 외부 공개되지 않습니다</li>
+                </ul>
+            </div>
+            
+            <form id="submitForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="academyName">학원/기관명 *</label>
+                        <input type="text" id="academyName" name="academyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="instructorName">담당 강사명</label>
+                        <input type="text" id="instructorName" name="instructorName">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactName">연락담당자 *</label>
+                        <input type="text" id="contactName" name="contactName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">연락처 *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">참고사항</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="특별한 요청사항이나 참고할 내용이 있으시면 적어주세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="csvFile">시간표 CSV 파일 *</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <div><strong>CSV 파일을 선택</strong>하거나 여기로 드래그하세요</div>
+                        <input type="file" id="csvFile" name="csvFile" accept=".csv" required style="display: none;">
+                        <div id="fileName" style="margin-top: 1rem; color: #059669;"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%; font-size: 1.1rem;">
+                        📤 시간표 제출하기
+                    </button>
+                </div>
+                
+                <div class="progress" id="progress">
+                    <div style="text-align: center; margin-bottom: 0.5rem;">업로드 중...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div id="result"></div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h3>💬 광고 및 제휴 문의</h3>
+            <p>타임빌더 앱 내 광고나 제휴에 관심이 있으시다면 아래 정보로 연락주세요.</p>
+            <p style="margin-top: 1rem;">
+                📧 <strong>이메일</strong>: fine.time.table@gmail.com<br>
+                📞 <strong>전화</strong>: 문의 시 제공<br>
+                🏢 <strong>회사</strong>: 파인(Fine)
+            </p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        © 2025 파인(Fine). 모든 권리 보유. | 개인정보처리방침 | 이용약관
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('csvFile');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+        const progress = document.getElementById('progress');
+        const result = document.getElementById('result');
+
+        // 드래그 앤 드롭 처리
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileName.textContent = `선택된 파일: ${files[0].name}`;
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.textContent = `선택된 파일: ${e.target.files[0].name}`;
+            }
+        });
+
+        // 폼 제출 처리
+        document.getElementById('submitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            if (!formData.get('csvFile') || formData.get('csvFile').size === 0) {
+                showAlert('CSV 파일을 선택해주세요.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '제출 중...';
+            progress.style.display = 'block';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/submit-timetable', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(`
+                        <strong>✅ 제출 완료!</strong><br>
+                        제출 ID: ${data.submissionId}<br>
+                        검토 후 2-3일 내에 결과를 알려드리겠습니다.<br>
+                        문의사항은 fine.time.table@gmail.com으로 연락주세요.
+                    `, 'success');
+                    
+                    // 폼 초기화
+                    e.target.reset();
+                    fileName.textContent = '';
+                } else {
+                    showAlert(`❌ 제출 실패: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ 연결 오류: ${error.message}`, 'error');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = '📤 시간표 제출하기';
+            progress.style.display = 'none';
+        });
+
+        function showAlert(message, type) {
+            result.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

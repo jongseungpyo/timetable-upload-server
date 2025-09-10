@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - 타임빌더</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
+        
+        .header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header-content { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #2563eb; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .logout-btn { background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid;
+        }
+        
+        .stat-card.pending { border-left-color: #f59e0b; }
+        .stat-card.approved { border-left-color: #10b981; }
+        .stat-card.total { border-left-color: #2563eb; }
+        .stat-card.inquiries { border-left-color: #8b5cf6; }
+        
+        .stat-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .stat-label { color: #64748b; font-size: 1.1rem; }
+        .stat-change { font-size: 0.9rem; margin-top: 0.5rem; }
+        .stat-change.positive { color: #10b981; }
+        .stat-change.neutral { color: #64748b; }
+        
+        .nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .nav-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .nav-card:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .nav-card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .nav-card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .nav-card-desc { color: #64748b; }
+        
+        .recent-activity {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; }
+        .activity-icon.submit { background: #dbeafe; color: #2563eb; }
+        .activity-icon.approve { background: #dcfce7; color: #16a34a; }
+        .activity-time { color: #64748b; font-size: 0.9rem; margin-left: auto; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🏫 타임빌더 관리자</div>
+            <div class="user-info">
+                <span>관리자님 환영합니다</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="stat-card pending">
+                <div class="stat-number" id="pendingCount">-</div>
+                <div class="stat-label">승인 대기</div>
+                <div class="stat-change neutral">검토가 필요한 제출</div>
+            </div>
+            
+            <div class="stat-card approved">
+                <div class="stat-number" id="approvedCount">-</div>
+                <div class="stat-label">승인 완료</div>
+                <div class="stat-change positive">앱에 반영된 데이터</div>
+            </div>
+            
+            <div class="stat-card total">
+                <div class="stat-number" id="totalBundles">-</div>
+                <div class="stat-label">전체 번들</div>
+                <div class="stat-change neutral">현재 운영 중인 강의</div>
+            </div>
+            
+            <div class="stat-card inquiries">
+                <div class="stat-number" id="inquiryCount">-</div>
+                <div class="stat-label">문의사항</div>
+                <div class="stat-change neutral">답변 대기 중</div>
+            </div>
+        </div>
+        
+        <div class="nav-cards">
+            <a href="/admin/submissions" class="nav-card">
+                <div class="nav-card-icon">📋</div>
+                <div class="nav-card-title">제출 검토</div>
+                <div class="nav-card-desc">학원에서 제출한 시간표를 검토하고 승인/거절</div>
+            </a>
+            
+            <a href="/admin/inquiries" class="nav-card">
+                <div class="nav-card-icon">💬</div>
+                <div class="nav-card-title">문의 관리</div>
+                <div class="nav-card-desc">광고 및 제휴 문의 확인 및 답변</div>
+            </a>
+            
+            <a href="/admin/analytics" class="nav-card">
+                <div class="nav-card-icon">📊</div>
+                <div class="nav-card-title">통계 분석</div>
+                <div class="nav-card-desc">앱 사용량, 인기 강사, 지역별 현황</div>
+            </a>
+            
+            <a href="/admin/direct-upload" class="nav-card">
+                <div class="nav-card-icon">⚡️</div>
+                <div class="nav-card-title">직접 업로드</div>
+                <div class="nav-card-desc">관리자 전용 CSV 직접 업로드</div>
+            </a>
+        </div>
+        
+        <div class="recent-activity">
+            <h3 style="margin-bottom: 1.5rem;">최근 활동</h3>
+            <div id="activityList">
+                <div style="text-align: center; color: #9ca3af; padding: 2rem;">
+                    로딩 중...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 통계 데이터 로드
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/admin/dashboard-stats');
+                const data = await response.json();
+                
+                document.getElementById('pendingCount').textContent = data.pendingSubmissions || 0;
+                document.getElementById('approvedCount').textContent = data.approvedSubmissions || 0;
+                document.getElementById('totalBundles').textContent = data.totalBundles || 0;
+                document.getElementById('inquiryCount').textContent = data.inquiries || 0;
+                
+                loadRecentActivity(data.recentActivity || []);
+            } catch (error) {
+                console.error('대시보드 데이터 로드 실패:', error);
+            }
+        }
+
+        function loadRecentActivity(activities) {
+            const activityList = document.getElementById('activityList');
+            
+            if (activities.length === 0) {
+                activityList.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 2rem;">최근 활동이 없습니다</div>';
+                return;
+            }
+            
+            activityList.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">
+                        ${activity.type === 'submit' ? '📥' : '✅'}
+                    </div>
+                    <div>
+                        <div>${activity.description}</div>
+                        <div style="color: #64748b; font-size: 0.9rem;">${activity.academy || ''}</div>
+                    </div>
+                    <div class="activity-time">${formatTime(activity.timestamp)}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor(diff / (1000 * 60));
+            
+            if (hours < 1) return `${minutes}분 전`;
+            if (hours < 24) return `${hours}시간 전`;
+            return date.toLocaleDateString();
+        }
+
+        async function logout() {
+            try {
+                await fetch('/admin/logout', { method: 'POST' });
+                window.location.href = '/admin/login';
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+            }
+        }
+    </script>
+</body>
+</html>
