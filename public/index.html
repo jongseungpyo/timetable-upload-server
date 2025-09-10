@@ -45,13 +45,19 @@
                     </div>
                 </div>
                 
-                <!-- Login Button -->
-                <div class="hidden md:block">
-                    <button onclick="showLoginModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                <!-- Login/Register Buttons -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <button onclick="showLoginModal('login')" class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                         </svg>
                         로그인
+                    </button>
+                    <button onclick="showLoginModal('register')" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        회원가입
                     </button>
                 </div>
 
@@ -72,7 +78,10 @@
                 <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">메인</a>
                 <a href="#timetable" onclick="showSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
                 <a href="#advertising" onclick="showSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
-                <button onclick="showLoginModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">로그인</button>
+                <div class="pt-2 border-t border-gray-100 space-y-2">
+                    <button onclick="showLoginModal('login'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">로그인</button>
+                    <button onclick="showLoginModal('register'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">회원가입</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -741,8 +750,9 @@
         }
 
         // 로그인 모달 관리
-        function showLoginModal() {
+        function showLoginModal(defaultTab = 'login') {
             document.getElementById('loginModal').classList.remove('hidden');
+            showLoginTab(defaultTab);
         }
 
         function closeLoginModal() {
