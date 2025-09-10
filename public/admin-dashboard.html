@@ -4,147 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 대시보드 - 타임빌더</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
-        
-        .header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .header-content { max-width: 1400px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: bold; color: #2563eb; }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .logout-btn { background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
-        
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 4px solid;
-        }
-        
-        .stat-card.pending { border-left-color: #f59e0b; }
-        .stat-card.approved { border-left-color: #10b981; }
-        .stat-card.total { border-left-color: #2563eb; }
-        .stat-card.inquiries { border-left-color: #8b5cf6; }
-        
-        .stat-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
-        .stat-label { color: #64748b; font-size: 1.1rem; }
-        .stat-change { font-size: 0.9rem; margin-top: 0.5rem; }
-        .stat-change.positive { color: #10b981; }
-        .stat-change.neutral { color: #64748b; }
-        
-        .nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-        .nav-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            text-decoration: none;
-            color: inherit;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
-        .nav-card:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-        .nav-card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-        .nav-card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .nav-card-desc { color: #64748b; }
-        
-        .recent-activity {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-top: 2rem;
-        }
-        
-        .activity-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .activity-item:last-child { border-bottom: none; }
-        .activity-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; }
-        .activity-icon.submit { background: #dbeafe; color: #2563eb; }
-        .activity-icon.approve { background: #dcfce7; color: #16a34a; }
-        .activity-time { color: #64748b; font-size: 0.9rem; margin-left: auto; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">🏫 타임빌더 관리자</div>
-            <div class="user-info">
-                <span>관리자님 환영합니다</span>
-                <button class="logout-btn" onclick="logout()">로그아웃</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="container">
-        <div class="dashboard-grid">
-            <div class="stat-card pending">
-                <div class="stat-number" id="pendingCount">-</div>
-                <div class="stat-label">승인 대기</div>
-                <div class="stat-change neutral">검토가 필요한 제출</div>
-            </div>
-            
-            <div class="stat-card approved">
-                <div class="stat-number" id="approvedCount">-</div>
-                <div class="stat-label">승인 완료</div>
-                <div class="stat-change positive">앱에 반영된 데이터</div>
-            </div>
-            
-            <div class="stat-card total">
-                <div class="stat-number" id="totalBundles">-</div>
-                <div class="stat-label">전체 번들</div>
-                <div class="stat-change neutral">현재 운영 중인 강의</div>
-            </div>
-            
-            <div class="stat-card inquiries">
-                <div class="stat-number" id="inquiryCount">-</div>
-                <div class="stat-label">문의사항</div>
-                <div class="stat-change neutral">답변 대기 중</div>
-            </div>
-        </div>
-        
-        <div class="nav-cards">
-            <a href="/admin/submissions" class="nav-card">
-                <div class="nav-card-icon">📋</div>
-                <div class="nav-card-title">제출 검토</div>
-                <div class="nav-card-desc">학원에서 제출한 시간표를 검토하고 승인/거절</div>
-            </a>
-            
-            <a href="/admin/inquiries" class="nav-card">
-                <div class="nav-card-icon">💬</div>
-                <div class="nav-card-title">문의 관리</div>
-                <div class="nav-card-desc">광고 및 제휴 문의 확인 및 답변</div>
-            </a>
-            
-            <a href="/admin/analytics" class="nav-card">
-                <div class="nav-card-icon">📊</div>
-                <div class="nav-card-title">통계 분석</div>
-                <div class="nav-card-desc">앱 사용량, 인기 강사, 지역별 현황</div>
-            </a>
-            
-            <a href="/admin/direct-upload" class="nav-card">
-                <div class="nav-card-icon">⚡️</div>
-                <div class="nav-card-title">직접 업로드</div>
-                <div class="nav-card-desc">관리자 전용 CSV 직접 업로드</div>
-            </a>
-        </div>
-        
-        <div class="recent-activity">
-            <h3 style="margin-bottom: 1.5rem;">최근 활동</h3>
-            <div id="activityList">
-                <div style="text-align: center; color: #9ca3af; padding: 2rem;">
-                    로딩 중...
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                    <span class="ml-2 text-gray-500">관리자</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">관리자님 환영합니다</span>
+                    <button 
+                        onclick="logout()" 
+                        class="inline-flex items-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none bg-red-600 text-white hover:bg-red-700 h-8 px-3"
+                    >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        로그아웃
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Pending Submissions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">승인 대기</p>
+                        <p class="text-2xl font-bold text-gray-900" id="pendingCount">-</p>
+                    </div>
+                    <div class="h-8 w-8 bg-orange-100 rounded-md flex items-center justify-center">
+                        <svg class="h-4 w-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">검토가 필요한 제출</p>
+            </div>
+
+            <!-- Approved Submissions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">승인 완료</p>
+                        <p class="text-2xl font-bold text-gray-900" id="approvedCount">-</p>
+                    </div>
+                    <div class="h-8 w-8 bg-green-100 rounded-md flex items-center justify-center">
+                        <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">앱에 반영된 데이터</p>
+            </div>
+
+            <!-- Total Bundles -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">전체 번들</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalBundles">-</p>
+                    </div>
+                    <div class="h-8 w-8 bg-blue-100 rounded-md flex items-center justify-center">
+                        <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">현재 운영 중인 강의</p>
+            </div>
+
+            <!-- Inquiries -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">문의사항</p>
+                        <p class="text-2xl font-bold text-gray-900" id="inquiryCount">-</p>
+                    </div>
+                    <div class="h-8 w-8 bg-purple-100 rounded-md flex items-center justify-center">
+                        <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">답변 대기 중</p>
+            </div>
+        </div>
+
+        <!-- Navigation Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <a href="/admin/submissions" class="group bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:-translate-y-1">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">제출 검토</h3>
+                        <p class="text-sm text-gray-500">시간표 승인/거절</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/admin/inquiries" class="group bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:-translate-y-1">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">문의 관리</h3>
+                        <p class="text-sm text-gray-500">광고 및 제휴 문의</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/admin/analytics" class="group bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:-translate-y-1">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                        <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">통계 분석</h3>
+                        <p class="text-sm text-gray-500">사용량 및 현황</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/direct-upload" class="group bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:-translate-y-1">
+                <div class="flex items-center">
+                    <div class="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+                        <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-900">직접 업로드</h3>
+                        <p class="text-sm text-gray-500">관리자 전용 업로드</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">최근 활동</h2>
+            </div>
+            <div class="p-6">
+                <div id="activityList">
+                    <div class="flex items-center justify-center py-12 text-gray-500">
+                        <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        로딩 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         // 페이지 로드 시 통계 데이터 로드
@@ -155,14 +200,21 @@
                 const response = await fetch('/api/admin/dashboard-stats');
                 const data = await response.json();
                 
+                // 통계 업데이트
                 document.getElementById('pendingCount').textContent = data.pendingSubmissions || 0;
                 document.getElementById('approvedCount').textContent = data.approvedSubmissions || 0;
                 document.getElementById('totalBundles').textContent = data.totalBundles || 0;
                 document.getElementById('inquiryCount').textContent = data.inquiries || 0;
                 
+                // 최근 활동 로드
                 loadRecentActivity(data.recentActivity || []);
             } catch (error) {
                 console.error('대시보드 데이터 로드 실패:', error);
+                document.getElementById('activityList').innerHTML = `
+                    <div class="text-center py-12 text-red-500">
+                        데이터 로드에 실패했습니다
+                    </div>
+                `;
             }
         }
 
@@ -170,22 +222,38 @@
             const activityList = document.getElementById('activityList');
             
             if (activities.length === 0) {
-                activityList.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 2rem;">최근 활동이 없습니다</div>';
+                activityList.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        최근 활동이 없습니다
+                    </div>
+                `;
                 return;
             }
             
-            activityList.innerHTML = activities.map(activity => `
-                <div class="activity-item">
-                    <div class="activity-icon ${activity.type}">
-                        ${activity.type === 'submit' ? '📥' : '✅'}
+            activityList.innerHTML = activities.map(activity => {
+                const iconClass = activity.type === 'submit' 
+                    ? 'bg-blue-100 text-blue-600' 
+                    : 'bg-green-100 text-green-600';
+                const icon = activity.type === 'submit' ? '📥' : '✅';
+                
+                return `
+                    <div class="flex items-center py-4 border-b border-gray-100 last:border-b-0">
+                        <div class="flex-shrink-0 h-10 w-10 ${iconClass} rounded-full flex items-center justify-center text-lg">
+                            ${icon}
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <p class="text-sm font-medium text-gray-900">${activity.description}</p>
+                            <p class="text-sm text-gray-500">${activity.academy || ''}</p>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            ${formatTime(activity.timestamp)}
+                        </div>
                     </div>
-                    <div>
-                        <div>${activity.description}</div>
-                        <div style="color: #64748b; font-size: 0.9rem;">${activity.academy || ''}</div>
-                    </div>
-                    <div class="activity-time">${formatTime(activity.timestamp)}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function formatTime(timestamp) {
@@ -197,7 +265,7 @@
             
             if (hours < 1) return `${minutes}분 전`;
             if (hours < 24) return `${hours}시간 전`;
-            return date.toLocaleDateString();
+            return date.toLocaleDateString('ko-KR');
         }
 
         async function logout() {
@@ -206,6 +274,7 @@
                 window.location.href = '/admin/login';
             } catch (error) {
                 console.error('로그아웃 오류:', error);
+                window.location.href = '/admin/login';
             }
         }
     </script>
