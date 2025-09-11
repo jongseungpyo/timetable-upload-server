@@ -1488,6 +1488,102 @@ app.post('/api/admin/academies/:id/activate', requireAuth, logAdminActivity('ACT
   }
 });
 
+// ===== 시간표 번들 관리 API =====
+
+// 시즌별 번들 통계 API
+app.get('/api/admin/season-stats', requireAuth, logAdminActivity('VIEW_SEASON_STATS'), async (req, res) => {
+  try {
+    const { season } = req.query;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 지정해주세요' });
+    }
+
+    const tableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+    
+    // Supabase에서 시즌별 통계 조회
+    const [bundlesResult, sessionsResult] = await Promise.all([
+      supabase.from(tableName).select('*', { count: 'exact', head: true }),
+      supabase.from(sessionTableName).select('*', { count: 'exact', head: true })
+    ]);
+
+    // 활성 번들 수 조회
+    const activeBundlesResult = await supabase
+      .from(tableName)
+      .select('*', { count: 'exact', head: true })
+      .eq('published', true);
+
+    // 강사 수 조회
+    const teachersResult = await supabase
+      .from(tableName)
+      .select('teacher_name');
+
+    const uniqueTeachers = new Set(teachersResult.data?.map(b => b.teacher_name) || []).size;
+
+    res.json({
+      totalBundles: bundlesResult.count || 0,
+      activeBundles: activeBundlesResult.count || 0,
+      totalSessions: sessionsResult.count || 0,
+      totalTeachers: uniqueTeachers,
+      season: season
+    });
+
+    console.log(`📊 시즌 통계 조회: ${season} (번들: ${bundlesResult.count}, 세션: ${sessionsResult.count})`);
+
+  } catch (error) {
+    console.error('시즌 통계 조회 실패:', error);
+    res.status(500).json({ error: '시즌 통계 로드 실패' });
+  }
+});
+
+// 시즌별 번들 목록 API
+app.get('/api/admin/bundles', requireAuth, logAdminActivity('VIEW_BUNDLES'), async (req, res) => {
+  try {
+    const { season, limit = 50, offset = 0 } = req.query;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 지정해주세요' });
+    }
+
+    const tableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // 번들 목록 조회 (세션 수 포함)
+    const bundlesResult = await supabase
+      .from(tableName)
+      .select(`
+        bundle_id, teacher_name, subject, target_school_codes, 
+        target_grade, topic, academy, region, published,
+        sessions:${sessionTableName}!fk_${sessionTableName}_bundle_id(*)
+      `)
+      .order('updated_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (bundlesResult.error) {
+      throw bundlesResult.error;
+    }
+
+    // 세션 수 추가
+    const bundles = bundlesResult.data.map(bundle => ({
+      ...bundle,
+      session_count: bundle.sessions?.length || 0
+    }));
+
+    res.json({
+      bundles: bundles,
+      total: bundles.length,
+      season: season
+    });
+
+    console.log(`📋 번들 목록 조회: ${season} (${bundles.length}개)`);
+
+  } catch (error) {
+    console.error('번들 목록 조회 실패:', error);
+    res.status(500).json({ error: '번들 목록 로드 실패' });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 서버 시작: http://localhost:${PORT}`);
