@@ -333,7 +333,7 @@ function requireAuth(req, res, next) {
 
 // 관리자 활동 로깅 미들웨어
 function logAdminActivity(action) {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const logEntry = {
       timestamp: new Date().toISOString(),
       action: action,
