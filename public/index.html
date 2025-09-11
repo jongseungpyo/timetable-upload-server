@@ -369,6 +369,9 @@
                                     <button type="button" onclick="addTableRow()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors">
                                         + 행 추가
                                     </button>
+                                    <button type="button" onclick="saveAndUpdatePreview()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                                        💾 저장 & 미리보기 업데이트
+                                    </button>
                                     <button type="button" onclick="resetToUpload()" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
                                         다시 업로드
                                     </button>
@@ -460,25 +463,14 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end space-x-3">
-                        <button 
-                            type="button" 
-                            onclick="previewData()"
-                            id="previewBtn"
-                            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-gray-600 text-white hover:bg-gray-700 h-10 py-2 px-6"
-                        >
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            미리보기
-                        </button>
+                    <div class="flex justify-end">
                         <button 
                             type="button" 
                             onclick="submitTimetable()"
                             id="submitBtn"
-                            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-8"
+                            class="inline-flex items-center justify-center rounded-md text-base font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 h-12 py-3 px-8"
                         >
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
                             시간표 제출하기
@@ -1245,13 +1237,14 @@
             tableRowCount++;
         }
 
-        // 시간 입력 HTML 생성 (시작/종료 시간 필수)
+        // 시간 입력 HTML 생성 (가로 한 줄 배치)
         function createTimeInputHTML(dayName) {
             return `
-                <td class="px-4 py-2 border-b">
-                    <div class="flex flex-col space-y-1">
-                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작시간">
-                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료시간">
+                <td class="px-2 py-3 border-b min-w-[140px]">
+                    <div class="flex items-center space-x-1 text-xs">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작">
+                        <span class="text-gray-400">~</span>
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료">
                     </div>
                 </td>
             `;
@@ -1363,17 +1356,25 @@
             tableRowCount++;
         }
 
-        // 미리보기 생성
-        function previewData() {
-            const validationResult = validateTableData();
-            if (!validationResult.isValid) {
-                showAlert(validationResult.message, 'error', 'timetableResult');
+        // 저장 및 미리보기 업데이트
+        function saveAndUpdatePreview() {
+            const tableData = extractTableData();
+            
+            if (tableData.length === 0) {
+                showAlert('저장할 데이터가 없습니다. 최소 하나의 행을 입력해주세요.', 'error', 'timetableResult');
                 return;
             }
             
+            // 미리보기 자동 업데이트
             generatePreview();
             document.getElementById('dataPreviewSection').classList.remove('hidden');
-            document.getElementById('dataPreviewSection').scrollIntoView({ behavior: 'smooth' });
+            
+            showAlert(`${tableData.length}개 강의 데이터가 저장되었습니다. 아래 미리보기를 확인하세요.`, 'success', 'timetableResult');
+        }
+
+        // 페이지 로드 시 미리보기 항상 표시
+        function initializePreviewSection() {
+            document.getElementById('dataPreviewSection').classList.remove('hidden');
         }
 
         // 미리보기 테이블 생성
@@ -1660,13 +1661,14 @@
             return { start: '', end: '' };
         }
 
-        // 데이터가 있는 시간 입력 HTML 생성
+        // 데이터가 있는 시간 입력 HTML 생성 (가로 한 줄)
         function createTimeInputHTMLWithData(timeData) {
             return `
-                <td class="px-4 py-3 border-b">
-                    <div class="flex flex-col space-y-1">
-                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}">
-                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}">
+                <td class="px-2 py-3 border-b min-w-[140px]">
+                    <div class="flex items-center space-x-1 text-xs">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}">
+                        <span class="text-gray-400">~</span>
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}">
                     </div>
                 </td>
             `;
@@ -1929,6 +1931,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateAuthButtons();
             updateAcademyInfo();
+            initializePreviewSection(); // 미리보기 섹션 항상 표시
         });
     </script>
 </body>
