@@ -344,8 +344,29 @@ function logAdminActivity(action) {
     
     console.log('🔍 Admin Activity:', logEntry);
     
-    // DB에 로그 저장 (선택적)
-    supabase.from('admin_logs').insert(logEntry).catch(console.error);
+    // DB에 로그 저장 (선택적) - Railway DB 사용으로 변경
+    try {
+      if (railwayDB) {
+        await railwayDB.query(`
+          CREATE TABLE IF NOT EXISTS admin_logs (
+            log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            timestamp TIMESTAMPTZ NOT NULL,
+            action TEXT NOT NULL,
+            ip TEXT,
+            user_agent TEXT,
+            session_id TEXT,
+            created_at TIMESTAMPTZ DEFAULT now()
+          )
+        `);
+        
+        await railwayDB.query(`
+          INSERT INTO admin_logs (timestamp, action, ip, user_agent, session_id)
+          VALUES ($1, $2, $3, $4, $5)
+        `, [logEntry.timestamp, logEntry.action, logEntry.ip, logEntry.userAgent, logEntry.sessionId]);
+      }
+    } catch (logError) {
+      console.error('⚠️ 관리자 로그 저장 실패:', logError);
+    }
     
     next();
   };
