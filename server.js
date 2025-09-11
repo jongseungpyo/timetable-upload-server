@@ -124,6 +124,19 @@ async function initializeRailwayDB() {
       console.log('👤 기본 관리자 계정 생성: admin/admin123');
     }
     
+    // 임시 강사 계정 생성 (테스트용)
+    const testAcademy = await railwayDB.query('SELECT academy_id FROM academies WHERE email = $1', ['test@timebuilder.com']);
+    if (testAcademy.rows.length === 0) {
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash('test123', 10);
+      await railwayDB.query(`
+        INSERT INTO academies (academy_name, contact_name, phone, email, password_hash)
+        VALUES ($1, $2, $3, $4, $5)
+      `, ['테스트 학원', '표종승', '010-1234-5678', 'test@timebuilder.com', hashedPassword]);
+      
+      console.log('🧪 테스트 강사 계정 생성: test@timebuilder.com/test123 (테스트 학원 - 표종승)');
+    }
+    
     console.log('✅ Railway DB submissions 테이블 준비 완료');
   } catch (error) {
     console.error('❌ Railway PostgreSQL 초기화 실패:', error);
