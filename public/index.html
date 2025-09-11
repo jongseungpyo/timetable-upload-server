@@ -412,6 +412,7 @@
                                 <table class="min-w-full border border-gray-200 rounded-lg" id="timetableTable">
                                     <thead class="bg-gray-50">
                                         <tr>
+                                            <th class="px-4 py-3 text-center font-medium text-gray-700 border-b min-w-[50px]">#</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">강사명</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">과목</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">교육청</th>
@@ -932,10 +933,11 @@
             }
         }
 
-        // 새로운 테이블 행 HTML 생성 (개선된 크기와 time input)
+        // 새로운 테이블 행 HTML 생성 (행번호 + 개선된 기능)
         function createTableRowHTML(index) {
             return `
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required></td>
+                <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${index + 1}</td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required oninput="validateRow(this)"></td>
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
                         <option value="">선택</option>
@@ -967,6 +969,7 @@
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
                         <option value="">선택</option>
+                        <option value="전학급">전학급</option>
                         <option value="초등학교">초등학교</option>
                         <option value="중학교">중학교</option>
                         <option value="고등학교" selected>고등학교</option>
@@ -975,6 +978,7 @@
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
                         <option value="">선택</option>
+                        <option value="전학년">전학년</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -1110,6 +1114,60 @@
         function removeTableRow(button) {
             const row = button.closest('tr');
             row.remove();
+            updateRowNumbers();
+        }
+
+        // 행번호 업데이트
+        function updateRowNumbers() {
+            const rows = document.getElementById('timetableTableBody').children;
+            for (let i = 0; i < rows.length; i++) {
+                const firstCell = rows[i].children[0];
+                firstCell.textContent = i + 1;
+            }
+        }
+
+        // 행 검증 (빈 필수 데이터 시각적 표시)
+        function validateRow(element) {
+            const row = element.closest('tr');
+            const cells = row.children;
+            
+            // 필수 필드들 체크
+            const requiredFields = [
+                cells[1].querySelector('input'), // 강사명
+                cells[2].querySelector('select'), // 과목  
+                cells[4].querySelector('input')   // 대상학교
+            ];
+            
+            let hasEmptyRequired = false;
+            
+            requiredFields.forEach(field => {
+                if (field && (!field.value || field.value.trim() === '')) {
+                    hasEmptyRequired = true;
+                }
+            });
+            
+            // 시간표 체크 (최소 하나의 시간 필요)
+            let hasSchedule = false;
+            for (let i = 11; i <= 17; i++) { // 요일 컬럼들
+                const timeCell = cells[i];
+                if (timeCell) {
+                    const startTime = timeCell.querySelector('.start-time');
+                    const endTime = timeCell.querySelector('.end-time');
+                    if (startTime && endTime && startTime.value && endTime.value) {
+                        hasSchedule = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 빈 데이터 행 시각적 표시
+            if (hasEmptyRequired || !hasSchedule) {
+                row.classList.add('bg-red-50', 'border-red-200');
+                row.classList.remove('hover:bg-gray-50');
+            } else {
+                row.classList.remove('bg-red-50', 'border-red-200');
+                row.classList.add('hover:bg-gray-50');
+            }
         }
 
         // 기존 폼 이벤트 리스너는 제거 (웹 테이블 시스템으로 대체)
@@ -1525,9 +1583,9 @@
             for (let row of rows) {
                 const cells = row.children;
                 
-                // 요일별 시간 정보 추출 (시작/종료 시간 분리)
+                // 요일별 시간 정보 추출 (시작/종료 시간 분리) - 행번호 고려
                 const schedule = [];
-                for (let i = 10; i <= 16; i++) { // 일요일~토요일 (10~16번째 셀)
+                for (let i = 11; i <= 17; i++) { // 일요일~토요일 (11~17번째 셀, 행번호로 인해 +1)
                     const timeCell = cells[i];
                     const startTimeInput = timeCell.querySelector('.start-time');
                     const endTimeInput = timeCell.querySelector('.end-time');
@@ -1550,18 +1608,18 @@
                 }
                 
                 const rowData = {
-                    teacher_name: cells[0].querySelector('input').value,
-                    subject: cells[1].querySelector('select').value,
-                    education_office: cells[2].querySelector('select').value,
-                    target_school: cells[3].querySelector('input').value,
-                    school_level: cells[4].querySelector('select').value,
-                    target_grade: cells[5].querySelector('select').value,
-                    topic: cells[6].querySelector('input').value,
-                    academy: cells[7].querySelector('input').value,
-                    start_date: cells[8].querySelector('input').value,
-                    region: cells[9].querySelector('select').value,
+                    teacher_name: cells[1].querySelector('input').value, // 행번호로 인해 +1
+                    subject: cells[2].querySelector('select').value,
+                    education_office: cells[3].querySelector('select').value,
+                    target_school: cells[4].querySelector('input').value,
+                    school_level: cells[5].querySelector('select').value,
+                    target_grade: cells[6].querySelector('select').value || '전학년', // 빈 값이면 전학년
+                    topic: cells[7].querySelector('input').value,
+                    academy: cells[8].querySelector('input').value,
+                    start_date: cells[9].querySelector('input').value,
+                    region: cells[10].querySelector('select').value,
                     schedule: schedule,
-                    season: cells[17].querySelector('select').value // 시즌 정보
+                    season: cells[18].querySelector('select').value // 시즌 정보 (행번호로 인해 +1)
                 };
                 
                 data.push(rowData);
