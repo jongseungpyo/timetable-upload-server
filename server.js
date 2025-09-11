@@ -861,6 +861,22 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
       console.log('⚠️ Railway DB 연결되지 않음');
     }
 
+    // Supabase에서 전체 번들 수 조회
+    let totalBundles = 0;
+    try {
+      const { count, error: bundleError } = await supabase
+        .from('bundles_2025_4')
+        .select('*', { count: 'exact', head: true });
+      
+      if (bundleError) {
+        console.error('❌ Supabase 번들 조회 실패:', bundleError);
+      } else {
+        totalBundles = count || 0;
+        console.log('📦 전체 번들 수:', totalBundles);
+      }
+    } catch (supabaseError) {
+      console.error('❌ Supabase 연결 실패:', supabaseError);
+    }
 
     // 통계 계산
     const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
