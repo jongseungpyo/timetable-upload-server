@@ -293,7 +293,15 @@
         }
 
         function renderSubmissionData(submission) {
-            const csvData = JSON.parse(submission.csv_data);
+            let csvData;
+            try {
+                csvData = typeof submission.csv_data === 'string' 
+                    ? JSON.parse(submission.csv_data) 
+                    : submission.csv_data;
+            } catch (parseError) {
+                console.error('CSV 데이터 파싱 실패:', parseError);
+                csvData = [];
+            }
             
             // 원본 데이터 렌더링
             const originalContainer = document.getElementById(`originalData_${submission.submission_id}`);
