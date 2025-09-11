@@ -436,6 +436,15 @@ app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
     // CSV 파싱
     const rows = csvContent.split('\n').slice(1); // 헤더 제외
     
+    // 행 개수 제한 체크 (악용 방지)
+    if (rows.filter(row => row.trim()).length > 300) {
+      return res.status(400).json({ 
+        error: '너무 많은 데이터입니다. 악용 방지를 위해 300개 행까지만 허용됩니다.',
+        maxRows: 300,
+        currentRows: rows.filter(row => row.trim()).length
+      });
+    }
+    
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (!row.trim()) continue;
@@ -627,6 +636,16 @@ app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => 
     // CSV 데이터 파싱
     const csvContent = req.file.buffer.toString('utf-8');
     const rows = csvContent.split('\n').slice(1);
+    
+    // 행 개수 제한 체크 (악용 방지)
+    const validRows = rows.filter(row => row.trim());
+    if (validRows.length > 300) {
+      return res.status(400).json({ 
+        error: '너무 많은 데이터입니다. 악용 방지를 위해 300개 행까지만 허용됩니다.',
+        maxRows: 300,
+        currentRows: validRows.length
+      });
+    }
     
     const bundles = [];
     for (const row of rows) {
@@ -1117,6 +1136,15 @@ app.post('/api/submit-timetable-web', async (req, res) => {
     if (!tableData || tableData.length === 0) {
       console.log('❌ 테이블 데이터 없음:', tableData);
       return res.status(400).json({ error: '시간표 데이터가 없습니다' });
+    }
+
+    // 행 개수 제한 체크 (악용 방지)
+    if (tableData.length > 300) {
+      return res.status(400).json({ 
+        error: '너무 많은 데이터입니다. 악용 방지를 위해 300개 행까지만 허용됩니다.',
+        maxRows: 300,
+        currentRows: tableData.length
+      });
     }
 
     console.log('✅ 기본 검증 통과, 데이터 변환 시작');

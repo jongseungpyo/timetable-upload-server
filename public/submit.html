@@ -262,21 +262,58 @@
             uploadArea.classList.remove('dragover');
         });
         
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea.addEventListener('drop', async (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                fileInput.files = files;
-                fileName.textContent = `선택된 파일: ${files[0].name}`;
-                fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                const file = files[0];
+                
+                // CSV 행 개수 체크
+                try {
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(line => line.trim() !== '');
+                    const dataLines = lines.slice(1); // 헤더 제외
+                    
+                    if (dataLines.length > 300) {
+                        showAlert(`CSV 파일에 너무 많은 행이 있습니다. (현재: ${dataLines.length}개, 최대: 300개)\n악용 방지를 위해 300개 이하로 제한됩니다.`, 'error');
+                        return;
+                    }
+                    
+                    fileInput.files = files;
+                    fileName.textContent = `선택된 파일: ${file.name} (${dataLines.length}개 행)`;
+                    fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                } catch (error) {
+                    fileInput.files = files;
+                    fileName.textContent = `선택된 파일: ${file.name}`;
+                    fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                }
             }
         });
 
-        fileInput.addEventListener('change', (e) => {
+        fileInput.addEventListener('change', async (e) => {
             if (e.target.files.length > 0) {
-                fileName.textContent = `선택된 파일: ${e.target.files[0].name}`;
-                fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                const file = e.target.files[0];
+                
+                // CSV 행 개수 체크
+                try {
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(line => line.trim() !== '');
+                    const dataLines = lines.slice(1); // 헤더 제외
+                    
+                    if (dataLines.length > 300) {
+                        showAlert(`CSV 파일에 너무 많은 행이 있습니다. (현재: ${dataLines.length}개, 최대: 300개)\n악용 방지를 위해 300개 이하로 제한됩니다.`, 'error');
+                        fileInput.value = '';
+                        fileName.textContent = '';
+                        return;
+                    }
+                    
+                    fileName.textContent = `선택된 파일: ${file.name} (${dataLines.length}개 행)`;
+                    fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                } catch (error) {
+                    fileName.textContent = `선택된 파일: ${file.name}`;
+                    fileName.className = 'mt-4 text-sm font-medium text-green-600';
+                }
             }
         });
 
