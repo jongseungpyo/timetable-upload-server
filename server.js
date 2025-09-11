@@ -70,7 +70,7 @@ async function initializeRailwayDB() {
     await railwayDB.query('SELECT NOW()');
     console.log('✅ Railway PostgreSQL 연결 성공');
     
-    // submissions 테이블 생성
+    // submissions 테이블 생성 (검증 링크, 시즌 정보 추가)
     await railwayDB.query(`
       CREATE TABLE IF NOT EXISTS submissions (
         submission_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -79,6 +79,8 @@ async function initializeRailwayDB() {
         contact_name TEXT NOT NULL,
         phone TEXT NOT NULL,
         email TEXT,
+        verification_url TEXT,
+        target_season TEXT,
         notes TEXT,
         csv_data JSONB NOT NULL,
         status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'approved', 'rejected')),
@@ -614,14 +616,21 @@ app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => 
       });
     }
 
-    // 제출 데이터 저장 (승인 대기 상태)
+    // 시즌 정보 생성
+    const seasonYear = req.body.seasonYear;
+    const seasonQuarter = req.body.seasonQuarter;
+    const season = `${seasonYear}.${seasonQuarter}`;
+
+    // 제출 데이터 저장 (승인 대기 상태)  
     const submission = {
       submission_id: submissionId,
-      academy_name: req.body.academyName,
+      academy_name: req.body.academyName || 'Unknown Academy',
       instructor_name: req.body.instructorName,
-      contact_name: req.body.contactName,
-      phone: req.body.phone,
-      email: req.body.email,
+      contact_name: req.body.contactName || 'Unknown Contact', 
+      phone: req.body.phone || 'Unknown Phone',
+      email: req.body.email || 'unknown@email.com',
+      verification_url: req.body.verificationUrl,
+      target_season: season,
       notes: req.body.notes,
       csv_data: JSON.stringify(bundles),
       status: 'pending',
@@ -632,12 +641,13 @@ app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => 
     await railwayDB.query(`
       INSERT INTO submissions (
         submission_id, academy_name, instructor_name, contact_name, 
-        phone, email, notes, csv_data, status, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        phone, email, verification_url, target_season, notes, csv_data, status, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     `, [
       submissionId, submission.academy_name, submission.instructor_name,
       submission.contact_name, submission.phone, submission.email,
-      submission.notes, submission.csv_data, 'pending', new Date()
+      submission.verification_url, submission.target_season, submission.notes, 
+      submission.csv_data, 'pending', new Date()
     ]);
 
     console.log(`📥 새로운 시간표 제출: ${req.body.academyName} (ID: ${submissionId})`);
