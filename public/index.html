@@ -288,10 +288,11 @@
                         </p>
                     </div>
 
-                    <!-- CSV Upload Section -->
-                    <div id="uploadSection">
-                        <div class="space-y-2">
-                            <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 CSV 파일</label>
+                    <!-- Timetable Input Section (통합) -->
+                    <div id="timetableInputSection">
+                        <!-- CSV Upload Area -->
+                        <div id="csvUploadArea" class="space-y-2">
+                            <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 입력</label>
                             <div 
                                 class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" 
                                 id="uploadArea"
@@ -300,44 +301,56 @@
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <div class="text-lg font-medium text-gray-900 mb-2">CSV 파일을 선택하세요</div>
-                                <div class="text-sm text-gray-500">업로드 후 웹 테이블로 확인/수정할 수 있습니다</div>
+                                <div class="text-sm text-gray-500">업로드하면 이 영역이 편집 가능한 테이블로 변환됩니다</div>
                                 <input type="file" id="csvFile" name="csvFile" accept=".csv" class="hidden">
                                 <div id="fileName" class="mt-4 text-sm font-medium text-green-600"></div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Direct Input Section -->
-                    <div id="directSection" class="hidden">
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <label class="text-sm font-medium text-gray-700">시간표 직접 입력</label>
-                                <button type="button" onclick="addTableRow()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md transition-colors">
-                                    + 행 추가
+                            <div class="text-center mt-4">
+                                <button type="button" onclick="showDirectInput()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                    또는 직접 입력하기
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Web Table (CSV 업로드 후 또는 직접 입력 시 표시) -->
+                        <div id="webTableSection" class="hidden space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700">시간표 입력 및 수정</label>
+                                    <p class="text-xs text-gray-500 mt-1">각 행은 하나의 강의를 의미합니다. 같은 강의의 여러 시간대는 별도 행으로 입력하세요.</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button type="button" onclick="addTableRow()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors">
+                                        + 행 추가
+                                    </button>
+                                    <button type="button" onclick="resetToUpload()" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
+                                        다시 업로드
+                                    </button>
+                                </div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full border border-gray-200 rounded-lg" id="timetableTable">
                                     <thead class="bg-gray-50">
-                                        <tr class="text-xs">
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">과목</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">교육청</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">학급</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">학년</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">주제</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">개강일자</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">지역</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">일요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">월요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">화요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">수요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">목요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">금요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">토요일</th>
-                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">삭제</th>
+                                        <tr>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">강사명</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">과목</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">교육청</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[120px]">대상학교</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">학급</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[60px]">학년</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[120px]">주제</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">출강학원</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">개강일자</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">지역</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">월요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">화요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">수요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">목요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">금요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">토요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">시즌</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[60px]">삭제</th>
                                         </tr>
                                     </thead>
                                     <tbody id="timetableTableBody">
@@ -747,28 +760,92 @@
             mobileMenu.classList.toggle('hidden');
         }
 
-        // 제출 방법 탭 전환
-        function showSubmissionMethod(method) {
-            // 탭 버튼 업데이트
-            document.querySelectorAll('.submission-tab').forEach(tab => {
-                tab.classList.remove('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
-                tab.classList.add('text-gray-600', 'bg-gray-50', 'border-gray-200');
-            });
-            
-            if (method === 'upload') {
-                document.getElementById('uploadTab').classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
-                document.getElementById('uploadSection').classList.remove('hidden');
-                document.getElementById('directSection').classList.add('hidden');
-            } else {
-                document.getElementById('directTab').classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
-                document.getElementById('uploadSection').classList.add('hidden');
-                document.getElementById('directSection').classList.remove('hidden');
-                
-                // 직접 작성 모드로 전환 시 빈 행 하나 추가
-                if (document.getElementById('timetableTableBody').children.length === 0) {
-                    addTableRow();
-                }
-            }
+        // 새로운 테이블 행 HTML 생성 (개선된 크기와 time input)
+        function createTableRowHTML(index) {
+            return `
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                        <option value="">선택</option>
+                        <option value="수학">수학</option>
+                        <option value="물리">물리</option>
+                        <option value="화학">화학</option>
+                        <option value="영어">영어</option>
+                        <option value="국어">국어</option>
+                        <option value="생명과학">생명과학</option>
+                        <option value="지구과학">지구과학</option>
+                        <option value="통합과학">통합과학</option>
+                        <option value="통합사회">통합사회</option>
+                        <option value="사문">사문</option>
+                        <option value="생윤">생윤</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="서울특별시" selected>서울특별시</option>
+                        <option value="부산광역시">부산광역시</option>
+                        <option value="대구광역시">대구광역시</option>
+                        <option value="인천광역시">인천광역시</option>
+                        <option value="경기도">경기도</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="연합반 또는 학교명" required></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                        <option value="">선택</option>
+                        <option value="초등학교">초등학교</option>
+                        <option value="중학교">중학교</option>
+                        <option value="고등학교" selected>고등학교</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="주제"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="출강학원"></td>
+                <td class="px-4 py-3 border-b"><input type="date" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="대치">대치</option>
+                        <option value="반포">반포</option>
+                        <option value="목동">목동</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </td>
+                ${createTimeInputHTML('일요일')}
+                ${createTimeInputHTML('월요일')}
+                ${createTimeInputHTML('화요일')}
+                ${createTimeInputHTML('수요일')}
+                ${createTimeInputHTML('목요일')}
+                ${createTimeInputHTML('금요일')}
+                ${createTimeInputHTML('토요일')}
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="2025.1">2025.1 (겨울방학)</option>
+                        <option value="2025.2">2025.2 (1학기)</option>
+                        <option value="2025.3">2025.3 (여름방학)</option>
+                        <option value="2025.4" selected>2025.4 (2학기)</option>
+                        <option value="2026.1">2026.1 (겨울방학)</option>
+                        <option value="2026.2">2026.2 (1학기)</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b text-center">
+                    <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
         }
 
         let tableRowCount = 0;
@@ -951,6 +1028,10 @@
                 const lines = csvContent.split('\n');
                 const headers = lines[0].split(',');
                 
+                // CSV 업로드 영역 숨기고 웹 테이블 표시
+                document.getElementById('csvUploadArea').classList.add('hidden');
+                document.getElementById('webTableSection').classList.remove('hidden');
+                
                 // 기존 테이블 내용 지우기
                 const tableBody = document.getElementById('timetableTableBody');
                 tableBody.innerHTML = '';
@@ -966,9 +1047,6 @@
                     addTableRowWithData(values);
                 }
                 
-                // 직접 작성 탭으로 전환 (테이블 확인/수정 가능)
-                showSubmissionMethod('direct');
-                
                 // 미리보기 섹션 표시
                 document.getElementById('dataPreviewSection').classList.remove('hidden');
                 generatePreview();
@@ -977,6 +1055,42 @@
             };
             
             reader.readAsText(file, 'utf-8');
+        }
+
+        // 시간 입력 HTML 생성 (시작/종료 시간 필수)
+        function createTimeInputHTML(dayName) {
+            return `
+                <td class="px-4 py-2 border-b">
+                    <div class="flex flex-col space-y-1">
+                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작시간">
+                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료시간">
+                    </div>
+                </td>
+            `;
+        }
+
+        // 직접 입력 모드 표시
+        function showDirectInput() {
+            document.getElementById('csvUploadArea').classList.add('hidden');
+            document.getElementById('webTableSection').classList.remove('hidden');
+            
+            // 빈 행 하나 추가
+            if (document.getElementById('timetableTableBody').children.length === 0) {
+                addTableRow();
+            }
+        }
+
+        // CSV 업로드 모드로 리셋
+        function resetToUpload() {
+            document.getElementById('csvUploadArea').classList.remove('hidden');
+            document.getElementById('webTableSection').classList.add('hidden');
+            document.getElementById('dataPreviewSection').classList.add('hidden');
+            
+            // 테이블 내용 지우기
+            document.getElementById('timetableTableBody').innerHTML = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('csvFile').value = '';
+            tableRowCount = 0;
         }
 
         // 데이터와 함께 테이블 행 추가
@@ -1198,13 +1312,26 @@
                     return { isValid: false, message: `${i + 1}번째 행: 최소 하나의 시간을 입력해주세요.` };
                 }
                 
-                // 시간 형식 체크
+                // 시간 입력 검증 (시작/종료 모두 필수)
                 for (let j = 0; j < row.schedule.length; j++) {
-                    const time = row.schedule[j];
-                    if (time && time.trim()) {
-                        if (!/^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$/.test(time.trim())) {
+                    const timeInfo = row.schedule[j];
+                    if (timeInfo && (timeInfo.start_time || timeInfo.end_time)) {
+                        // 시작시간과 종료시간이 모두 있어야 함
+                        if (!timeInfo.start_time || !timeInfo.end_time) {
                             const days = ['일', '월', '화', '수', '목', '금', '토'];
-                            return { isValid: false, message: `${i + 1}번째 행 ${days[j]}요일: 시간 형식이 올바르지 않습니다 (예: 09:00 ~ 12:30).` };
+                            return { isValid: false, message: `${i + 1}번째 행 ${days[j]}요일: 시작시간과 종료시간을 모두 입력해주세요.` };
+                        }
+                        
+                        // 시간 형식 체크 (HH:MM)
+                        if (!/^\d{2}:\d{2}$/.test(timeInfo.start_time) || !/^\d{2}:\d{2}$/.test(timeInfo.end_time)) {
+                            const days = ['일', '월', '화', '수', '목', '금', '토'];
+                            return { isValid: false, message: `${i + 1}번째 행 ${days[j]}요일: 올바른 시간 형식이 아닙니다.` };
+                        }
+                        
+                        // 종료시간이 시작시간보다 늦은지 체크
+                        if (timeInfo.start_time >= timeInfo.end_time) {
+                            const days = ['일', '월', '화', '수', '목', '금', '토'];
+                            return { isValid: false, message: `${i + 1}번째 행 ${days[j]}요일: 종료시간이 시작시간보다 늦어야 합니다.` };
                         }
                     }
                 }
