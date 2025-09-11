@@ -78,7 +78,7 @@
             <div class="text-center py-12">
                 <svg class="animate-spin w-8 h-8 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <p class="text-gray-500">제출 내역을 불러오는 중...</p>
             </div>
@@ -264,35 +264,161 @@
         function renderSingleSubmission(submission) {
             const container = document.getElementById('submissionDisplay');
             
-            if (!submission) {
-                container.innerHTML = `
-                    <div class="text-center py-12">
-                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">제출된 시간표가 없습니다</h3>
-                        <p class="text-gray-500">학원에서 시간표를 제출하면 여기에 표시됩니다.</p>
+            const statusColor = {
+                'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                'reviewing': 'bg-blue-100 text-blue-800 border-blue-200', 
+                'approved': 'bg-green-100 text-green-800 border-green-200',
+                'rejected': 'bg-red-100 text-red-800 border-red-200'
+            };
+
+            const statusText = {
+                'pending': '승인 대기',
+                'reviewing': '검토 중',
+                'approved': '승인 완료',
+                'rejected': '거절됨'
+            };
+
+            container.innerHTML = `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center space-x-4">
+                            <h3 class="text-lg font-semibold text-gray-900">${submission.academy_name}</h3>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full border ${statusColor[submission.status]}">
+                                ${statusText[submission.status]}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            ${new Date(submission.submitted_at).toLocaleDateString('ko-KR')}
+                        </div>
                     </div>
-                `;
-                return;
-            }
 
-            container.innerHTML = submissions.map(submission => {
-                const statusColor = {
-                    'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                    'reviewing': 'bg-blue-100 text-blue-800 border-blue-200', 
-                    'approved': 'bg-green-100 text-green-800 border-green-200',
-                    'rejected': 'bg-red-100 text-red-800 border-red-200'
-                };
+                    <!-- Content -->
+                    <div class="px-6 py-4">
+                        <!-- Contact Info -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 text-sm">
+                            <div>
+                                <span class="text-gray-500">담당자:</span>
+                                <span class="ml-2 font-medium">${submission.contact_name}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">연락처:</span>
+                                <span class="ml-2 font-medium">${submission.phone || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">이메일:</span>
+                                <span class="ml-2 font-medium">${submission.email || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">시즌:</span>
+                                <span class="ml-2 font-medium">${submission.target_season || '-'}</span>
+                            </div>
+                        </div>
 
-                const statusText = {
-                    'pending': '승인 대기',
-                    'reviewing': '검토 중',
-                    'approved': '승인 완료',
-                    'rejected': '거절됨'
-                };
+                        ${submission.verification_url ? `
+                            <div class="mb-6">
+                                <span class="text-sm text-gray-500">검증 링크:</span>
+                                <a href="${submission.verification_url}" target="_blank" class="ml-2 text-blue-600 hover:text-blue-700 text-sm">${submission.verification_url}</a>
+                            </div>
+                        ` : ''}
 
-                return `
+                        ${submission.notes ? `
+                            <div class="mb-6">
+                                <span class="text-sm text-gray-500">참고사항:</span>
+                                <p class="mt-1 text-sm bg-gray-50 p-3 rounded-md">${submission.notes}</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Data Preview -->
+                        <div class="space-y-6">
+                            <!-- Original Data -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                                    <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                    제출한 원본 시간표
+                                </h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs border border-gray-200 rounded-lg">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상 학교</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학원</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시간</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="originalData_${submission.submission_id}">
+                                            <!-- 원본 데이터가 여기에 렌더링됩니다 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Converted Data -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    변환된 시간표 (DB 저장용)
+                                </h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs border border-gray-200 rounded-lg">
+                                        <thead class="bg-blue-50">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학교코드</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학원</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">세션</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="convertedData_${submission.submission_id}">
+                                            <!-- 변환된 데이터가 여기에 렌더링됩니다 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3 mt-6">
+                            ${submission.status === 'pending' ? `
+                                <button 
+                                    onclick="markAsReviewing('${submission.submission_id}')"
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                    검토 확인
+                                </button>
+                            ` : ''}
+                            
+                            ${submission.status === 'reviewing' || submission.status === 'pending' ? `
+                                <button 
+                                    onclick="openSeasonModal('${submission.submission_id}')"
+                                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                    승인 확정
+                                </button>
+                                <button 
+                                    onclick="rejectSubmission('${submission.submission_id}')"
+                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                    거절
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 제출 데이터 렌더링
+            renderSubmissionData(submission);
+        }
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                         <!-- Header -->
                         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
