@@ -762,6 +762,15 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
 
     if (bundleError) throw bundleError;
 
+    // Railway DB에서 학원 승인 대기 수 조회
+    const academiesResult = await railwayDB.query(`
+      SELECT COUNT(*) as pending_academies 
+      FROM academies 
+      WHERE status = 'pending'
+    `);
+    
+    const pendingAcademies = academiesResult.rows[0]?.pending_academies || 0;
+
     // 통계 계산
     const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
     const approvedSubmissions = submissions.filter(s => s.status === 'approved').length;
@@ -778,6 +787,7 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
 
     res.json({
       pendingSubmissions,
+      pendingAcademies,
       approvedSubmissions,
       totalBundles: totalBundles || 0,
       inquiries: 0, // TODO: 문의사항 테이블 생성 후 구현
@@ -981,12 +991,12 @@ app.post('/api/academy/register', async (req, res) => {
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // 학원 등록
+    // 학원 등록 (기본 상태: 승인 대기)
     const result = await railwayDB.query(`
-      INSERT INTO academies (academy_name, contact_name, phone, email, password_hash)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO academies (academy_name, contact_name, phone, email, password_hash, status)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING academy_id, academy_name, contact_name, email
-    `, [academyName, contactName, phone, email, hashedPassword]);
+    `, [academyName, contactName, phone, email, hashedPassword, 'pending']);
 
     const academy = result.rows[0];
     console.log(`👥 새로운 학원 가입: ${academyName} (${email})`);
