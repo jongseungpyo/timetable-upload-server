@@ -863,65 +863,7 @@
             row.remove();
         }
 
-        // 시간표 제출 폼 처리
-        document.getElementById('timetableForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const submitBtn = document.getElementById('submitBtn');
-            const progress = document.getElementById('progress');
-            const result = document.getElementById('timetableResult');
-            
-            if (!formData.get('csvFile') || formData.get('csvFile').size === 0) {
-                showAlert('CSV 파일을 선택해주세요.', 'error', 'timetableResult');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '제출 중...';
-            progress.classList.remove('hidden');
-            result.innerHTML = '';
-
-            try {
-                const response = await fetch('/api/submit-timetable', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert(`
-                        <div class="flex items-center">
-                            <svg class="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <div>
-                                <div class="font-semibold">제출 완료!</div>
-                                <div class="text-sm mt-1">제출 ID: <code class="bg-gray-100 px-2 py-1 rounded">${data.submissionId}</code></div>
-                                <div class="text-sm text-gray-600 mt-2">검토 후 2-3일 내에 결과를 알려드리겠습니다.</div>
-                            </div>
-                        </div>
-                    `, 'success', 'timetableResult');
-                    
-                    e.target.reset();
-                    document.getElementById('fileName').textContent = '';
-                } else {
-                    showAlert(data.error, 'error', 'timetableResult');
-                }
-            } catch (error) {
-                showAlert(`연결 오류: ${error.message}`, 'error', 'timetableResult');
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                </svg>
-                시간표 제출하기
-            `;
-            progress.classList.add('hidden');
-        });
+        // 기존 폼 이벤트 리스너는 제거 (웹 테이블 시스템으로 대체)
 
         // 문의 폼 처리
         document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
