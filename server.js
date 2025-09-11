@@ -1593,6 +1593,35 @@ app.get('/api/admin/bundles', requireAuth, logAdminActivity('VIEW_BUNDLES'), asy
   }
 });
 
+// ===== 임시 디버깅 API =====
+
+// Railway DB 데이터 확인용 (임시)
+app.get('/api/debug/submissions', requireAuth, async (req, res) => {
+  try {
+    if (!railwayDB) {
+      return res.status(503).json({ error: 'Railway DB 연결되지 않음' });
+    }
+
+    const result = await railwayDB.query(`
+      SELECT submission_id, academy_name, target_season, submitted_at, 
+             LENGTH(csv_data) as csv_data_length,
+             SUBSTRING(csv_data, 1, 200) as csv_preview
+      FROM submissions 
+      ORDER BY submitted_at DESC 
+      LIMIT 3
+    `);
+
+    res.json({
+      count: result.rows.length,
+      submissions: result.rows
+    });
+
+  } catch (error) {
+    console.error('디버깅 API 실패:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 서버 시작: http://localhost:${PORT}`);
