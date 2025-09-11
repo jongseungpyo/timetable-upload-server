@@ -175,6 +175,110 @@
             </a>
         </div>
 
+        <!-- Timetable Bundle Management -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">시간표 번들 관리</h2>
+                    <div class="flex space-x-2">
+                        <select id="seasonFilter" onchange="loadSeasonBundles()" class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="2025.4">2025.4 (2학기)</option>
+                            <option value="2025.3">2025.3 (여름방학)</option>
+                            <option value="2025.2">2025.2 (1학기)</option>
+                            <option value="2025.1">2025.1 (겨울방학)</option>
+                            <option value="2026.1">2026.1 (겨울방학)</option>
+                        </select>
+                        <button onclick="refreshBundles()" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                            새로고침
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Season Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <div class="text-sm text-blue-600 mb-1">총 번들 수</div>
+                        <div class="text-2xl font-bold text-blue-900" id="seasonBundleCount">-</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                        <div class="text-sm text-green-600 mb-1">활성 번들</div>
+                        <div class="text-2xl font-bold text-green-900" id="activeBundleCount">-</div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                        <div class="text-sm text-yellow-600 mb-1">총 세션 수</div>
+                        <div class="text-2xl font-bold text-yellow-900" id="sessionCount">-</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div class="text-sm text-purple-600 mb-1">강사 수</div>
+                        <div class="text-2xl font-bold text-purple-900" id="teacherCount">-</div>
+                    </div>
+                </div>
+
+                <!-- Bundle Management Actions -->
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <button onclick="exportSeasonData()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        시즌 데이터 내보내기
+                    </button>
+                    <button onclick="showBundleList()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                        번들 목록 보기
+                    </button>
+                    <button onclick="cleanupDuplicates()" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-md transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1v3M4 7h16"/>
+                        </svg>
+                        중복 데이터 정리
+                    </button>
+                    <button onclick="clearSeasonData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        시즌 데이터 초기화
+                    </button>
+                </div>
+
+                <!-- Bundle List -->
+                <div id="bundleListSection" class="hidden">
+                    <div class="border border-gray-200 rounded-lg">
+                        <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                            <h3 class="font-medium text-gray-900">번들 목록</h3>
+                        </div>
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50 sticky top-0">
+                                    <tr class="text-sm">
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">강사명</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">과목</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">학교</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">학년</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">주제</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">학원</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">지역</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">세션</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-700">상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bundleTableBody">
+                                    <tr>
+                                        <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                            번들 목록을 불러오는 중...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Recent Activity -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -196,7 +300,10 @@
 
     <script>
         // 페이지 로드 시 통계 데이터 로드
-        document.addEventListener('DOMContentLoaded', loadDashboardData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            loadSeasonBundles(); // 기본 시즌 번들 로드
+        });
 
         async function loadDashboardData() {
             try {
@@ -270,6 +377,114 @@
             if (hours < 1) return `${minutes}분 전`;
             if (hours < 24) return `${hours}시간 전`;
             return date.toLocaleDateString('ko-KR');
+        }
+
+        // 시즌별 번들 데이터 로드
+        async function loadSeasonBundles() {
+            const season = document.getElementById('seasonFilter').value;
+            
+            try {
+                const response = await fetch(`/api/admin/season-stats?season=${season}`);
+                const data = await response.json();
+                
+                // 시즌 통계 업데이트
+                document.getElementById('seasonBundleCount').textContent = data.totalBundles || 0;
+                document.getElementById('activeBundleCount').textContent = data.activeBundles || 0;
+                document.getElementById('sessionCount').textContent = data.totalSessions || 0;
+                document.getElementById('teacherCount').textContent = data.totalTeachers || 0;
+                
+            } catch (error) {
+                console.error('시즌 데이터 로드 실패:', error);
+            }
+        }
+
+        // 번들 목록 토글
+        function showBundleList() {
+            const section = document.getElementById('bundleListSection');
+            const isHidden = section.classList.contains('hidden');
+            
+            if (isHidden) {
+                section.classList.remove('hidden');
+                loadBundleList();
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        // 번들 목록 로드
+        async function loadBundleList() {
+            const season = document.getElementById('seasonFilter').value;
+            
+            try {
+                const response = await fetch(`/api/admin/bundles?season=${season}&limit=50`);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('bundleTableBody');
+                
+                if (data.bundles && data.bundles.length > 0) {
+                    tbody.innerHTML = data.bundles.map(bundle => `
+                        <tr class="hover:bg-gray-50 text-sm">
+                            <td class="px-4 py-2 border-b">${bundle.teacher_name}</td>
+                            <td class="px-4 py-2 border-b">${bundle.subject}</td>
+                            <td class="px-4 py-2 border-b">${bundle.target_school_codes?.join(', ') || '-'}</td>
+                            <td class="px-4 py-2 border-b">${bundle.target_grade || '-'}</td>
+                            <td class="px-4 py-2 border-b">${bundle.topic || '-'}</td>
+                            <td class="px-4 py-2 border-b">${bundle.academy || '-'}</td>
+                            <td class="px-4 py-2 border-b">${bundle.region || '-'}</td>
+                            <td class="px-4 py-2 border-b">${bundle.session_count || 0}개</td>
+                            <td class="px-4 py-2 border-b">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${bundle.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                    ${bundle.published ? '활성' : '비활성'}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                ${season} 시즌에 번들이 없습니다
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('번들 목록 로드 실패:', error);
+                document.getElementById('bundleTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="9" class="px-4 py-8 text-center text-red-500">
+                            번들 목록 로드에 실패했습니다
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // 기타 관리 함수들 (TODO: API 구현 후 완성)
+        function refreshBundles() {
+            loadSeasonBundles();
+            if (!document.getElementById('bundleListSection').classList.contains('hidden')) {
+                loadBundleList();
+            }
+        }
+
+        function exportSeasonData() {
+            const season = document.getElementById('seasonFilter').value;
+            alert(`${season} 시즌 데이터 내보내기 기능은 구현 예정입니다.`);
+        }
+
+        function cleanupDuplicates() {
+            const season = document.getElementById('seasonFilter').value;
+            if (confirm(`${season} 시즌의 중복 데이터를 정리하시겠습니까?`)) {
+                alert('중복 데이터 정리 기능은 구현 예정입니다.');
+            }
+        }
+
+        function clearSeasonData() {
+            const season = document.getElementById('seasonFilter').value;
+            if (confirm(`⚠️ ${season} 시즌의 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                alert('시즌 데이터 초기화 기능은 구현 예정입니다.');
+            }
         }
 
         async function logout() {
