@@ -154,7 +154,14 @@ async function initializeRailwayDB() {
       console.log('🧪 테스트 강사 계정 생성: test@timebuilder.com/test123 (테스트 학원 - 표종승)');
     }
     
-    console.log('✅ Railway DB submissions 테이블 준비 완료');
+    // submissions 테이블 컬럼 추가 (기존 테이블에 없는 경우)
+    await railwayDB.query(`
+      ALTER TABLE submissions 
+      ADD COLUMN IF NOT EXISTS verification_url TEXT,
+      ADD COLUMN IF NOT EXISTS target_season TEXT
+    `);
+    
+    console.log('✅ Railway DB submissions 테이블 준비 완료 (컬럼 업데이트 포함)');
   } catch (error) {
     console.error('❌ Railway PostgreSQL 초기화 실패:', error);
   }
