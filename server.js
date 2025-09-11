@@ -195,6 +195,45 @@ function requireAcademyAuth(req, res, next) {
   next();
 }
 
+// 학원 승인 상태 체크 미들웨어
+async function requireApprovedAcademy(req, res, next) {
+  if (!railwayDB) {
+    return res.status(503).json({ error: '서비스 준비 중입니다' });
+  }
+
+  try {
+    // DB에서 최신 승인 상태 확인
+    const result = await railwayDB.query(
+      'SELECT status FROM academies WHERE academy_id = $1',
+      [req.academy.academy_id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '학원 정보를 찾을 수 없습니다' });
+    }
+
+    const academy = result.rows[0];
+    
+    if (academy.status !== 'active') {
+      const statusMessages = {
+        'pending': '학원 승인 대기 중입니다. 관리자 승인 후 이용 가능합니다.',
+        'rejected': '학원 가입이 거절되었습니다. 자세한 내용은 연락처로 문의해주세요.',
+        'suspended': '학원 계정이 정지되었습니다. 자세한 내용은 연락처로 문의해주세요.'
+      };
+      
+      return res.status(403).json({ 
+        error: statusMessages[academy.status] || '이용할 수 없는 계정입니다',
+        status: academy.status
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('학원 승인 상태 체크 실패:', error);
+    res.status(500).json({ error: '인증 확인 중 오류가 발생했습니다' });
+  }
+}
+
 // 보안 미들웨어 (CSP 완화 - 인라인 이벤트 핸들러 허용)
 app.use(helmet({
   contentSecurityPolicy: {
@@ -543,7 +582,7 @@ app.post('/api/submit-inquiry', async (req, res) => {
   }
 });
 
-// 시간표 제출 API
+// 시간표 제출 API (로그인 사용자만, 하지만 승인 상태는 체크하지 않음 - 제출은 가능)
 app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => {
   try {
     if (!req.file) {
@@ -1076,8 +1115,8 @@ app.post('/api/academy/login', async (req, res) => {
   }
 });
 
-// 학원 제출 내역 조회
-app.get('/api/academy/submissions', requireAcademyAuth, async (req, res) => {
+// 학원 제출 내역 조회 (승인된 학원만)
+app.get('/api/academy/submissions', requireAcademyAuth, requireApprovedAcademy, async (req, res) => {
   try {
     if (!railwayDB) {
       return res.status(503).json({ error: '서비스 준비 중입니다' });
