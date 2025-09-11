@@ -1013,6 +1013,83 @@ app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJ
   }
 });
 
+// 웹 테이블 시간표 제출 API
+app.post('/api/submit-timetable-web', async (req, res) => {
+  try {
+    const { academyName, contactName, email, seasonYear, seasonQuarter, verificationUrl, notes, tableData } = req.body;
+    
+    if (!academyName || !contactName || !email || !seasonYear || !seasonQuarter || !verificationUrl || !tableData) {
+      return res.status(400).json({ error: '필수 정보가 누락되었습니다' });
+    }
+
+    if (!tableData || tableData.length === 0) {
+      return res.status(400).json({ error: '시간표 데이터가 없습니다' });
+    }
+
+    const submissionId = generateUUID();
+    const season = `${seasonYear}.${seasonQuarter}`;
+    
+    // 테이블 데이터를 CSV 형식으로 변환
+    const bundles = tableData.map(row => ({
+      teacher_name: row.teacher_name,
+      subject: row.subject,
+      education_office: row.education_office,
+      target_school: row.target_school,
+      school_level: row.school_level,
+      target_grade: row.target_grade,
+      topic: row.topic,
+      academy: row.academy,
+      start_date: row.start_date,
+      region: row.region,
+      sessions: row.schedule.map((time, index) => {
+        if (time && time.trim()) {
+          const timeParts = time.split('~').map(t => t.trim());
+          if (timeParts.length === 2) {
+            return {
+              weekday: index,
+              start_time: timeParts[0],
+              end_time: timeParts[1]
+            };
+          }
+        }
+        return null;
+      }).filter(session => session !== null)
+    }));
+
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    // Railway DB submissions 테이블에 저장
+    await railwayDB.query(`
+      INSERT INTO submissions (
+        submission_id, academy_name, contact_name, 
+        email, verification_url, target_season, notes, csv_data, status, submitted_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `, [
+      submissionId, academyName, contactName,
+      email, verificationUrl, season, notes, 
+      JSON.stringify(bundles), 'pending', new Date()
+    ]);
+
+    console.log(`📥 웹 테이블 시간표 제출: ${academyName} (${tableData.length}개 데이터, ID: ${submissionId})`);
+    
+    res.json({
+      success: true,
+      submissionId: submissionId,
+      message: '시간표가 성공적으로 제출되었습니다. 검토 후 연락드리겠습니다.',
+      bundles: bundles.length
+    });
+    
+  } catch (error) {
+    console.error('❌ 웹 테이블 제출 실패:', error);
+    res.status(500).json({ 
+      error: '제출 중 오류가 발생했습니다',
+      details: error.message 
+    });
+  }
+});
+
 // ===== 학원/강사 계정 관리 =====
 
 // 학원 회원가입

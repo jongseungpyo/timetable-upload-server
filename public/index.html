@@ -204,13 +204,22 @@
                 </ul>
             </div>
 
-            <!-- Submission Form -->
+            <!-- Submission Methods -->
             <div class="bg-white shadow-sm rounded-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">시간표 제출 정보</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">시간표 제출 방법</h3>
+                    <!-- Method Tabs -->
+                    <div class="flex space-x-4">
+                        <button onclick="showSubmissionMethod('upload')" id="uploadTab" class="submission-tab active px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
+                            📁 CSV 업로드
+                        </button>
+                        <button onclick="showSubmissionMethod('direct')" id="directTab" class="submission-tab px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100">
+                            ✏️ 직접 작성
+                        </button>
+                    </div>
                 </div>
                 
-                <form id="timetableForm" class="p-6 space-y-6">
+                <div class="p-6 space-y-6">
                     <!-- Academy Info (자동 채움, 읽기 전용) -->
                     <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <h4 class="text-sm font-medium text-gray-700 mb-3">학원 정보 (자동 입력)</h4>
@@ -223,7 +232,7 @@
                                 <span class="text-gray-500">담당자:</span>
                                 <span class="ml-2 font-medium" id="autoContactName">로그인 후 자동 입력</span>
                             </div>
-                            <div>
+                            <div class="md:col-span-1">
                                 <span class="text-gray-500">이메일:</span>
                                 <span class="ml-2 font-medium" id="autoEmail">로그인 후 자동 입력</span>
                             </div>
@@ -241,7 +250,7 @@
                                 class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="">년도 선택</option>
-                                <option value="2025">2025년</option>
+                                <option value="2025" selected>2025년</option>
                                 <option value="2026">2026년</option>
                                 <option value="2027">2027년</option>
                             </select>
@@ -258,7 +267,7 @@
                                 <option value="1">1분기 (겨울방학)</option>
                                 <option value="2">2분기 (1학기)</option>
                                 <option value="3">3분기 (여름방학)</option>
-                                <option value="4">4분기 (2학기)</option>
+                                <option value="4" selected>4분기 (2학기)</option>
                             </select>
                         </div>
                     </div>
@@ -279,6 +288,97 @@
                         </p>
                     </div>
 
+                    <!-- CSV Upload Section -->
+                    <div id="uploadSection">
+                        <div class="space-y-2">
+                            <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 CSV 파일</label>
+                            <div 
+                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" 
+                                id="uploadArea"
+                            >
+                                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="text-lg font-medium text-gray-900 mb-2">CSV 파일을 선택하세요</div>
+                                <div class="text-sm text-gray-500">업로드 후 웹 테이블로 확인/수정할 수 있습니다</div>
+                                <input type="file" id="csvFile" name="csvFile" accept=".csv" class="hidden">
+                                <div id="fileName" class="mt-4 text-sm font-medium text-green-600"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Direct Input Section -->
+                    <div id="directSection" class="hidden">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm font-medium text-gray-700">시간표 직접 입력</label>
+                                <button type="button" onclick="addTableRow()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md transition-colors">
+                                    + 행 추가
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 rounded-lg" id="timetableTable">
+                                    <thead class="bg-gray-50">
+                                        <tr class="text-xs">
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">과목</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">교육청</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">학급</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">학년</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">주제</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">개강일자</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">지역</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">일요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">월요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">화요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">수요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">목요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">금요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">토요일</th>
+                                            <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">삭제</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="timetableTableBody">
+                                        <!-- 동적으로 생성되는 행들 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Preview Section (CSV 업로드 후 또는 직접 작성 후) -->
+                    <div id="dataPreviewSection" class="hidden">
+                        <div class="space-y-4">
+                            <h4 class="text-sm font-medium text-gray-700">제출 데이터 미리보기</h4>
+                            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                <p class="text-sm text-blue-800">
+                                    아래 테이블의 내용이 관리자에게 전송됩니다. 내용을 확인하고 제출해주세요.
+                                </p>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 rounded-lg" id="previewTable">
+                                    <thead class="bg-gray-50">
+                                        <tr class="text-xs">
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
+                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시간</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="previewTableBody">
+                                        <!-- 미리보기 데이터 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="space-y-2">
                         <label for="notes" class="text-sm font-medium text-gray-700">참고사항</label>
                         <textarea 
@@ -290,27 +390,22 @@
                         ></textarea>
                     </div>
 
-                    <!-- File Upload -->
-                    <div class="space-y-2">
-                        <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 CSV 파일 *</label>
-                        <div 
-                            class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" 
-                            id="uploadArea"
-                        >
-                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <div class="text-lg font-medium text-gray-900 mb-2">CSV 파일을 선택하세요</div>
-                            <div class="text-sm text-gray-500">또는 여기로 드래그하세요</div>
-                            <input type="file" id="csvFile" name="csvFile" accept=".csv" required class="hidden">
-                            <div id="fileName" class="mt-4 text-sm font-medium text-green-600"></div>
-                        </div>
-                    </div>
-
                     <!-- Submit Button -->
-                    <div class="flex justify-end">
+                    <div class="flex justify-end space-x-3">
                         <button 
-                            type="submit" 
+                            type="button" 
+                            onclick="previewData()"
+                            id="previewBtn"
+                            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-gray-600 text-white hover:bg-gray-700 h-10 py-2 px-6"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            미리보기
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="submitTimetable()"
                             id="submitBtn"
                             class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-8"
                         >
@@ -331,7 +426,7 @@
 
                     <!-- Result -->
                     <div id="timetableResult"></div>
-                </form>
+                </div>
             </div>
         </section>
 
@@ -652,6 +747,122 @@
             mobileMenu.classList.toggle('hidden');
         }
 
+        // 제출 방법 탭 전환
+        function showSubmissionMethod(method) {
+            // 탭 버튼 업데이트
+            document.querySelectorAll('.submission-tab').forEach(tab => {
+                tab.classList.remove('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
+                tab.classList.add('text-gray-600', 'bg-gray-50', 'border-gray-200');
+            });
+            
+            if (method === 'upload') {
+                document.getElementById('uploadTab').classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
+                document.getElementById('uploadSection').classList.remove('hidden');
+                document.getElementById('directSection').classList.add('hidden');
+            } else {
+                document.getElementById('directTab').classList.add('active', 'text-blue-600', 'bg-blue-50', 'border-blue-200');
+                document.getElementById('uploadSection').classList.add('hidden');
+                document.getElementById('directSection').classList.remove('hidden');
+                
+                // 직접 작성 모드로 전환 시 빈 행 하나 추가
+                if (document.getElementById('timetableTableBody').children.length === 0) {
+                    addTableRow();
+                }
+            }
+        }
+
+        let tableRowCount = 0;
+
+        // 테이블 행 추가
+        function addTableRow() {
+            const tableBody = document.getElementById('timetableTableBody');
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            row.innerHTML = createTableRowHTML(tableRowCount);
+            tableBody.appendChild(row);
+            tableRowCount++;
+        }
+
+        // 테이블 행 HTML 생성
+        function createTableRowHTML(index) {
+            return `
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="강사명"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="수학">수학</option>
+                        <option value="물리">물리</option>
+                        <option value="화학">화학</option>
+                        <option value="영어">영어</option>
+                        <option value="국어">국어</option>
+                        <option value="생명과학">생명과학</option>
+                        <option value="지구과학">지구과학</option>
+                        <option value="통합과학">통합과학</option>
+                        <option value="통합사회">통합사회</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="서울특별시" selected>서울특별시</option>
+                        <option value="부산광역시">부산광역시</option>
+                        <option value="대구광역시">대구광역시</option>
+                        <option value="인천광역시">인천광역시</option>
+                        <option value="경기도">경기도</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="연합반 또는 학교명"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="초등학교">초등학교</option>
+                        <option value="중학교">중학교</option>
+                        <option value="고등학교" selected>고등학교</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="주제"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="출강학원"></td>
+                <td class="px-2 py-1 border-b"><input type="date" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="대치">대치</option>
+                        <option value="반포">반포</option>
+                        <option value="목동">목동</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b">
+                    <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+        }
+
+        // 테이블 행 삭제
+        function removeTableRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+        }
+
         // 시간표 제출 폼 처리
         document.getElementById('timetableForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -782,9 +993,368 @@
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
-                fileName.textContent = `선택된 파일: ${e.target.files[0].name}`;
+                const file = e.target.files[0];
+                fileName.textContent = `선택된 파일: ${file.name}`;
+                
+                // CSV 파싱 및 테이블 채우기
+                parseCSVAndFillTable(file);
             }
         });
+
+        // CSV 파싱 및 테이블 채우기
+        function parseCSVAndFillTable(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csvContent = e.target.result;
+                const lines = csvContent.split('\n');
+                const headers = lines[0].split(',');
+                
+                // 기존 테이블 내용 지우기
+                const tableBody = document.getElementById('timetableTableBody');
+                tableBody.innerHTML = '';
+                tableRowCount = 0;
+                
+                // CSV 데이터로 테이블 채우기
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue;
+                    
+                    const values = lines[i].split(',').map(val => val.replace(/"/g, '').trim());
+                    if (values.length < headers.length) continue;
+                    
+                    addTableRowWithData(values);
+                }
+                
+                // 직접 작성 탭으로 전환 (테이블 확인/수정 가능)
+                showSubmissionMethod('direct');
+                
+                // 미리보기 섹션 표시
+                document.getElementById('dataPreviewSection').classList.remove('hidden');
+                generatePreview();
+                
+                showAlert('CSV 파일이 성공적으로 로드되었습니다. 테이블에서 확인/수정 후 제출하세요.', 'success', 'timetableResult');
+            };
+            
+            reader.readAsText(file, 'utf-8');
+        }
+
+        // 데이터와 함께 테이블 행 추가
+        function addTableRowWithData(data) {
+            const tableBody = document.getElementById('timetableTableBody');
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            const rowHTML = `
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[0] || ''}"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
+                        <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
+                        <option value="화학" ${data[1] === '화학' ? 'selected' : ''}>화학</option>
+                        <option value="영어" ${data[1] === '영어' ? 'selected' : ''}>영어</option>
+                        <option value="국어" ${data[1] === '국어' ? 'selected' : ''}>국어</option>
+                        <option value="생명과학" ${data[1] === '생명과학' ? 'selected' : ''}>생명과학</option>
+                        <option value="지구과학" ${data[1] === '지구과학' ? 'selected' : ''}>지구과학</option>
+                        <option value="통합과학" ${data[1] === '통합과학' ? 'selected' : ''}>통합과학</option>
+                        <option value="통합사회" ${data[1] === '통합사회' ? 'selected' : ''}>통합사회</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
+                        <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
+                        <option value="대구광역시" ${data[2] === '대구광역시' ? 'selected' : ''}>대구광역시</option>
+                        <option value="인천광역시" ${data[2] === '인천광역시' ? 'selected' : ''}>인천광역시</option>
+                        <option value="경기도" ${data[2] === '경기도' ? 'selected' : ''}>경기도</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[3] || ''}"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
+                        <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
+                        <option value="고등학교" ${data[4] === '고등학교' ? 'selected' : ''}>고등학교</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
+                        <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
+                        <option value="3" ${data[5] === '3' ? 'selected' : ''}>3</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[6] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[7] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="date" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[8] || ''}"></td>
+                <td class="px-2 py-1 border-b">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                        <option value="">선택</option>
+                        <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
+                        <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
+                        <option value="목동" ${data[9] === '목동' ? 'selected' : ''}>목동</option>
+                        <option value="기타" ${data[9] === '기타' ? 'selected' : ''}>기타</option>
+                    </select>
+                </td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[10] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[11] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[12] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[13] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[14] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[15] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[16] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b">
+                    <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            
+            row.innerHTML = rowHTML;
+            tableBody.appendChild(row);
+            tableRowCount++;
+        }
+
+        // 미리보기 생성
+        function previewData() {
+            const validationResult = validateTableData();
+            if (!validationResult.isValid) {
+                showAlert(validationResult.message, 'error', 'timetableResult');
+                return;
+            }
+            
+            generatePreview();
+            document.getElementById('dataPreviewSection').classList.remove('hidden');
+            document.getElementById('dataPreviewSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 미리보기 테이블 생성
+        function generatePreview() {
+            const tableData = extractTableData();
+            const previewTableBody = document.getElementById('previewTableBody');
+            
+            previewTableBody.innerHTML = tableData.map(row => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2 border-b text-xs">${row.teacher_name}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.subject}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.target_school}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.target_grade}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.topic}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.academy}</td>
+                    <td class="px-3 py-2 border-b text-xs">${row.region}</td>
+                    <td class="px-3 py-2 border-b text-xs">${formatSchedule(row)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 시간표 포맷팅
+        function formatSchedule(row) {
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const schedule = [];
+            
+            for (let i = 0; i < 7; i++) {
+                const time = row.schedule[i];
+                if (time && time.trim()) {
+                    schedule.push(`${days[i]} ${time}`);
+                }
+            }
+            
+            return schedule.join(', ') || '-';
+        }
+
+        // 테이블 데이터 추출
+        function extractTableData() {
+            const rows = document.getElementById('timetableTableBody').children;
+            const data = [];
+            
+            for (let row of rows) {
+                const cells = row.children;
+                const rowData = {
+                    teacher_name: cells[0].querySelector('input').value,
+                    subject: cells[1].querySelector('select').value,
+                    education_office: cells[2].querySelector('select').value,
+                    target_school: cells[3].querySelector('input').value,
+                    school_level: cells[4].querySelector('select').value,
+                    target_grade: cells[5].querySelector('select').value,
+                    topic: cells[6].querySelector('input').value,
+                    academy: cells[7].querySelector('input').value,
+                    start_date: cells[8].querySelector('input').value,
+                    region: cells[9].querySelector('select').value,
+                    schedule: [
+                        cells[10].querySelector('input').value, // 일요일
+                        cells[11].querySelector('input').value, // 월요일
+                        cells[12].querySelector('input').value, // 화요일
+                        cells[13].querySelector('input').value, // 수요일
+                        cells[14].querySelector('input').value, // 목요일
+                        cells[15].querySelector('input').value, // 금요일
+                        cells[16].querySelector('input').value  // 토요일
+                    ]
+                };
+                
+                data.push(rowData);
+            }
+            
+            return data;
+        }
+
+        // 데이터 검증
+        function validateTableData() {
+            const seasonYear = document.getElementById('seasonYear').value;
+            const seasonQuarter = document.getElementById('seasonQuarter').value;
+            const verificationUrl = document.getElementById('verificationUrl').value;
+            
+            // 기본 필수 항목 체크
+            if (!seasonYear || !seasonQuarter) {
+                return { isValid: false, message: '년도와 분기를 선택해주세요.' };
+            }
+            
+            if (!verificationUrl) {
+                return { isValid: false, message: '학원 검증 링크를 입력해주세요.' };
+            }
+            
+            // URL 형식 체크
+            try {
+                new URL(verificationUrl);
+            } catch (e) {
+                return { isValid: false, message: '올바른 URL 형식으로 입력해주세요.' };
+            }
+            
+            // 테이블 데이터 체크
+            const tableData = extractTableData();
+            
+            if (tableData.length === 0) {
+                return { isValid: false, message: '최소 하나의 시간표 데이터를 입력해주세요.' };
+            }
+            
+            // 각 행의 필수 필드 체크
+            for (let i = 0; i < tableData.length; i++) {
+                const row = tableData[i];
+                
+                if (!row.teacher_name) {
+                    return { isValid: false, message: `${i + 1}번째 행: 강사명을 입력해주세요.` };
+                }
+                
+                if (!row.subject) {
+                    return { isValid: false, message: `${i + 1}번째 행: 과목을 선택해주세요.` };
+                }
+                
+                if (!row.target_school) {
+                    return { isValid: false, message: `${i + 1}번째 행: 대상 학교를 입력해주세요.` };
+                }
+                
+                if (!row.school_level) {
+                    return { isValid: false, message: `${i + 1}번째 행: 초/중/고를 선택해주세요.` };
+                }
+                
+                // 시간표가 하나도 없으면 오류
+                const hasSchedule = row.schedule.some(time => time && time.trim());
+                if (!hasSchedule) {
+                    return { isValid: false, message: `${i + 1}번째 행: 최소 하나의 시간을 입력해주세요.` };
+                }
+                
+                // 시간 형식 체크
+                for (let j = 0; j < row.schedule.length; j++) {
+                    const time = row.schedule[j];
+                    if (time && time.trim()) {
+                        if (!/^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$/.test(time.trim())) {
+                            const days = ['일', '월', '화', '수', '목', '금', '토'];
+                            return { isValid: false, message: `${i + 1}번째 행 ${days[j]}요일: 시간 형식이 올바르지 않습니다 (예: 09:00 ~ 12:30).` };
+                        }
+                    }
+                }
+            }
+            
+            return { isValid: true };
+        }
+
+        // 시간표 제출
+        async function submitTimetable() {
+            // 검증 먼저 수행
+            const validationResult = validateTableData();
+            if (!validationResult.isValid) {
+                showAlert(validationResult.message, 'error', 'timetableResult');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const progress = document.getElementById('progress');
+            const result = document.getElementById('timetableResult');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '제출 중...';
+            progress.classList.remove('hidden');
+            result.innerHTML = '';
+
+            try {
+                // 학원 정보 가져오기
+                const academyInfo = JSON.parse(localStorage.getItem('academyInfo') || '{}');
+                
+                // 테이블 데이터 추출
+                const tableData = extractTableData();
+                
+                // 제출 데이터 생성
+                const submissionData = {
+                    academyName: academyInfo.academy_name,
+                    contactName: academyInfo.contact_name,
+                    email: academyInfo.email,
+                    seasonYear: document.getElementById('seasonYear').value,
+                    seasonQuarter: document.getElementById('seasonQuarter').value,
+                    verificationUrl: document.getElementById('verificationUrl').value,
+                    notes: document.getElementById('notes').value,
+                    tableData: tableData
+                };
+
+                const response = await fetch('/api/submit-timetable-web', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('academyToken')}`
+                    },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(`
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <div class="font-semibold">제출 완료!</div>
+                                <div class="text-sm mt-1">제출 ID: <code class="bg-gray-100 px-2 py-1 rounded">${data.submissionId}</code></div>
+                                <div class="text-sm text-gray-600 mt-2">검토 후 2-3일 내에 결과를 알려드리겠습니다.</div>
+                            </div>
+                        </div>
+                    `, 'success', 'timetableResult');
+                    
+                    // 폼 초기화
+                    document.getElementById('timetableTableBody').innerHTML = '';
+                    document.getElementById('dataPreviewSection').classList.add('hidden');
+                    document.getElementById('verificationUrl').value = '';
+                    document.getElementById('notes').value = '';
+                    
+                } else {
+                    showAlert(data.error, 'error', 'timetableResult');
+                }
+            } catch (error) {
+                showAlert(`연결 오류: ${error.message}`, 'error', 'timetableResult');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                시간표 제출하기
+            `;
+            progress.classList.add('hidden');
+        }
 
         function showAlert(message, type, containerId) {
             const alertClasses = {
