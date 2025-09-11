@@ -114,7 +114,6 @@ async function initializeRailwayDB() {
     // 기본 관리자 계정 생성 (없을 경우)
     const defaultAdmin = await railwayDB.query('SELECT admin_id FROM admin_users WHERE username = $1', ['admin']);
     if (defaultAdmin.rows.length === 0) {
-      const bcrypt = require('bcrypt'); // bcrypt 로드
       const hashedPassword = await bcrypt.hash('admin123', 10);
       await railwayDB.query(`
         INSERT INTO admin_users (username, password_hash, name, role)
@@ -127,7 +126,6 @@ async function initializeRailwayDB() {
     // 임시 강사 계정 생성 (테스트용)
     const testAcademy = await railwayDB.query('SELECT academy_id FROM academies WHERE email = $1', ['test@timebuilder.com']);
     if (testAcademy.rows.length === 0) {
-      const bcrypt = require('bcrypt');
       const hashedPassword = await bcrypt.hash('test123', 10);
       await railwayDB.query(`
         INSERT INTO academies (academy_name, contact_name, phone, email, password_hash)
@@ -1058,8 +1056,13 @@ app.post('/api/academy/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ 학원 로그인 실패:', error);
-    res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다' });
+    console.error('❌ 학원 로그인 실패:', {
+      error: error.message,
+      stack: error.stack,
+      username: req.body.username,
+      railwayDBExists: !!railwayDB
+    });
+    res.status(500).json({ error: '로그인 처리 중 오류가 발생했습니다: ' + error.message });
   }
 });
 
