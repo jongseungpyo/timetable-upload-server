@@ -925,9 +925,18 @@ app.get('/admin/submissions', requireAuth, (req, res) => {
 app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSIONS'), async (req, res) => {
   try {
     console.log('📋 제출 목록 API 호출됨 (Railway DB)');
+    console.log('🔗 Railway DB 연결 상태:', !!railwayDB);
     
+    if (!railwayDB) {
+      console.log('❌ Railway DB 연결되지 않음');
+      return res.status(503).json({ error: '데이터베이스 서비스 준비 중입니다' });
+    }
+
     const result = await railwayDB.query(`
-      SELECT * FROM submissions 
+      SELECT submission_id, academy_name, contact_name, phone, email, 
+             verification_url, target_season, notes, csv_data, status, 
+             rejection_reason, submitted_at, reviewed_at, reviewed_by
+      FROM submissions 
       ORDER BY submitted_at DESC
     `);
 
