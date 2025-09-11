@@ -1078,7 +1078,6 @@
             reader.onload = function(e) {
                 const csvContent = e.target.result;
                 const lines = csvContent.split('\n');
-                const headers = lines[0].split(',');
                 
                 // CSV 업로드 영역 숨기고 웹 테이블 표시
                 document.getElementById('csvUploadArea').classList.add('hidden');
@@ -1094,9 +1093,9 @@
                     if (lines[i].trim() === '') continue;
                     
                     const values = lines[i].split(',').map(val => val.replace(/"/g, '').trim());
-                    if (values.length < headers.length) continue;
+                    if (values.length < 10) continue; // 최소 필요 컬럼 수
                     
-                    addTableRowWithData(values);
+                    addTableRowWithCSVData(values);
                 }
                 
                 // 미리보기 섹션 표시
@@ -1107,6 +1106,103 @@
             };
             
             reader.readAsText(file, 'utf-8');
+        }
+
+        // CSV 데이터로 테이블 행 추가 (시즌 드롭다운 올바른 위치)
+        function addTableRowWithCSVData(data) {
+            const tableBody = document.getElementById('timetableTableBody');
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            // CSV 컬럼: 강사명,과목,교육청,대상학교,초중고,대상학년,주제,출강학원,개강일자,지역,일~토요일(10-16),시즌
+            
+            row.innerHTML = `
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                        <option value="">선택</option>
+                        <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
+                        <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
+                        <option value="화학" ${data[1] === '화학' ? 'selected' : ''}>화학</option>
+                        <option value="영어" ${data[1] === '영어' ? 'selected' : ''}>영어</option>
+                        <option value="국어" ${data[1] === '국어' ? 'selected' : ''}>국어</option>
+                        <option value="생명과학" ${data[1] === '생명과학' ? 'selected' : ''}>생명과학</option>
+                        <option value="지구과학" ${data[1] === '지구과학' ? 'selected' : ''}>지구과학</option>
+                        <option value="통합과학" ${data[1] === '통합과학' ? 'selected' : ''}>통합과학</option>
+                        <option value="통합사회" ${data[1] === '통합사회' ? 'selected' : ''}>통합사회</option>
+                        <option value="사문" ${data[1] === '사문' ? 'selected' : ''}>사문</option>
+                        <option value="생윤" ${data[1] === '생윤' ? 'selected' : ''}>생윤</option>
+                        <option value="기타" ${data[1] === '기타' ? 'selected' : ''}>기타</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
+                        <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
+                        <option value="대구광역시" ${data[2] === '대구광역시' ? 'selected' : ''}>대구광역시</option>
+                        <option value="인천광역시" ${data[2] === '인천광역시' ? 'selected' : ''}>인천광역시</option>
+                        <option value="경기도" ${data[2] === '경기도' ? 'selected' : ''}>경기도</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                        <option value="">선택</option>
+                        <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
+                        <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
+                        <option value="고등학교" ${data[4] === '고등학교' ? 'selected' : ''}>고등학교</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
+                        <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
+                        <option value="3" ${data[5] === '3' ? 'selected' : ''}>3</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[6] || ''}"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[7] || ''}"></td>
+                <td class="px-4 py-3 border-b"><input type="date" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[8] || ''}"></td>
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
+                        <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
+                        <option value="목동" ${data[9] === '목동' ? 'selected' : ''}>목동</option>
+                        <option value="기타" ${data[9] === '기타' ? 'selected' : ''}>기타</option>
+                    </select>
+                </td>
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[10]))} <!-- 일요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[11]))} <!-- 월요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[12]))} <!-- 화요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[13]))} <!-- 수요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[14]))} <!-- 목요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[15]))} <!-- 금요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[16]))} <!-- 토요일 -->
+                <td class="px-4 py-3 border-b">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                        <option value="">선택</option>
+                        <option value="2025.1" ${data[17] === '2025.1' ? 'selected' : ''}>2025.1 (겨울방학)</option>
+                        <option value="2025.2" ${data[17] === '2025.2' ? 'selected' : ''}>2025.2 (1학기)</option>
+                        <option value="2025.3" ${data[17] === '2025.3' ? 'selected' : ''}>2025.3 (여름방학)</option>
+                        <option value="2025.4" ${data[17] === '2025.4' ? 'selected' : ''}>2025.4 (2학기)</option>
+                        <option value="2026.1" ${data[17] === '2026.1' ? 'selected' : ''}>2026.1 (겨울방학)</option>
+                        <option value="2026.2" ${data[17] === '2026.2' ? 'selected' : ''}>2026.2 (1학기)</option>
+                    </select>
+                </td>
+                <td class="px-4 py-3 border-b text-center">
+                    <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+            tableRowCount++;
         }
 
         // 시간 입력 HTML 생성 (시작/종료 시간 필수)
