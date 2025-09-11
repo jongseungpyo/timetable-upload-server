@@ -47,12 +47,38 @@
             <p class="text-gray-600">학원에서 제출한 시간표를 검토하고 승인 처리하세요.</p>
         </div>
 
-        <!-- Submissions List -->
-        <div class="space-y-6" id="submissionsList">
+        <!-- Pagination Controls -->
+        <div class="flex justify-between items-center mb-6" id="paginationControls" style="display: none;">
+            <button onclick="previousSubmission()" id="prevBtn" class="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                이전 제출
+            </button>
+            
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600">
+                    <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                </span>
+                <select onchange="goToPage(this.value)" id="pageSelect" class="px-2 py-1 text-sm border border-gray-300 rounded">
+                    <!-- 페이지 옵션들이 동적으로 생성 -->
+                </select>
+            </div>
+            
+            <button onclick="nextSubmission()" id="nextBtn" class="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                다음 제출
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Single Submission Display -->
+        <div id="submissionDisplay">
             <div class="text-center py-12">
                 <svg class="animate-spin w-8 h-8 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <p class="text-gray-500">제출 내역을 불러오는 중...</p>
             </div>
@@ -104,6 +130,8 @@
 
     <script>
         let currentSubmissionId = null;
+        let allSubmissions = [];
+        let currentPage = 0;
 
         // 페이지 로드 시 제출 목록 로드
         document.addEventListener('DOMContentLoaded', loadSubmissions);
@@ -113,10 +141,18 @@
                 const response = await fetch('/api/admin/submissions');
                 const data = await response.json();
                 
-                renderSubmissions(data.submissions || []);
+                allSubmissions = data.submissions || [];
+                currentPage = 0;
+                
+                if (allSubmissions.length > 0) {
+                    setupPagination();
+                    showCurrentSubmission();
+                } else {
+                    showNoSubmissions();
+                }
             } catch (error) {
                 console.error('제출 목록 로드 실패:', error);
-                document.getElementById('submissionsList').innerHTML = `
+                document.getElementById('submissionDisplay').innerHTML = `
                     <div class="text-center py-12 text-red-500">
                         <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -127,10 +163,108 @@
             }
         }
 
-        function renderSubmissions(submissions) {
-            const container = document.getElementById('submissionsList');
+        // 페이지네이션 설정
+        function setupPagination() {
+            const totalPages = allSubmissions.length;
             
-            if (submissions.length === 0) {
+            document.getElementById('paginationControls').style.display = 'flex';
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            // 페이지 선택 드롭다운 생성
+            const pageSelect = document.getElementById('pageSelect');
+            pageSelect.innerHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `제출 ${i + 1}`;
+                pageSelect.appendChild(option);
+            }
+            
+            updatePaginationButtons();
+        }
+
+        // 현재 제출 표시
+        function showCurrentSubmission() {
+            const submission = allSubmissions[currentPage];
+            if (!submission) return;
+            
+            document.getElementById('currentPage').textContent = currentPage + 1;
+            document.getElementById('pageSelect').value = currentPage;
+            
+            renderSingleSubmission(submission);
+            updatePaginationButtons();
+        }
+
+        // 페이지네이션 버튼 상태 업데이트
+        function updatePaginationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === allSubmissions.length - 1;
+            
+            if (prevBtn.disabled) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 이전 제출로 이동
+        function previousSubmission() {
+            if (currentPage > 0) {
+                currentPage--;
+                showCurrentSubmission();
+            }
+        }
+
+        // 다음 제출로 이동
+        function nextSubmission() {
+            if (currentPage < allSubmissions.length - 1) {
+                currentPage++;
+                showCurrentSubmission();
+            }
+        }
+
+        // 특정 페이지로 이동
+        function goToPage(pageIndex) {
+            currentPage = parseInt(pageIndex);
+            showCurrentSubmission();
+        }
+
+        // 키보드 화살표 키 지원
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                previousSubmission();
+            } else if (e.key === 'ArrowRight') {
+                nextSubmission();
+            }
+        });
+
+        // 제출이 없을 때 표시
+        function showNoSubmissions() {
+            document.getElementById('submissionDisplay').innerHTML = `
+                <div class="text-center py-12">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">제출된 시간표가 없습니다</h3>
+                    <p class="text-gray-500">학원에서 시간표를 제출하면 여기에 표시됩니다.</p>
+                </div>
+            `;
+        }
+
+        // 단일 제출 렌더링
+        function renderSingleSubmission(submission) {
+            const container = document.getElementById('submissionDisplay');
+            
+            if (!submission) {
                 container.innerHTML = `
                     <div class="text-center py-12">
                         <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
