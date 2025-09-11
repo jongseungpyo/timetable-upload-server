@@ -341,14 +341,25 @@
                                     <table class="min-w-full text-xs border border-gray-200 rounded-lg">
                                         <thead class="bg-gray-50">
                                             <tr>
+                                                <th class="px-3 py-2 text-center font-medium text-gray-700 border-b">#</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상 학교</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">교육청</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학급</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학원</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">개강일자</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시간</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">일요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">월요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">화요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">수요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">목요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">금요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">토요일</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시즌</th>
                                             </tr>
                                         </thead>
                                         <tbody id="originalData_${submission.submission_id}">
@@ -431,36 +442,58 @@
                 csvData = [];
             }
             
-            // 원본 데이터 렌더링
+            // 원본 데이터 렌더링 (전체 컬럼)
             const originalContainer = document.getElementById(`originalData_${submission.submission_id}`);
             if (originalContainer) {
-                originalContainer.innerHTML = csvData.map(bundle => `
+                originalContainer.innerHTML = csvData.map((bundle, index) => `
                     <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2 border-b text-center font-medium text-gray-500">${index + 1}</td>
                         <td class="px-3 py-2 border-b">${bundle.teacher_name}</td>
                         <td class="px-3 py-2 border-b">${bundle.subject}</td>
+                        <td class="px-3 py-2 border-b">${bundle.education_office || '-'}</td>
                         <td class="px-3 py-2 border-b font-medium text-blue-600">${bundle.target_school}</td>
-                        <td class="px-3 py-2 border-b">${bundle.target_grade}</td>
+                        <td class="px-3 py-2 border-b">${bundle.school_level || '-'}</td>
+                        <td class="px-3 py-2 border-b">${bundle.target_grade || '-'}</td>
                         <td class="px-3 py-2 border-b">${bundle.topic}</td>
                         <td class="px-3 py-2 border-b">${bundle.academy}</td>
+                        <td class="px-3 py-2 border-b">${bundle.start_date || '-'}</td>
                         <td class="px-3 py-2 border-b">${bundle.region}</td>
-                        <td class="px-3 py-2 border-b">${bundle.sessions.map(s => `${['일','월','화','수','목','금','토'][s.weekday]} ${s.start_time}-${s.end_time}`).join(', ')}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 0)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 1)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 2)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 3)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 4)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 5)}</td>
+                        <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 6)}</td>
+                        <td class="px-3 py-2 border-b">${bundle.season || '-'}</td>
                     </tr>
                 `).join('');
             }
 
-            // 변환된 데이터 렌더링
+            // 요일별 시간 추출 헬퍼 함수
+            function getScheduleForDay(sessions, weekday) {
+                const session = sessions.find(s => s.weekday === weekday);
+                return session ? `${session.start_time}-${session.end_time}` : '-';
+            }
+
+            // 변환된 데이터 렌더링 (전학년 → "" 처리)
             const convertedContainer = document.getElementById(`convertedData_${submission.submission_id}`);
             if (convertedContainer) {
-                convertedContainer.innerHTML = csvData.map(bundle => {
+                convertedContainer.innerHTML = csvData.map((bundle, index) => {
                     const schoolCodes = convertSchoolNames(bundle.target_school);
+                    const convertedGrade = bundle.target_grade === '전학년' ? '' : bundle.target_grade;
+                    const convertedSchoolLevel = bundle.school_level === '전학급' ? '' : bundle.school_level;
+                    
                     return `
                         <tr class="hover:bg-blue-25">
+                            <td class="px-3 py-2 border-b text-center font-medium text-gray-500">${index + 1}</td>
                             <td class="px-3 py-2 border-b">${bundle.teacher_name}</td>
                             <td class="px-3 py-2 border-b">${bundle.subject}</td>
                             <td class="px-3 py-2 border-b">
                                 <code class="bg-gray-100 px-2 py-1 rounded text-blue-600">${JSON.stringify(schoolCodes)}</code>
                             </td>
-                            <td class="px-3 py-2 border-b">${bundle.target_grade}</td>
+                            <td class="px-3 py-2 border-b">${convertedSchoolLevel || '-'}</td>
+                            <td class="px-3 py-2 border-b">${convertedGrade || '-'}</td>
                             <td class="px-3 py-2 border-b">${bundle.topic}</td>
                             <td class="px-3 py-2 border-b">${bundle.academy}</td>
                             <td class="px-3 py-2 border-b">${bundle.region}</td>
