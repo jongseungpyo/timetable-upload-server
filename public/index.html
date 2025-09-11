@@ -1295,7 +1295,8 @@
             // CSV 컬럼: 강사명,과목,교육청,대상학교,초중고,대상학년,주제,출강학원,개강일자,지역,일~토요일(10-16),시즌
             
             row.innerHTML = `
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required></td>
+                <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${tableRowCount + 1}</td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required oninput="validateRow(this)"></td>
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
                         <option value="">선택</option>
@@ -1607,19 +1608,25 @@
                     }
                 }
                 
+                // null 체크를 포함한 안전한 데이터 추출
+                const safeGetValue = (cell, selector, defaultValue = '') => {
+                    const element = cell?.querySelector(selector);
+                    return element?.value || defaultValue;
+                };
+
                 const rowData = {
-                    teacher_name: cells[1].querySelector('input').value, // 행번호로 인해 +1
-                    subject: cells[2].querySelector('select').value,
-                    education_office: cells[3].querySelector('select').value,
-                    target_school: cells[4].querySelector('input').value,
-                    school_level: cells[5].querySelector('select').value,
-                    target_grade: cells[6].querySelector('select').value || '전학년', // 빈 값이면 전학년
-                    topic: cells[7].querySelector('input').value,
-                    academy: cells[8].querySelector('input').value,
-                    start_date: cells[9].querySelector('input').value,
-                    region: cells[10].querySelector('select').value,
+                    teacher_name: safeGetValue(cells[1], 'input'),
+                    subject: safeGetValue(cells[2], 'select'),
+                    education_office: safeGetValue(cells[3], 'select'),
+                    target_school: safeGetValue(cells[4], 'input'),
+                    school_level: safeGetValue(cells[5], 'select', '전학급'),
+                    target_grade: safeGetValue(cells[6], 'select', '전학년'),
+                    topic: safeGetValue(cells[7], 'input'),
+                    academy: safeGetValue(cells[8], 'input'),
+                    start_date: safeGetValue(cells[9], 'input'),
+                    region: safeGetValue(cells[10], 'select'),
                     schedule: schedule,
-                    season: cells[18].querySelector('select').value // 시즌 정보 (행번호로 인해 +1)
+                    season: safeGetValue(cells[18], 'select', '2025.4')
                 };
                 
                 data.push(rowData);
