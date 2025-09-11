@@ -183,16 +183,28 @@
                         </svg>
                         제출 요구사항
                     </h3>
-                    <a 
-                        href="/timetable_template.xlsx" 
-                        download="시간표_양식_예시.xlsx"
-                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
-                    >
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        엑셀 양식 다운로드
-                    </a>
+                    <div class="flex flex-col space-y-2">
+                        <a 
+                            href="/timetable_guide.xlsx" 
+                            download="시간표_작성_가이드.xlsx"
+                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            작성 가이드 다운로드
+                        </a>
+                        <a 
+                            href="/timetable_template.xlsx" 
+                            download="시간표_양식.xlsx"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                        >
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            엑셀 양식 다운로드
+                        </a>
+                    </div>
                 </div>
                 <ul class="space-y-2 text-blue-800">
                     <li class="flex items-start">
@@ -200,7 +212,9 @@
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
                         <div>
-                            <strong>엑셀 양식 사용 권장:</strong> 위 양식을 다운로드하여 작성 후 CSV로 저장하여 제출하세요
+                            <strong>엑셀 양식 사용:</strong> 
+                            <span class="text-green-700">작성 가이드</span>를 먼저 확인하고, 
+                            <span class="text-blue-700">엑셀 양식</span>을 다운로드하여 작성 후 CSV로 저장하여 제출하세요
                         </div>
                     </li>
                     <li class="flex items-center">
