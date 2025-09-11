@@ -123,6 +123,23 @@ async function initializeRailwayDB() {
       console.log('👤 기본 관리자 계정 생성: admin/admin123');
     }
     
+    // academies 테이블 생성
+    await railwayDB.query(`
+      CREATE TABLE IF NOT EXISTS academies (
+        academy_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        academy_name TEXT NOT NULL,
+        contact_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_academies_email ON academies(email);
+    `);
+    
     // 임시 강사 계정 생성 (테스트용)
     const testAcademy = await railwayDB.query('SELECT academy_id FROM academies WHERE email = $1', ['test@timebuilder.com']);
     if (testAcademy.rows.length === 0) {
@@ -960,23 +977,6 @@ app.post('/api/academy/register', async (req, res) => {
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ error: '이미 등록된 이메일입니다' });
     }
-
-    // academies 테이블 생성
-    await railwayDB.query(`
-      CREATE TABLE IF NOT EXISTS academies (
-        academy_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        academy_name TEXT NOT NULL,
-        contact_name TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        status TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
-        created_at TIMESTAMPTZ DEFAULT now(),
-        updated_at TIMESTAMPTZ DEFAULT now()
-      );
-      
-      CREATE INDEX IF NOT EXISTS idx_academies_email ON academies(email);
-    `);
 
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
