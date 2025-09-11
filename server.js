@@ -1104,6 +1104,111 @@ app.get('/api/academy/submissions', requireAcademyAuth, async (req, res) => {
   }
 });
 
+// ===== 관리자 학원 관리 =====
+
+// 학원 관리 페이지
+app.get('/admin/academies', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/admin-academies.html');
+});
+
+// 학원 목록 조회 API
+app.get('/api/admin/academies', requireAuth, logAdminActivity('VIEW_ACADEMIES'), async (req, res) => {
+  try {
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    const result = await railwayDB.query(`
+      SELECT academy_id, academy_name, contact_name, phone, email, status, created_at, last_login_at
+      FROM academies 
+      ORDER BY created_at DESC
+    `);
+
+    console.log(`📊 학원 목록 조회: ${result.rows.length}개`);
+    res.json({ academies: result.rows });
+  } catch (error) {
+    console.error('학원 목록 조회 실패:', error);
+    res.status(500).json({ error: '학원 목록 로드 실패' });
+  }
+});
+
+// 학원 승인
+app.post('/api/admin/academies/:id/approve', requireAuth, logAdminActivity('APPROVE_ACADEMY'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await railwayDB.query(`
+      UPDATE academies 
+      SET status = 'active', updated_at = NOW()
+      WHERE academy_id = $1
+    `, [id]);
+
+    console.log(`✅ 학원 승인: ${id}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('학원 승인 실패:', error);
+    res.status(500).json({ error: '승인 처리 실패' });
+  }
+});
+
+// 학원 거절
+app.post('/api/admin/academies/:id/reject', requireAuth, logAdminActivity('REJECT_ACADEMY'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    
+    await railwayDB.query(`
+      UPDATE academies 
+      SET status = 'rejected', updated_at = NOW()
+      WHERE academy_id = $1
+    `, [id]);
+
+    console.log(`❌ 학원 거절: ${id} (사유: ${reason})`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('학원 거절 실패:', error);
+    res.status(500).json({ error: '거절 처리 실패' });
+  }
+});
+
+// 학원 정지
+app.post('/api/admin/academies/:id/suspend', requireAuth, logAdminActivity('SUSPEND_ACADEMY'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await railwayDB.query(`
+      UPDATE academies 
+      SET status = 'suspended', updated_at = NOW()
+      WHERE academy_id = $1
+    `, [id]);
+
+    console.log(`⛔ 학원 정지: ${id}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('학원 정지 실패:', error);
+    res.status(500).json({ error: '정지 처리 실패' });
+  }
+});
+
+// 학원 정지 해제
+app.post('/api/admin/academies/:id/activate', requireAuth, logAdminActivity('ACTIVATE_ACADEMY'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await railwayDB.query(`
+      UPDATE academies 
+      SET status = 'active', updated_at = NOW()
+      WHERE academy_id = $1
+    `, [id]);
+
+    console.log(`✅ 학원 정지 해제: ${id}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('학원 정지 해제 실패:', error);
+    res.status(500).json({ error: '정지 해제 실패' });
+  }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
   console.log(`🚀 서버 시작: http://localhost:${PORT}`);

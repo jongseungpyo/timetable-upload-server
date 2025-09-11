@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학원 관리 - 타임빌더 관리자</title>
+    <!-- Tailwind CSS (프로덕션용) -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700">🏫 타임빌더</a>
+                    <span class="ml-2 text-gray-500">/ 학원 관리</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button 
+                        onclick="refreshData()" 
+                        class="inline-flex items-center px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                    >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        새로고침
+                    </button>
+                    <button 
+                        onclick="logout()" 
+                        class="inline-flex items-center px-3 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                    >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">학원 관리</h1>
+            <p class="text-gray-600">가입한 학원을 검토하고 승인 처리하세요.</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="filterAcademies('pending')" id="pendingTab" class="tab-btn active py-4 px-1 border-b-2 border-orange-500 font-medium text-sm text-orange-600">
+                        승인 대기
+                    </button>
+                    <button onclick="filterAcademies('active')" id="activeTab" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                        승인 완료
+                    </button>
+                    <button onclick="filterAcademies('suspended')" id="suspendedTab" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                        정지됨
+                    </button>
+                    <button onclick="filterAcademies('all')" id="allTab" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                        전체
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Academies List -->
+        <div class="space-y-6" id="academiesList">
+            <div class="text-center py-12">
+                <svg class="animate-spin w-8 h-8 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-gray-500">학원 목록을 불러오는 중...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentFilter = 'pending';
+        let allAcademies = [];
+
+        // 페이지 로드 시 학원 목록 로드
+        document.addEventListener('DOMContentLoaded', loadAcademies);
+
+        async function loadAcademies() {
+            try {
+                const response = await fetch('/api/admin/academies');
+                const data = await response.json();
+                
+                allAcademies = data.academies || [];
+                filterAcademies(currentFilter);
+            } catch (error) {
+                console.error('학원 목록 로드 실패:', error);
+                document.getElementById('academiesList').innerHTML = `
+                    <div class="text-center py-12 text-red-500">
+                        <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        데이터 로드에 실패했습니다
+                    </div>
+                `;
+            }
+        }
+
+        function filterAcademies(status) {
+            currentFilter = status;
+            
+            // 탭 활성 상태 업데이트
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-orange-500', 'text-orange-600', 'border-green-500', 'text-green-600', 'border-red-500', 'text-red-600', 'border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const colors = {
+                'pending': { border: 'border-orange-500', text: 'text-orange-600' },
+                'active': { border: 'border-green-500', text: 'text-green-600' },
+                'suspended': { border: 'border-red-500', text: 'text-red-600' },
+                'all': { border: 'border-blue-500', text: 'text-blue-600' }
+            };
+            
+            const activeTab = document.getElementById(status + 'Tab');
+            if (activeTab && colors[status]) {
+                activeTab.classList.add('active', colors[status].border, colors[status].text);
+                activeTab.classList.remove('border-transparent', 'text-gray-500');
+            }
+            
+            // 데이터 필터링
+            const filteredAcademies = status === 'all' 
+                ? allAcademies 
+                : allAcademies.filter(academy => academy.status === status);
+            
+            renderAcademies(filteredAcademies);
+        }
+
+        function renderAcademies(academies) {
+            const container = document.getElementById('academiesList');
+            
+            if (academies.length === 0) {
+                const statusMessages = {
+                    'pending': '승인 대기 중인 학원이 없습니다',
+                    'active': '승인된 학원이 없습니다', 
+                    'suspended': '정지된 학원이 없습니다',
+                    'all': '등록된 학원이 없습니다'
+                };
+                
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">${statusMessages[currentFilter]}</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = academies.map(academy => {
+                const statusColor = {
+                    'pending': 'bg-orange-100 text-orange-800 border-orange-200',
+                    'active': 'bg-green-100 text-green-800 border-green-200',
+                    'suspended': 'bg-red-100 text-red-800 border-red-200'
+                };
+
+                const statusText = {
+                    'pending': '승인 대기',
+                    'active': '승인 완료',
+                    'suspended': '정지됨'
+                };
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <!-- Header -->
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <div class="flex items-center space-x-4">
+                                <h3 class="text-lg font-semibold text-gray-900">${academy.academy_name}</h3>
+                                <span class="px-3 py-1 text-xs font-medium rounded-full border ${statusColor[academy.status]}">
+                                    ${statusText[academy.status]}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                가입일: ${new Date(academy.created_at).toLocaleDateString('ko-KR')}
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="px-6 py-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">담당자:</span>
+                                    <span class="ml-2 font-medium">${academy.contact_name}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">연락처:</span>
+                                    <span class="ml-2 font-medium">${academy.phone}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">이메일:</span>
+                                    <span class="ml-2 font-medium">${academy.email}</span>
+                                </div>
+                            </div>
+
+                            ${academy.last_login_at ? `
+                                <div class="mb-4 text-sm text-gray-600">
+                                    마지막 로그인: ${new Date(academy.last_login_at).toLocaleString('ko-KR')}
+                                </div>
+                            ` : ''}
+
+                            <!-- Action Buttons -->
+                            <div class="flex justify-end space-x-3">
+                                ${academy.status === 'pending' ? `
+                                    <button 
+                                        onclick="approveAcademy('${academy.academy_id}')"
+                                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                                    >
+                                        승인
+                                    </button>
+                                    <button 
+                                        onclick="rejectAcademy('${academy.academy_id}')"
+                                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                    >
+                                        거절
+                                    </button>
+                                ` : ''}
+                                
+                                ${academy.status === 'active' ? `
+                                    <button 
+                                        onclick="suspendAcademy('${academy.academy_id}')"
+                                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                    >
+                                        정지
+                                    </button>
+                                ` : ''}
+                                
+                                ${academy.status === 'suspended' ? `
+                                    <button 
+                                        onclick="activateAcademy('${academy.academy_id}')"
+                                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                                    >
+                                        정지 해제
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 학원 승인
+        async function approveAcademy(academyId) {
+            try {
+                const response = await fetch(`/api/admin/academies/${academyId}/approve`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadAcademies(); // 새로고침
+                    alert('학원이 승인되었습니다.');
+                } else {
+                    alert('승인에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('승인 실패:', error);
+                alert('승인 처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 학원 거절
+        async function rejectAcademy(academyId) {
+            const reason = prompt('거절 사유를 입력하세요:');
+            if (!reason) return;
+            
+            try {
+                const response = await fetch(`/api/admin/academies/${academyId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                
+                if (response.ok) {
+                    loadAcademies(); // 새로고침
+                    alert('학원이 거절되었습니다.');
+                } else {
+                    alert('거절에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('거절 실패:', error);
+                alert('거절 처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 학원 정지
+        async function suspendAcademy(academyId) {
+            if (!confirm('이 학원을 정지하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/academies/${academyId}/suspend`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadAcademies(); // 새로고침
+                    alert('학원이 정지되었습니다.');
+                } else {
+                    alert('정지에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('정지 실패:', error);
+                alert('정지 처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 학원 정지 해제
+        async function activateAcademy(academyId) {
+            try {
+                const response = await fetch(`/api/admin/academies/${academyId}/activate`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    loadAcademies(); // 새로고침
+                    alert('정지가 해제되었습니다.');
+                } else {
+                    alert('정지 해제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('정지 해제 실패:', error);
+                alert('정지 해제 중 오류가 발생했습니다.');
+            }
+        }
+
+        function refreshData() {
+            loadAcademies();
+        }
+
+        async function logout() {
+            try {
+                await fetch('/admin/logout', { method: 'POST' });
+                window.location.href = '/admin/login';
+            } catch (error) {
+                window.location.href = '/admin/login';
+            }
+        }
+    </script>
+</body>
+</html>
