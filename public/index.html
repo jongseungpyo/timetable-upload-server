@@ -379,15 +379,25 @@
                             <div class="overflow-x-auto">
                                 <table class="min-w-full border border-gray-200 rounded-lg" id="previewTable">
                                     <thead class="bg-gray-50">
-                                        <tr class="text-xs">
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
-                                            <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시간</th>
+                                        <tr>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">강사명</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">과목</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">교육청</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[120px]">대상학교</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">학급</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[60px]">학년</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[120px]">주제</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">출강학원</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">개강일자</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">지역</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">월요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">화요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">수요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">목요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">금요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">토요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">시즌</th>
                                         </tr>
                                     </thead>
                                     <tbody id="previewTableBody">
@@ -1237,16 +1247,34 @@
             
             previewTableBody.innerHTML = tableData.map(row => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-3 py-2 border-b text-xs">${row.teacher_name}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.subject}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.target_school}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.target_grade}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.topic}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.academy}</td>
-                    <td class="px-3 py-2 border-b text-xs">${row.region}</td>
-                    <td class="px-3 py-2 border-b text-xs">${formatSchedule(row)}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.teacher_name}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.subject}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.education_office}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.target_school}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.school_level}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.target_grade}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.topic}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.academy}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.start_date}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.region}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[0])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[1])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[2])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[3])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[4])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[5])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${formatScheduleForDay(row.schedule[6])}</td>
+                    <td class="px-4 py-3 border-b text-sm">${row.season || '-'}</td>
                 </tr>
             `).join('');
+        }
+
+        // 요일별 시간 포맷팅
+        function formatScheduleForDay(timeInfo) {
+            if (timeInfo && timeInfo.start_time && timeInfo.end_time) {
+                return `${timeInfo.start_time} ~ ${timeInfo.end_time}`;
+            }
+            return '-';
         }
 
         // 시간표 포맷팅
@@ -1264,13 +1292,38 @@
             return schedule.join(', ') || '-';
         }
 
-        // 테이블 데이터 추출
+        // 테이블 데이터 추출 (time input 대응)
         function extractTableData() {
             const rows = document.getElementById('timetableTableBody').children;
             const data = [];
             
             for (let row of rows) {
                 const cells = row.children;
+                
+                // 요일별 시간 정보 추출 (시작/종료 시간 분리)
+                const schedule = [];
+                for (let i = 10; i <= 16; i++) { // 일요일~토요일 (10~16번째 셀)
+                    const timeCell = cells[i];
+                    const startTimeInput = timeCell.querySelector('.start-time');
+                    const endTimeInput = timeCell.querySelector('.end-time');
+                    
+                    if (startTimeInput && endTimeInput) {
+                        const startTime = startTimeInput.value;
+                        const endTime = endTimeInput.value;
+                        
+                        if (startTime && endTime) {
+                            schedule.push({
+                                start_time: startTime,
+                                end_time: endTime
+                            });
+                        } else {
+                            schedule.push(null);
+                        }
+                    } else {
+                        schedule.push(null);
+                    }
+                }
+                
                 const rowData = {
                     teacher_name: cells[0].querySelector('input').value,
                     subject: cells[1].querySelector('select').value,
@@ -1282,15 +1335,8 @@
                     academy: cells[7].querySelector('input').value,
                     start_date: cells[8].querySelector('input').value,
                     region: cells[9].querySelector('select').value,
-                    schedule: [
-                        cells[10].querySelector('input').value, // 일요일
-                        cells[11].querySelector('input').value, // 월요일
-                        cells[12].querySelector('input').value, // 화요일
-                        cells[13].querySelector('input').value, // 수요일
-                        cells[14].querySelector('input').value, // 목요일
-                        cells[15].querySelector('input').value, // 금요일
-                        cells[16].querySelector('input').value  // 토요일
-                    ]
+                    schedule: schedule,
+                    season: cells[17].querySelector('select').value // 시즌 정보
                 };
                 
                 data.push(rowData);
