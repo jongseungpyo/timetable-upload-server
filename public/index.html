@@ -1513,6 +1513,29 @@
             progress.classList.add('hidden');
         }
 
+        // CSV에서 시간 형식 파싱 (09:00 ~ 12:30 → {start: 09:00, end: 12:30})
+        function parseTimeFromCSV(timeString) {
+            if (!timeString || !timeString.trim()) return { start: '', end: '' };
+            
+            const parts = timeString.split('~').map(t => t.trim());
+            if (parts.length === 2) {
+                return { start: parts[0], end: parts[1] };
+            }
+            return { start: '', end: '' };
+        }
+
+        // 데이터가 있는 시간 입력 HTML 생성
+        function createTimeInputHTMLWithData(timeData) {
+            return `
+                <td class="px-4 py-3 border-b">
+                    <div class="flex flex-col space-y-1">
+                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}">
+                        <input type="time" class="w-full text-sm border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}">
+                    </div>
+                </td>
+            `;
+        }
+
         function showAlert(message, type, containerId) {
             const alertClasses = {
                 success: 'bg-green-50 border border-green-200 text-green-800',
