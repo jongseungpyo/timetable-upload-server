@@ -145,6 +145,34 @@ async function initializeRailwayDB() {
       CREATE INDEX IF NOT EXISTS idx_academies_email ON academies(email);
     `);
     
+    // approved_bundles 테이블 생성 (승인된 번들 데이터 저장)
+    await railwayDB.query(`
+      CREATE TABLE IF NOT EXISTS approved_bundles (
+        approved_bundle_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        submission_id UUID NOT NULL,
+        target_season TEXT NOT NULL,
+        bundle_data JSONB NOT NULL,
+        session_data JSONB NOT NULL,
+        academy_name TEXT NOT NULL,
+        instructor_name TEXT,
+        contact_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT NOT NULL,
+        notes TEXT,
+        approved_at TIMESTAMPTZ DEFAULT now(),
+        approved_by TEXT DEFAULT 'admin',
+        deployed_to_supabase BOOLEAN DEFAULT false,
+        deployed_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_approved_bundles_season ON approved_bundles(target_season);
+      CREATE INDEX IF NOT EXISTS idx_approved_bundles_submission ON approved_bundles(submission_id);
+      CREATE INDEX IF NOT EXISTS idx_approved_bundles_deployed ON approved_bundles(deployed_to_supabase);
+      CREATE INDEX IF NOT EXISTS idx_approved_bundles_approved_at ON approved_bundles(approved_at DESC);
+    `);
+    
     // 임시 강사 계정 생성 (테스트용)
     const testAcademy = await railwayDB.query('SELECT academy_id FROM academies WHERE email = $1', ['test@timebuilder.com']);
     if (testAcademy.rows.length === 0) {
@@ -165,6 +193,7 @@ async function initializeRailwayDB() {
     `);
     
     console.log('✅ Railway DB submissions 테이블 준비 완료 (컬럼 업데이트 포함)');
+    console.log('✅ Railway DB approved_bundles 테이블 준비 완료');
   } catch (error) {
     console.error('❌ Railway PostgreSQL 초기화 실패:', error);
   }
@@ -988,7 +1017,7 @@ app.post('/api/admin/submissions/:id/review', requireAuth, logAdminActivity('MAR
   }
 });
 
-// 승인 확정 (실제 DB 반영)
+// 승인 확정 (approved_bundles 테이블에 저장 - Supabase 업로드는 별도 단계)
 app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('APPROVE_SUBMISSION'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -1008,12 +1037,11 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
     }
 
     const submission = result.rows[0];
-
     const csvData = JSON.parse(submission.csv_data);
     const bundles = [];
     const sessions = [];
 
-    // 데이터 변환
+    // 데이터 변환 (Supabase 형태로 준비)
     for (const bundleData of csvData) {
       const bundleId = generateUUID();
       const schoolCodes = convertSchoolNames(bundleData.target_school);
@@ -1046,38 +1074,34 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
       }
     }
 
-    // 시즌별 테이블에 삽입
-    const bundleTableName = `bundles_${season.replace('.', '_')}`;
-    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+    // approved_bundles 테이블에 저장 (Supabase 업로드는 나중에)
+    await railwayDB.query(`
+      INSERT INTO approved_bundles (
+        submission_id, target_season, bundle_data, session_data,
+        academy_name, instructor_name, contact_name, phone, email, notes,
+        approved_by
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    `, [
+      id, season, JSON.stringify(bundles), JSON.stringify(sessions),
+      submission.academy_name, submission.instructor_name, submission.contact_name,
+      submission.phone, submission.email, submission.notes, 'admin'
+    ]);
 
-    // 번들 삽입
-    const { error: bundleError } = await supabase
-      .from(bundleTableName)
-      .insert(bundles);
-
-    if (bundleError) throw bundleError;
-
-    // 세션 삽입  
-    const { error: sessionError } = await supabase
-      .from(sessionTableName)
-      .insert(sessions);
-
-    if (sessionError) throw sessionError;
-
-    // Railway DB에서 제출 상태를 승인으로 변경
+    // submissions 테이블 상태를 승인으로 변경
     await railwayDB.query(`
       UPDATE submissions 
       SET status = 'approved', reviewed_at = NOW(), reviewed_by = 'admin', updated_at = NOW()
       WHERE submission_id = $1
     `, [id]);
 
-    console.log(`✅ 시간표 승인 완료: ${submission.academy_name} → ${season} (번들 ${bundles.length}개, 세션 ${sessions.length}개)`);
+    console.log(`✅ 시간표 1차 승인 완료: ${submission.academy_name} → ${season} (번들 ${bundles.length}개, 세션 ${sessions.length}개) - approved_bundles 테이블에 저장`);
     
     res.json({ 
       success: true, 
-      message: `${season} 시즌에 ${bundles.length}개 번들이 반영되었습니다.`,
+      message: `${season} 시즌 승인 대기열에 ${bundles.length}개 번들이 추가되었습니다.`,
       bundles: bundles.length,
-      sessions: sessions.length 
+      sessions: sessions.length,
+      note: 'Supabase 배포는 /admin/bundles 페이지에서 별도로 진행하세요.'
     });
 
   } catch (error) {
@@ -1427,6 +1451,11 @@ app.get('/admin/academies', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/admin-academies.html');
 });
 
+// 승인된 번들 관리 페이지
+app.get('/admin/bundles', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/admin-bundles.html');
+});
+
 // 학원 목록 조회 API
 app.get('/api/admin/academies', requireAuth, logAdminActivity('VIEW_ACADEMIES'), async (req, res) => {
   try {
@@ -1526,6 +1555,157 @@ app.post('/api/admin/academies/:id/activate', requireAuth, logAdminActivity('ACT
 });
 
 // ===== 시간표 번들 관리 API =====
+
+// 승인된 번들 목록 조회 API (Railway DB 기반)
+app.get('/api/admin/approved-bundles', requireAuth, logAdminActivity('VIEW_APPROVED_BUNDLES'), async (req, res) => {
+  try {
+    const { season } = req.query;
+    
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    let query = `
+      SELECT approved_bundle_id, submission_id, target_season, academy_name, 
+             instructor_name, contact_name, bundle_data, session_data,
+             deployed_to_supabase, approved_at, deployed_at
+      FROM approved_bundles
+    `;
+    let queryParams = [];
+
+    if (season) {
+      query += ` WHERE target_season = $1`;
+      queryParams.push(season);
+    }
+
+    query += ` ORDER BY approved_at DESC`;
+
+    const result = await railwayDB.query(query, queryParams);
+    
+    // 번들과 세션 개수 계산
+    const approvedBundles = result.rows.map(row => {
+      const bundleData = JSON.parse(row.bundle_data);
+      const sessionData = JSON.parse(row.session_data);
+      
+      return {
+        ...row,
+        bundle_count: bundleData.length,
+        session_count: sessionData.length,
+        bundle_data: bundleData, // 상세 정보도 포함
+        session_data: sessionData
+      };
+    });
+
+    // 시즌별 통계
+    const seasonStats = {};
+    approvedBundles.forEach(bundle => {
+      const season = bundle.target_season;
+      if (!seasonStats[season]) {
+        seasonStats[season] = {
+          total_bundles: 0,
+          total_sessions: 0,
+          deployed_bundles: 0,
+          pending_bundles: 0
+        };
+      }
+      
+      seasonStats[season].total_bundles += bundle.bundle_count;
+      seasonStats[season].total_sessions += bundle.session_count;
+      
+      if (bundle.deployed_to_supabase) {
+        seasonStats[season].deployed_bundles += bundle.bundle_count;
+      } else {
+        seasonStats[season].pending_bundles += bundle.bundle_count;
+      }
+    });
+
+    console.log(`📊 승인된 번들 조회: ${season || '전체'} (${approvedBundles.length}개 제출)`);
+    
+    res.json({
+      approvedBundles,
+      seasonStats,
+      selectedSeason: season || null,
+      totalSubmissions: approvedBundles.length
+    });
+
+  } catch (error) {
+    console.error('승인된 번들 조회 실패:', error);
+    res.status(500).json({ error: '승인된 번들 목록 로드 실패: ' + error.message });
+  }
+});
+
+// 시즌별 Supabase 배포 API
+app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPLOY_SEASON'), async (req, res) => {
+  try {
+    const { season } = req.params;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 지정해주세요' });
+    }
+
+    // 해당 시즌의 미배포 번들들 조회
+    const result = await railwayDB.query(`
+      SELECT * FROM approved_bundles 
+      WHERE target_season = $1 AND deployed_to_supabase = false
+      ORDER BY approved_at DESC
+    `, [season]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '배포할 승인된 데이터가 없습니다' });
+    }
+
+    const allBundles = [];
+    const allSessions = [];
+
+    // 모든 승인된 번들 데이터 병합
+    for (const approvedBundle of result.rows) {
+      const bundleData = JSON.parse(approvedBundle.bundle_data);
+      const sessionData = JSON.parse(approvedBundle.session_data);
+      
+      allBundles.push(...bundleData);
+      allSessions.push(...sessionData);
+    }
+
+    // Supabase 시즌별 테이블에 배포
+    const bundleTableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // 번들 배포
+    const { error: bundleError } = await supabase
+      .from(bundleTableName)
+      .insert(allBundles);
+
+    if (bundleError) throw bundleError;
+
+    // 세션 배포
+    const { error: sessionError } = await supabase
+      .from(sessionTableName)
+      .insert(allSessions);
+
+    if (sessionError) throw sessionError;
+
+    // approved_bundles 테이블에 배포 완료 표시
+    await railwayDB.query(`
+      UPDATE approved_bundles 
+      SET deployed_to_supabase = true, deployed_at = NOW(), updated_at = NOW()
+      WHERE target_season = $1 AND deployed_to_supabase = false
+    `, [season]);
+
+    console.log(`🚀 ${season} 시즌 Supabase 배포 완료: 번들 ${allBundles.length}개, 세션 ${allSessions.length}개`);
+    
+    res.json({
+      success: true,
+      message: `${season} 시즌이 성공적으로 배포되었습니다`,
+      deployedBundles: allBundles.length,
+      deployedSessions: allSessions.length,
+      deployedSubmissions: result.rows.length
+    });
+
+  } catch (error) {
+    console.error('시즌 배포 실패:', error);
+    res.status(500).json({ error: '시즌 배포 실패: ' + error.message });
+  }
+});
 
 // 시즌별 번들 통계 API
 app.get('/api/admin/season-stats', requireAuth, logAdminActivity('VIEW_SEASON_STATS'), async (req, res) => {
