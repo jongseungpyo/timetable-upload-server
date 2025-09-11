@@ -1029,10 +1029,10 @@ app.post('/api/submit-timetable-web', async (req, res) => {
     console.log('📥 웹 테이블 제출 API 호출됨');
     console.log('📋 요청 본문 크기:', JSON.stringify(req.body).length);
     
-    const { academyName, contactName, email, seasonYear, seasonQuarter, verificationUrl, notes, tableData } = req.body;
+    const { academyName, contactName, phone, email, seasonYear, seasonQuarter, verificationUrl, notes, tableData } = req.body;
     
     console.log('🔍 추출된 필드들:', {
-      academyName, contactName, email, seasonYear, seasonQuarter, verificationUrl,
+      academyName, contactName, phone, email, seasonYear, seasonQuarter, verificationUrl,
       notesLength: notes?.length || 0,
       tableDataLength: tableData?.length || 0
     });
@@ -1089,14 +1089,14 @@ app.post('/api/submit-timetable-web', async (req, res) => {
       return res.status(503).json({ error: '서비스 준비 중입니다' });
     }
 
-    // Railway DB submissions 테이블에 저장
+    // Railway DB submissions 테이블에 저장 (phone 필드 추가)
     await railwayDB.query(`
       INSERT INTO submissions (
-        submission_id, academy_name, contact_name, 
+        submission_id, academy_name, contact_name, phone,
         email, verification_url, target_season, notes, csv_data, status, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `, [
-      submissionId, academyName, contactName,
+      submissionId, academyName, contactName, phone || 'Unknown Phone',
       email, verificationUrl, season, notes, 
       JSON.stringify(bundles), 'pending', new Date()
     ]);
@@ -1207,6 +1207,8 @@ app.post('/api/academy/login', async (req, res) => {
     const tokenData = {
       academy_id: academy.academy_id,
       academy_name: academy.academy_name,
+      contact_name: academy.contact_name,
+      phone: academy.phone,
       email: academy.email
     };
     
