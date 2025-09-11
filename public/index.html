@@ -207,14 +207,20 @@
             <!-- Submission Methods -->
             <div class="bg-white shadow-sm rounded-lg border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">시간표 제출 방법</h3>
-                    <!-- Method Tabs -->
-                    <div class="flex space-x-4">
-                        <button onclick="showSubmissionMethod('upload')" id="uploadTab" class="submission-tab active px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
-                            📁 CSV 업로드
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">시간표 제출 방법</h3>
+                    <!-- Method Tabs (더 큰 크기와 명확한 위치) -->
+                    <div class="flex justify-center space-x-6 mb-4">
+                        <button onclick="showSubmissionMethod('upload')" id="uploadTab" class="submission-tab active flex items-center px-8 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            CSV 업로드
                         </button>
-                        <button onclick="showSubmissionMethod('direct')" id="directTab" class="submission-tab px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100">
-                            ✏️ 직접 작성
+                        <button onclick="showSubmissionMethod('direct')" id="directTab" class="submission-tab flex items-center px-8 py-3 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                            </svg>
+                            직접 작성
                         </button>
                     </div>
                 </div>
@@ -758,6 +764,42 @@
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
             mobileMenu.classList.toggle('hidden');
+        }
+
+        // 제출 방법 탭 전환 (재구현)
+        function showSubmissionMethod(method) {
+            // 탭 버튼 스타일 초기화
+            document.querySelectorAll('.submission-tab').forEach(tab => {
+                tab.classList.remove('text-white', 'bg-blue-600', 'border-blue-600');
+                tab.classList.add('text-gray-700', 'bg-white', 'border-gray-300');
+            });
+            
+            if (method === 'upload') {
+                // CSV 업로드 탭 활성화
+                const uploadTab = document.getElementById('uploadTab');
+                uploadTab.classList.remove('text-gray-700', 'bg-white', 'border-gray-300');
+                uploadTab.classList.add('text-white', 'bg-blue-600', 'border-blue-600');
+                
+                // CSV 업로드 영역 표시, 웹 테이블 숨기기
+                document.getElementById('csvUploadArea').classList.remove('hidden');
+                document.getElementById('webTableSection').classList.add('hidden');
+                document.getElementById('dataPreviewSection').classList.add('hidden');
+                
+            } else if (method === 'direct') {
+                // 직접 작성 탭 활성화  
+                const directTab = document.getElementById('directTab');
+                directTab.classList.remove('text-gray-700', 'bg-white', 'border-gray-300');
+                directTab.classList.add('text-white', 'bg-blue-600', 'border-blue-600');
+                
+                // 웹 테이블 표시, CSV 업로드 영역 숨기기
+                document.getElementById('csvUploadArea').classList.add('hidden');
+                document.getElementById('webTableSection').classList.remove('hidden');
+                
+                // 빈 행 하나 추가 (없을 경우)
+                if (document.getElementById('timetableTableBody').children.length === 0) {
+                    addTableRow();
+                }
+            }
         }
 
         // 새로운 테이블 행 HTML 생성 (개선된 크기와 time input)
