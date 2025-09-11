@@ -969,29 +969,63 @@ app.get('/admin/submissions', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/admin-submissions.html');
 });
 
-// 제출 목록 API (Railway DB 사용)
+// 제출 목록 API (Railway DB 사용) - 상태별 필터링 지원
 app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSIONS'), async (req, res) => {
   try {
+    const { status } = req.query; // 상태 필터링 파라미터
+    
     console.log('📋 제출 목록 API 호출됨 (Railway DB)');
     console.log('🔗 Railway DB 연결 상태:', !!railwayDB);
+    console.log('🔍 필터 상태:', status || '전체');
     
     if (!railwayDB) {
       console.log('❌ Railway DB 연결되지 않음');
       return res.status(503).json({ error: '데이터베이스 서비스 준비 중입니다' });
     }
 
-    const result = await railwayDB.query(`
+    // 상태별 쿼리 구성
+    let query = `
       SELECT submission_id, academy_name, contact_name, phone, email, 
              verification_url, target_season, notes, csv_data, status, 
              rejection_reason, submitted_at, reviewed_at, reviewed_by
-      FROM submissions 
-      ORDER BY submitted_at DESC
-    `);
+      FROM submissions
+    `;
+    let queryParams = [];
 
+    if (status) {
+      query += ` WHERE status = $1`;
+      queryParams.push(status);
+    }
+
+    query += ` ORDER BY submitted_at DESC`;
+
+    const result = await railwayDB.query(query, queryParams);
     const submissions = result.rows;
-    console.log(`📊 제출 목록 조회 성공: ${submissions.length}개`);
     
-    res.json({ submissions });
+    // 상태별 개수 계산
+    const countsResult = await railwayDB.query(`
+      SELECT status, COUNT(*) as count 
+      FROM submissions 
+      GROUP BY status
+    `);
+    
+    const counts = {};
+    countsResult.rows.forEach(row => {
+      counts[row.status] = parseInt(row.count);
+    });
+    
+    console.log(`📊 제출 목록 조회 성공: ${submissions.length}개 (필터: ${status || '전체'})`);
+    console.log('📊 상태별 개수:', counts);
+    
+    res.json({ 
+      submissions,
+      counts: {
+        pending: counts.pending || 0,
+        approved: counts.approved || 0,
+        rejected: counts.rejected || 0,
+        total: Object.values(counts).reduce((sum, count) => sum + count, 0)
+      }
+    });
   } catch (error) {
     console.error('제출 목록 조회 실패:', error);
     res.status(500).json({ error: '제출 목록 로드 실패: ' + error.message });

@@ -12,20 +12,15 @@
     <header class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700">🏫 타임빌더</a>
-                    <span class="ml-2 text-gray-500">/ 제출 검토</span>
+                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                    <span class="ml-2 text-gray-500">관리자</span>
                 </div>
+                
+                <!-- User info + Logout -->
                 <div class="flex items-center space-x-4">
-                    <button 
-                        onclick="refreshData()" 
-                        class="inline-flex items-center px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-                    >
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                        새로고침
-                    </button>
+                    <span class="text-sm text-gray-600">관리자님 환영합니다</span>
                     <button 
                         onclick="logout()" 
                         class="inline-flex items-center px-3 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
@@ -40,11 +35,87 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Main Layout with Sidebar -->
+    <div class="flex">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        대시보드
+                    </a>
+                    <a href="/admin/submissions" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        제출 검토
+                    </a>
+                    <a href="/admin/bundles" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        승인된 번들
+                    </a>
+                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        학원 관리
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden">
+            <div class="p-8">
         <!-- Page Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">제출된 시간표 검토</h1>
             <p class="text-gray-600">학원에서 제출한 시간표를 검토하고 승인 처리하세요.</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="switchTab('pending')" 
+                            id="tab-pending" 
+                            class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                        📝 미검토 
+                        <span id="pending-count" class="ml-1 bg-blue-100 text-blue-600 py-1 px-2 rounded-full text-xs">0</span>
+                    </button>
+                    <button onclick="switchTab('reviewed')" 
+                            id="tab-reviewed" 
+                            class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        ✅ 검토완료
+                        <span id="reviewed-count" class="ml-1 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Sub-tabs for Reviewed (검토완료) -->
+        <div id="reviewed-subtabs" class="mb-6 hidden">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <nav class="flex space-x-4">
+                    <button onclick="switchSubTab('approved')" 
+                            id="subtab-approved" 
+                            class="subtab-button px-3 py-2 text-sm font-medium bg-green-100 text-green-700 rounded-md">
+                        ✅ 승인된 시간표 
+                        <span id="approved-count" class="ml-1 bg-green-200 text-green-800 py-1 px-2 rounded-full text-xs">0</span>
+                    </button>
+                    <button onclick="switchSubTab('rejected')" 
+                            id="subtab-rejected" 
+                            class="subtab-button px-3 py-2 text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-md">
+                        ❌ 거절된 시간표 
+                        <span id="rejected-count" class="ml-1 bg-gray-200 text-gray-700 py-1 px-2 rounded-full text-xs">0</span>
+                    </button>
+                </nav>
+            </div>
         </div>
 
         <!-- Pagination Controls -->
@@ -138,11 +209,27 @@
 
         async function loadSubmissions() {
             try {
-                const response = await fetch('/api/admin/submissions');
+                // 현재 탭에 따라 상태 결정
+                let status = '';
+                if (currentTab === 'pending') {
+                    status = 'pending';
+                } else if (currentTab === 'reviewed') {
+                    status = currentSubTab; // 'approved' 또는 'rejected'
+                }
+                
+                console.log(`📋 제출 목록 불러오는 중... (탭: ${currentTab}, 서브탭: ${currentSubTab})`);
+                
+                const url = status ? `/api/admin/submissions?status=${status}` : '/api/admin/submissions';
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 allSubmissions = data.submissions || [];
                 currentPage = 0;
+                
+                // 탭별 카운트 업데이트
+                updateTabCounts(data.counts);
+                
+                console.log(`📈 총 ${allSubmissions.length}개 제출 로드됨 (필터: ${status || '전체'})`);
                 
                 if (allSubmissions.length > 0) {
                     setupPagination();
@@ -161,6 +248,16 @@
                     </div>
                 `;
             }
+        }
+
+        function updateTabCounts(counts) {
+            if (!counts) return;
+            
+            // 탭별 카운트 업데이트
+            document.getElementById('pending-count').textContent = counts.pending || 0;
+            document.getElementById('approved-count').textContent = counts.approved || 0;
+            document.getElementById('rejected-count').textContent = counts.rejected || 0;
+            document.getElementById('reviewed-count').textContent = (counts.approved || 0) + (counts.rejected || 0);
         }
 
         // 페이지네이션 설정
@@ -584,6 +681,52 @@
             }
         }
 
+        // 탭 전환 로직
+        let currentTab = 'pending'; // 기본값: 미검토
+        let currentSubTab = 'approved'; // 기본값: 승인된 시간표
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 탭 버튼 스타일 업데이트
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.className = 'tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            });
+            
+            const activeTab = document.getElementById(`tab-${tab}`);
+            activeTab.className = 'tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+            
+            // 서브탭 표시/숨김
+            const reviewedSubtabs = document.getElementById('reviewed-subtabs');
+            if (tab === 'reviewed') {
+                reviewedSubtabs.classList.remove('hidden');
+            } else {
+                reviewedSubtabs.classList.add('hidden');
+            }
+            
+            // 데이터 로드
+            loadSubmissions();
+        }
+
+        function switchSubTab(subTab) {
+            currentSubTab = subTab;
+            
+            // 서브탭 버튼 스타일 업데이트
+            document.querySelectorAll('.subtab-button').forEach(btn => {
+                btn.className = 'subtab-button px-3 py-2 text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-md';
+            });
+            
+            const activeSubTab = document.getElementById(`subtab-${subTab}`);
+            if (subTab === 'approved') {
+                activeSubTab.className = 'subtab-button px-3 py-2 text-sm font-medium bg-green-100 text-green-700 rounded-md';
+            } else {
+                activeSubTab.className = 'subtab-button px-3 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-md';
+            }
+            
+            // 데이터 로드
+            loadSubmissions();
+        }
+
         function refreshData() {
             loadSubmissions();
         }
@@ -596,6 +739,9 @@
                 window.location.href = '/admin/login';
             }
         }
+            </div>
+        </main>
+    </div>
     </script>
 </body>
 </html>
