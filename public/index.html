@@ -1196,7 +1196,7 @@
                 </td>
                 <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[6] || ''}"></td>
                 <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[7] || ''}"></td>
-                <td class="px-4 py-3 border-b"><input type="date" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[8] || ''}"></td>
+                <td class="px-4 py-3 border-b"><input type="date" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${formatDateToHtml5(data[8])}"></td>
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
                         <option value="">선택</option>
@@ -1532,7 +1532,7 @@
                 }
                 
                 // 시간표가 하나도 없으면 오류
-                const hasSchedule = row.schedule.some(time => time && time.trim());
+                const hasSchedule = row.schedule.some(timeInfo => timeInfo && (timeInfo.start_time || timeInfo.end_time));
                 if (!hasSchedule) {
                     return { isValid: false, message: `${i + 1}번째 행: 최소 하나의 시간을 입력해주세요.` };
                 }
@@ -1650,15 +1650,56 @@
             progress.classList.add('hidden');
         }
 
-        // CSV에서 시간 형식 파싱 (09:00 ~ 12:30 → {start: 09:00, end: 12:30})
+        // CSV에서 시간 형식 파싱 및 HTML5 형식으로 변환
         function parseTimeFromCSV(timeString) {
             if (!timeString || !timeString.trim()) return { start: '', end: '' };
             
             const parts = timeString.split('~').map(t => t.trim());
             if (parts.length === 2) {
-                return { start: parts[0], end: parts[1] };
+                return { 
+                    start: formatTimeToHtml5(parts[0]), 
+                    end: formatTimeToHtml5(parts[1]) 
+                };
             }
             return { start: '', end: '' };
+        }
+
+        // 시간을 HTML5 time input 형식으로 변환 (9:00 → 09:00)
+        function formatTimeToHtml5(timeStr) {
+            if (!timeStr) return '';
+            
+            const timeParts = timeStr.split(':');
+            if (timeParts.length === 2) {
+                const hours = timeParts[0].padStart(2, '0'); // 9 → 09
+                const minutes = timeParts[1].padStart(2, '0'); // 0 → 00
+                return `${hours}:${minutes}`;
+            }
+            return '';
+        }
+
+        // 날짜를 HTML5 date input 형식으로 변환 (9/7 → 2025-09-07)  
+        function formatDateToHtml5(dateStr) {
+            if (!dateStr || !dateStr.trim()) return '';
+            
+            try {
+                // 9/7 형식을 2025-09-07로 변환
+                const parts = dateStr.split('/');
+                if (parts.length === 2) {
+                    const month = parts[0].padStart(2, '0');
+                    const day = parts[1].padStart(2, '0');
+                    const currentYear = new Date().getFullYear(); // 현재 년도 사용
+                    return `${currentYear}-${month}-${day}`;
+                }
+                
+                // 이미 yyyy-MM-dd 형식이면 그대로 반환
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                    return dateStr;
+                }
+            } catch (e) {
+                console.warn('날짜 형식 변환 실패:', dateStr);
+            }
+            
+            return '';
         }
 
         // 데이터가 있는 시간 입력 HTML 생성 (가로 한 줄)
