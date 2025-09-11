@@ -998,24 +998,7 @@ app.get('/api/admin/submissions', requireAuth, logAdminActivity('VIEW_SUBMISSION
   }
 });
 
-// 검토 확인 (상태를 reviewing으로 변경) - Railway DB 사용
-app.post('/api/admin/submissions/:id/review', requireAuth, logAdminActivity('MARK_REVIEWING'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    await railwayDB.query(`
-      UPDATE submissions 
-      SET status = 'reviewing', reviewed_at = NOW(), reviewed_by = 'admin', updated_at = NOW()
-      WHERE submission_id = $1
-    `, [id]);
-
-    console.log(`📝 제출 검토 시작: ${id}`);
-    res.json({ success: true });
-  } catch (error) {
-    console.error('검토 확인 실패:', error);
-    res.status(500).json({ error: '검토 확인 실패' });
-  }
-});
+// 검토 확인 API 제거됨 - 2단계 워크플로우로 변경 (대기 → 승인/거절)
 
 // 승인 확정 (approved_bundles 테이블에 저장 - Supabase 업로드는 별도 단계)
 app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('APPROVE_SUBMISSION'), async (req, res) => {
