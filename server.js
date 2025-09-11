@@ -1041,16 +1041,14 @@ app.post('/api/submit-timetable-web', async (req, res) => {
       academy: row.academy,
       start_date: row.start_date,
       region: row.region,
-      sessions: row.schedule.map((time, index) => {
-        if (time && time.trim()) {
-          const timeParts = time.split('~').map(t => t.trim());
-          if (timeParts.length === 2) {
-            return {
-              weekday: index,
-              start_time: timeParts[0],
-              end_time: timeParts[1]
-            };
-          }
+      sessions: row.schedule.map((timeInfo, index) => {
+        // timeInfo는 {start_time, end_time} 객체 또는 null
+        if (timeInfo && timeInfo.start_time && timeInfo.end_time) {
+          return {
+            weekday: index,
+            start_time: timeInfo.start_time,
+            end_time: timeInfo.end_time
+          };
         }
         return null;
       }).filter(session => session !== null)
