@@ -1256,6 +1256,73 @@ app.get('/api/academy/submissions', requireAcademyAuth, requireApprovedAcademy, 
   }
 });
 
+// 학원 프로필 수정 API
+app.put('/api/academy/profile', requireAcademyAuth, async (req, res) => {
+  try {
+    const { academyName, contactName, phone, email, password } = req.body;
+    
+    if (!academyName || !contactName || !phone || !email) {
+      return res.status(400).json({ error: '모든 필수 항목을 입력해주세요' });
+    }
+
+    if (!railwayDB) {
+      return res.status(503).json({ error: '서비스 준비 중입니다' });
+    }
+
+    // 이메일 중복 체크 (자신 제외)
+    const existingUser = await railwayDB.query(
+      'SELECT academy_id FROM academies WHERE email = $1 AND academy_id != $2',
+      [email, req.academy.academy_id]
+    );
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: '이미 사용 중인 이메일입니다' });
+    }
+
+    let updateQuery = `
+      UPDATE academies 
+      SET academy_name = $1, contact_name = $2, phone = $3, email = $4, updated_at = NOW()
+    `;
+    let queryParams = [academyName, contactName, phone, email];
+
+    // 비밀번호 변경이 있는 경우
+    if (password && password.trim()) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateQuery += `, password_hash = $5`;
+      queryParams.push(hashedPassword);
+    }
+    
+    updateQuery += ` WHERE academy_id = $${queryParams.length + 1} RETURNING academy_id, academy_name, contact_name, phone, email`;
+    queryParams.push(req.academy.academy_id);
+
+    const result = await railwayDB.query(updateQuery, queryParams);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '학원 정보를 찾을 수 없습니다' });
+    }
+
+    const updatedAcademy = result.rows[0];
+    
+    console.log(`✏️ 학원 정보 수정: ${academyName} (${email})`);
+    
+    res.json({
+      success: true,
+      message: '정보가 성공적으로 수정되었습니다',
+      academy: {
+        academy_id: updatedAcademy.academy_id,
+        academy_name: updatedAcademy.academy_name,
+        contact_name: updatedAcademy.contact_name,
+        phone: updatedAcademy.phone,
+        email: updatedAcademy.email
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 학원 프로필 수정 실패:', error);
+    res.status(500).json({ error: '프로필 수정 중 오류가 발생했습니다' });
+  }
+});
+
 // ===== 관리자 학원 관리 =====
 
 // 학원 관리 페이지

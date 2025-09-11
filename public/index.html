@@ -741,6 +741,63 @@
         </div>
     </div>
 
+    <!-- Profile Edit Modal -->
+    <div id="profileEditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">내정보 수정</h3>
+                    <button onclick="closeProfileEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="px-6 py-6">
+                <form id="profileEditForm" class="space-y-4">
+                    <div>
+                        <label for="editAcademyName" class="block text-sm font-medium text-gray-700 mb-1">학원명 *</label>
+                        <input type="text" id="editAcademyName" name="academyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="editContactName" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
+                        <input type="text" id="editContactName" name="contactName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="editPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                        <input type="tel" id="editPhone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+                        <input type="email" id="editEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4">
+                        <label for="editPassword" class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
+                        <input type="password" id="editPassword" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="변경하지 않으려면 비워두세요">
+                        <p class="text-xs text-gray-500 mt-1">비밀번호를 변경하지 않으려면 이 필드를 비워두세요.</p>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeProfileEditModal()" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors">
+                            취소
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                            저장
+                        </button>
+                    </div>
+                    
+                    <div id="profileEditResult"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Academy Dashboard Modal -->
     <div id="dashboardModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
@@ -2021,9 +2078,24 @@
             }
         }
 
-        // 프로필 수정 모달 (TODO: 구현 필요)
+        // 프로필 수정 모달 표시
         function showProfileEditModal() {
-            alert('내정보 수정 기능은 곧 추가됩니다.');
+            const academyInfo = JSON.parse(localStorage.getItem('academyInfo') || '{}');
+            
+            // 현재 정보로 폼 채우기
+            document.getElementById('editAcademyName').value = academyInfo.academy_name || '';
+            document.getElementById('editContactName').value = academyInfo.contact_name || '';
+            document.getElementById('editPhone').value = academyInfo.phone || '';
+            document.getElementById('editEmail').value = academyInfo.email || '';
+            document.getElementById('editPassword').value = '';
+            
+            document.getElementById('profileEditModal').classList.remove('hidden');
+        }
+
+        // 프로필 수정 모달 닫기
+        function closeProfileEditModal() {
+            document.getElementById('profileEditModal').classList.add('hidden');
+            document.getElementById('profileEditResult').innerHTML = '';
         }
 
         // 광고 제출 내역 모달 (TODO: 구현 필요)
@@ -2051,6 +2123,58 @@
                 document.getElementById('autoEmail').textContent = academyInfo.email;
             }
         }
+
+        // 프로필 수정 폼 처리
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileEditForm = document.getElementById('profileEditForm');
+            if (profileEditForm) {
+                profileEditForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(e.target);
+                    const updateData = {
+                        academyName: formData.get('academyName'),
+                        contactName: formData.get('contactName'),
+                        phone: formData.get('phone'),
+                        email: formData.get('email'),
+                        password: formData.get('password') || undefined // 비어있으면 undefined
+                    };
+
+                    try {
+                        const response = await fetch('/api/academy/profile', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('academyToken')}`
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // localStorage 업데이트
+                            const updatedInfo = { ...JSON.parse(localStorage.getItem('academyInfo') || '{}'), ...data.academy };
+                            localStorage.setItem('academyInfo', JSON.stringify(updatedInfo));
+                            
+                            showAlert('정보가 성공적으로 수정되었습니다.', 'success', 'profileEditResult');
+                            
+                            // UI 업데이트
+                            updateAuthButtons();
+                            updateAcademyInfo();
+                            
+                            setTimeout(() => {
+                                closeProfileEditModal();
+                            }, 1500);
+                        } else {
+                            showAlert(data.error, 'error', 'profileEditResult');
+                        }
+                    } catch (error) {
+                        showAlert(`수정 중 오류: ${error.message}`, 'error', 'profileEditResult');
+                    }
+                });
+            }
+        });
 
         // 페이지 로드 시 인증 상태 체크
         document.addEventListener('DOMContentLoaded', () => {
