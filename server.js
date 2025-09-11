@@ -804,31 +804,42 @@ app.post('/admin/logout', (req, res) => {
 // 대시보드 통계 API (Railway + Supabase 혼용)
 app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBOARD'), async (req, res) => {
   try {
-    // Railway DB에서 제출 현황 조회
-    const submissionsResult = await railwayDB.query(`
-      SELECT status, submitted_at, academy_name 
-      FROM submissions 
-      ORDER BY submitted_at DESC 
-      LIMIT 10
-    `);
+    console.log('📊 대시보드 통계 API 호출');
+    console.log('🔗 Railway DB 상태:', !!railwayDB);
     
-    const submissions = submissionsResult.rows;
-
-    // 전체 번들 수 조회
-    const { count: totalBundles, error: bundleError } = await supabase
-      .from('bundles_2025_4')
-      .select('*', { count: 'exact', head: true });
-
-    if (bundleError) throw bundleError;
-
-    // Railway DB에서 학원 승인 대기 수 조회
-    const academiesResult = await railwayDB.query(`
-      SELECT COUNT(*) as pending_academies 
-      FROM academies 
-      WHERE status = 'pending'
-    `);
+    let submissions = [];
+    let pendingAcademies = 0;
     
-    const pendingAcademies = academiesResult.rows[0]?.pending_academies || 0;
+    if (railwayDB) {
+      try {
+        // Railway DB에서 제출 현황 조회
+        const submissionsResult = await railwayDB.query(`
+          SELECT status, submitted_at, academy_name 
+          FROM submissions 
+          ORDER BY submitted_at DESC 
+          LIMIT 10
+        `);
+        submissions = submissionsResult.rows;
+        console.log('📋 제출 내역 조회 성공:', submissions.length);
+        
+        // Railway DB에서 학원 승인 대기 수 조회
+        const academiesResult = await railwayDB.query(`
+          SELECT COUNT(*) as pending_academies 
+          FROM academies 
+          WHERE status = 'pending'
+        `);
+        pendingAcademies = academiesResult.rows[0]?.pending_academies || 0;
+        console.log('🏢 대기 학원 수:', pendingAcademies);
+        
+      } catch (dbError) {
+        console.error('❌ Railway DB 쿼리 실패:', dbError);
+        submissions = [];
+        pendingAcademies = 0;
+      }
+    } else {
+      console.log('⚠️ Railway DB 연결되지 않음');
+    }
+
 
     // 통계 계산
     const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
@@ -843,6 +854,13 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
       academy: submission.academy_name,
       timestamp: submission.submitted_at
     }));
+
+    console.log('📈 최종 통계:', {
+      pendingSubmissions,
+      pendingAcademies, 
+      approvedSubmissions,
+      totalBundles
+    });
 
     res.json({
       pendingSubmissions,
