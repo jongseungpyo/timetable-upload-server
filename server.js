@@ -1016,16 +1016,37 @@ app.post('/api/admin/submissions/:id/reject', requireAuth, logAdminActivity('REJ
 // 웹 테이블 시간표 제출 API
 app.post('/api/submit-timetable-web', async (req, res) => {
   try {
+    console.log('📥 웹 테이블 제출 API 호출됨');
+    console.log('📋 요청 본문 크기:', JSON.stringify(req.body).length);
+    
     const { academyName, contactName, email, seasonYear, seasonQuarter, verificationUrl, notes, tableData } = req.body;
     
+    console.log('🔍 추출된 필드들:', {
+      academyName, contactName, email, seasonYear, seasonQuarter, verificationUrl,
+      notesLength: notes?.length || 0,
+      tableDataLength: tableData?.length || 0
+    });
+    
     if (!academyName || !contactName || !email || !seasonYear || !seasonQuarter || !verificationUrl || !tableData) {
+      console.log('❌ 필수 정보 누락 체크:', {
+        academyName: !!academyName,
+        contactName: !!contactName, 
+        email: !!email,
+        seasonYear: !!seasonYear,
+        seasonQuarter: !!seasonQuarter,
+        verificationUrl: !!verificationUrl,
+        tableData: !!tableData
+      });
       return res.status(400).json({ error: '필수 정보가 누락되었습니다' });
     }
 
     if (!tableData || tableData.length === 0) {
+      console.log('❌ 테이블 데이터 없음:', tableData);
       return res.status(400).json({ error: '시간표 데이터가 없습니다' });
     }
 
+    console.log('✅ 기본 검증 통과, 데이터 변환 시작');
+    
     const submissionId = generateUUID();
     const season = `${seasonYear}.${seasonQuarter}`;
     
