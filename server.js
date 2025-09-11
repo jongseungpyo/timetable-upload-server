@@ -13,6 +13,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Railway 프록시 설정
+app.set('trust proxy', true);
+
 // 환경변수 디버깅
 console.log('🔍 모든 환경변수 확인:');
 console.log('NODE_ENV:', process.env.NODE_ENV);
