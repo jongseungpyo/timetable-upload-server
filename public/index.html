@@ -23,23 +23,54 @@
     <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
+                <!-- Logo (클릭 시 메인으로) -->
                 <div class="flex-shrink-0">
-                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                    <a href="#home" onclick="showSection('home')" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
+                        🏫 타임빌더
+                    </a>
                 </div>
                 
-                <!-- Navigation Links -->
-                <div class="hidden md:block">
+                <!-- Navigation Links (로그인 상태에 따라) -->
+                <div class="hidden md:block" id="mainNavigation">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#home" onclick="showSection('home')" class="nav-link active px-3 py-2 rounded-md text-sm font-medium text-blue-600 bg-blue-50">
-                            메인
-                        </a>
                         <a href="#timetable" onclick="checkAuthAndShowSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                             시간표 제출
                         </a>
                         <a href="#advertising" onclick="checkAuthAndShowSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                             광고 문의
                         </a>
+                        <!-- 로그인 시 마이페이지 메뉴 -->
+                        <div class="relative" id="myPageMenu" style="display: none;">
+                            <button onclick="toggleMyPageDropdown()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center">
+                                마이페이지
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <!-- 드롭다운 메뉴 -->
+                            <div id="myPageDropdown" class="hidden absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                                <div class="py-1">
+                                    <button onclick="showMyPageSection('profile'); toggleMyPageDropdown()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                        내정보 수정
+                                    </button>
+                                    <button onclick="showMyPageSection('submissions'); toggleMyPageDropdown()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                        시간표 제출 내역
+                                    </button>
+                                    <button onclick="showMyPageSection('inquiries'); toggleMyPageDropdown()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                        </svg>
+                                        광고 제출 내역
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1924,22 +1955,20 @@
             showSection('home'); // 메인으로 이동
         }
 
-        // 인증 상태에 따라 네비게이션 버튼 업데이트
+        // 인증 상태에 따라 네비게이션 업데이트
         function updateAuthButtons() {
             const token = localStorage.getItem('academyToken');
             const authButtonsContainer = document.querySelector('.hidden.md\\:flex.items-center.space-x-3');
+            const myPageMenu = document.getElementById('myPageMenu');
             
             if (token) {
-                // 로그인 상태: 대시보드 + 로그아웃 버튼
+                // 로그인 상태: 마이페이지 메뉴 표시 + 로그아웃 버튼
                 const academyInfo = JSON.parse(localStorage.getItem('academyInfo') || '{}');
+                
+                myPageMenu.style.display = 'block';
+                
                 authButtonsContainer.innerHTML = `
                     <span class="text-sm text-gray-600 mr-2">${academyInfo.academy_name}님</span>
-                    <button onclick="showDashboardModal()" class="inline-flex items-center px-4 py-2 border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded-md transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        내 제출 내역
-                    </button>
                     <button onclick="academyLogout()" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
@@ -1948,7 +1977,9 @@
                     </button>
                 `;
             } else {
-                // 비로그인 상태: 로그인 + 회원가입 버튼
+                // 비로그인 상태: 마이페이지 숨기기 + 로그인/회원가입 버튼
+                myPageMenu.style.display = 'none';
+                
                 authButtonsContainer.innerHTML = `
                     <button onclick="showLoginModal()" class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1965,6 +1996,50 @@
                 `;
             }
         }
+
+        // 마이페이지 드롭다운 토글
+        function toggleMyPageDropdown() {
+            const dropdown = document.getElementById('myPageDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // 마이페이지 섹션 표시
+        function showMyPageSection(section) {
+            // TODO: 각 마이페이지 섹션 구현
+            console.log('마이페이지 섹션:', section);
+            
+            switch (section) {
+                case 'profile':
+                    showProfileEditModal();
+                    break;
+                case 'submissions':
+                    showDashboardModal(); // 기존 제출 내역 모달 재사용
+                    break;
+                case 'inquiries':
+                    showInquiriesModal();
+                    break;
+            }
+        }
+
+        // 프로필 수정 모달 (TODO: 구현 필요)
+        function showProfileEditModal() {
+            alert('내정보 수정 기능은 곧 추가됩니다.');
+        }
+
+        // 광고 제출 내역 모달 (TODO: 구현 필요)
+        function showInquiriesModal() {
+            alert('광고 제출 내역 기능은 곧 추가됩니다.');
+        }
+
+        // 외부 클릭 시 드롭다운 닫기
+        document.addEventListener('click', function(event) {
+            const myPageMenu = document.getElementById('myPageMenu');
+            const dropdown = document.getElementById('myPageDropdown');
+            
+            if (myPageMenu && !myPageMenu.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         // 학원 정보 자동 채우기
         function updateAcademyInfo() {
