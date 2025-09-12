@@ -439,13 +439,10 @@
                                                 <th class="px-3 py-2 text-center font-medium text-gray-700 border-b">#</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">과목</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">교육청</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">대상학교</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학급</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학교코드</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학년</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">출강학원</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">개강일자</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학원</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">일요일</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">월요일</th>
@@ -540,13 +537,10 @@
                         <td class="px-3 py-2 border-b text-center font-medium text-gray-500">${index + 1}</td>
                         <td class="px-3 py-2 border-b">${bundle.teacher_name}</td>
                         <td class="px-3 py-2 border-b">${bundle.subject}</td>
-                        <td class="px-3 py-2 border-b">${bundle.education_office || '-'}</td>
-                        <td class="px-3 py-2 border-b font-medium text-blue-600">${bundle.target_school}</td>
-                        <td class="px-3 py-2 border-b">${bundle.school_level || '-'}</td>
+                        <td class="px-3 py-2 border-b font-medium text-blue-600">${JSON.stringify(bundle.target_school_codes || [bundle.target_school])}</td>
                         <td class="px-3 py-2 border-b">${bundle.target_grade || '-'}</td>
                         <td class="px-3 py-2 border-b">${bundle.topic}</td>
                         <td class="px-3 py-2 border-b">${bundle.academy}</td>
-                        <td class="px-3 py-2 border-b">${bundle.start_date || '-'}</td>
                         <td class="px-3 py-2 border-b">${bundle.region}</td>
                         <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 0)}</td>
                         <td class="px-3 py-2 border-b">${getScheduleForDay(bundle.sessions, 1)}</td>
@@ -582,7 +576,6 @@
                             <td class="px-3 py-2 border-b">
                                 <code class="bg-gray-100 px-2 py-1 rounded text-blue-600">${JSON.stringify(schoolCodes)}</code>
                             </td>
-                            <td class="px-3 py-2 border-b">${convertedSchoolLevel || '-'}</td>
                             <td class="px-3 py-2 border-b">${convertedGrade || '-'}</td>
                             <td class="px-3 py-2 border-b">${bundle.topic}</td>
                             <td class="px-3 py-2 border-b">${bundle.academy}</td>
