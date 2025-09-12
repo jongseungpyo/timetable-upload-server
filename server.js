@@ -597,7 +597,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
-// 관리자 직접 업로드 (기존 기능 유지) - submit.html 사용
+// 관리자 직접 업로드 (CSV → Supabase 직접) - submit.html 사용
 app.get('/direct-upload', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/submit.html');
 });
@@ -653,118 +653,7 @@ app.post('/api/submit-inquiry', async (req, res) => {
   }
 });
 
-// 시간표 제출 API (로그인 사용자만, 하지만 승인 상태는 체크하지 않음 - 제출은 가능)
-app.post('/api/submit-timetable', upload.single('csvFile'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'CSV 파일이 필요합니다' });
-    }
-
-    const submissionId = generateUUID();
-    
-    // CSV 데이터 파싱
-    const csvContent = req.file.buffer.toString('utf-8');
-    const rows = csvContent.split('\n').slice(1);
-    
-    // 행 개수 제한 체크 (악용 방지)
-    const validRows = rows.filter(row => row.trim());
-    if (validRows.length > 300) {
-      return res.status(400).json({ 
-        error: '너무 많은 데이터입니다. 악용 방지를 위해 300개 행까지만 허용됩니다.',
-        maxRows: 300,
-        currentRows: validRows.length
-      });
-    }
-    
-    const bundles = [];
-    for (const row of rows) {
-      if (!row.trim()) continue;
-      const columns = row.split(',').map(col => col.replace(/"/g, '').trim());
-      if (columns.length < 17) continue;
-      
-      bundles.push({
-        teacher_name: columns[0],
-        subject: columns[1], 
-        target_school: columns[2],
-        school_level: columns[3],
-        target_grade: columns[4],
-        topic: columns[5],
-        academy: columns[6],
-        region: columns[8],
-        sessions: extractSessions(columns)
-      });
-    }
-
-    // 시즌 정보 생성
-    const seasonYear = req.body.seasonYear;
-    const seasonQuarter = req.body.seasonQuarter;
-    const season = `${seasonYear}.${seasonQuarter}`;
-
-    // 제출 데이터 저장 (승인 대기 상태)  
-    const submission = {
-      submission_id: submissionId,
-      academy_name: req.body.academyName || 'Unknown Academy',
-      instructor_name: req.body.instructorName,
-      contact_name: req.body.contactName || 'Unknown Contact', 
-      phone: req.body.phone || 'Unknown Phone',
-      email: req.body.email || 'unknown@email.com',
-      verification_url: req.body.verificationUrl,
-      target_season: season,
-      notes: req.body.notes,
-      csv_data: JSON.stringify(bundles),
-      status: 'pending',
-      submitted_at: new Date().toISOString()
-    };
-    
-    // Railway DB submissions 테이블에 저장
-    await railwayDB.query(`
-      INSERT INTO submissions (
-        submission_id, academy_name, instructor_name, contact_name, 
-        phone, email, verification_url, target_season, notes, csv_data, status, submitted_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-    `, [
-      submissionId, submission.academy_name, submission.instructor_name,
-      submission.contact_name, submission.phone, submission.email,
-      submission.verification_url, submission.target_season, submission.notes, 
-      submission.csv_data, 'pending', new Date()
-    ]);
-
-    console.log(`📥 새로운 시간표 제출: ${req.body.academyName} (ID: ${submissionId})`);
-    
-    res.json({
-      success: true,
-      submissionId: submissionId,
-      message: '시간표가 성공적으로 제출되었습니다. 검토 후 연락드리겠습니다.'
-    });
-    
-  } catch (error) {
-    console.error('❌ 시간표 제출 실패:', error);
-    res.status(500).json({ 
-      error: '제출 중 오류가 발생했습니다',
-      details: error.message 
-    });
-  }
-});
-
-// 세션 추출 헬퍼 함수
-function extractSessions(columns) {
-  const sessions = [];
-  const days = [9, 10, 11, 12, 13, 14, 15]; // CSV 컬럼 인덱스
-  
-  for (let j = 0; j < days.length; j++) {
-    const timeSlot = columns[days[j]];
-    if (timeSlot && timeSlot.includes('~')) {
-      const [startTime, endTime] = timeSlot.split('~').map(t => t.trim());
-      sessions.push({
-        weekday: j,
-        start_time: startTime,
-        end_time: endTime
-      });
-    }
-  }
-  
-  return sessions;
-}
+// 레거시 API 제거됨 - 웹 테이블 제출(/api/submit-timetable-web)만 사용
 
 // ===== 관리자 라우트 =====
 
@@ -1072,6 +961,7 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
         target_grade: bundleData.target_grade,
         topic: bundleData.topic,
         academy: bundleData.academy,
+        start_date: bundleData.start_date,
         region: bundleData.region,
         published: true,
         status: 'active',
@@ -1160,6 +1050,12 @@ app.post('/api/submit-timetable-web', async (req, res) => {
       notesLength: notes?.length || 0,
       tableDataLength: tableData?.length || 0
     });
+    
+    // 첫 번째 행의 start_date 디버깅
+    if (tableData && tableData.length > 0) {
+      console.log('🔍 첫 번째 행 start_date:', tableData[0].start_date);
+      console.log('🔍 첫 번째 행 전체:', tableData[0]);
+    }
     
     if (!academyName || !contactName || !email || !seasonYear || !seasonQuarter || !verificationUrl || !tableData) {
       console.log('❌ 필수 정보 누락 체크:', {
