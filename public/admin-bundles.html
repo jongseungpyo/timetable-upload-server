@@ -104,34 +104,6 @@
             <p class="text-gray-600">시즌별 승인된 시간표 데이터를 관리하고 Supabase에 배포할 수 있습니다.</p>
         </div>
 
-        <!-- Season Filter -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <label for="seasonFilter" class="text-sm font-medium text-gray-700">시즌 선택:</label>
-                    <select id="seasonFilter" class="border border-gray-300 rounded-md px-3 py-2 bg-white">
-                        <option value="">전체 시즌</option>
-                        <option value="2025.1">2025.1 (겨울방학)</option>
-                        <option value="2025.2">2025.2 (1학기)</option>
-                        <option value="2025.3">2025.3 (여름방학)</option>
-                        <option value="2025.4">2025.4 (2학기)</option>
-                    </select>
-                    <button onclick="loadApprovedBundles()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        조회
-                    </button>
-                </div>
-                <div id="deploySection" class="hidden">
-                    <button onclick="deploySeason()" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 font-medium">
-                        🚀 Supabase에 배포
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Season Statistics -->
-        <div id="seasonStats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 hidden">
-            <!-- Stats will be populated here -->
-        </div>
 
         <!-- Loading State -->
         <div id="loading" class="text-center py-8 hidden">
@@ -140,13 +112,25 @@
         </div>
 
         <!-- Main Content Layout (Left-Right Split) -->
-        <div class="flex gap-6 h-[calc(100vh-300px)]">
+        <div class="flex gap-6 h-[calc(100vh-250px)]">
             <!-- Left Panel: Approved Submissions List -->
-            <div class="w-2/5">
+            <div class="w-1/4">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
-                    <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
-                        <h3 class="text-lg font-semibold text-gray-900">승인된 제출 목록</h3>
-                        <p class="text-sm text-gray-600" id="submissionCount">로딩 중...</p>
+                    <div class="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+                        <h3 class="text-base font-semibold text-gray-900 mb-3">승인된 제출 목록</h3>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <select id="seasonFilter" class="text-xs border border-gray-300 rounded px-2 py-1 bg-white flex-1">
+                                <option value="">전체 시즌</option>
+                                <option value="2025.1">2025.1 (겨울방학)</option>
+                                <option value="2025.2">2025.2 (1학기)</option>
+                                <option value="2025.3">2025.3 (여름방학)</option>
+                                <option value="2025.4">2025.4 (2학기)</option>
+                            </select>
+                            <button onclick="loadApprovedBundles()" class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">
+                                조회
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-600" id="submissionCount">로딩 중...</p>
                     </div>
                     <div class="flex-1 overflow-y-auto p-4 space-y-3" id="submissionsList">
                         <!-- Submissions will be populated here -->
@@ -155,7 +139,7 @@
             </div>
 
             <!-- Right Panel: Selected Submission Details -->
-            <div class="w-3/5">
+            <div class="w-3/4">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
                     <div class="px-6 py-4 border-b border-gray-200 flex-shrink-0">
                         <h3 class="text-lg font-semibold text-gray-900">웹 테이블 폼</h3>
@@ -181,26 +165,6 @@
         </div>
     </main>
 
-    <!-- Deploy Confirmation Modal -->
-    <div id="deployModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full p-6">
-                <h3 class="text-lg font-semibold mb-4">Supabase 배포 확인</h3>
-                <p class="text-gray-600 mb-6">선택한 시즌의 승인된 데이터를 Supabase에 배포하시겠습니까?</p>
-                <div id="deployInfo" class="bg-gray-50 p-4 rounded-md mb-6">
-                    <!-- Deploy info will be populated here -->
-                </div>
-                <div class="flex space-x-4">
-                    <button onclick="closeDeployModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400">
-                        취소
-                    </button>
-                    <button onclick="confirmDeploy()" class="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700">
-                        배포 확인
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         let currentSeason = '';
@@ -229,7 +193,6 @@
                 
                 currentData = data;
                 displayApprovedBundles(data);
-                displaySeasonStats(data.seasonStats);
                 
             } catch (error) {
                 console.error('승인된 번들 로드 실패:', error);
@@ -239,57 +202,7 @@
             hideLoading();
         }
 
-        function displaySeasonStats(seasonStats) {
-            const statsContainer = document.getElementById('seasonStats');
-            const deploySection = document.getElementById('deploySection');
-            
-            if (!seasonStats || Object.keys(seasonStats).length === 0) {
-                statsContainer.classList.add('hidden');
-                deploySection.classList.add('hidden');
-                return;
-            }
-            
-            statsContainer.classList.remove('hidden');
-            
-            if (currentSeason) {
-                const stats = seasonStats[currentSeason];
-                if (stats && stats.pending_bundles > 0) {
-                    deploySection.classList.remove('hidden');
-                } else {
-                    deploySection.classList.add('hidden');
-                }
-                
-                statsContainer.innerHTML = `
-                    <div class="bg-white p-6 rounded-lg border border-gray-200">
-                        <div class="text-sm font-medium text-gray-500">총 번들</div>
-                        <div class="text-2xl font-bold text-gray-900">${stats?.total_bundles || 0}</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg border border-gray-200">
-                        <div class="text-sm font-medium text-gray-500">총 세션</div>
-                        <div class="text-2xl font-bold text-gray-900">${stats?.total_sessions || 0}</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg border border-gray-200">
-                        <div class="text-sm font-medium text-green-500">배포됨</div>
-                        <div class="text-2xl font-bold text-green-600">${stats?.deployed_bundles || 0}</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg border border-gray-200">
-                        <div class="text-sm font-medium text-orange-500">대기 중</div>
-                        <div class="text-2xl font-bold text-orange-600">${stats?.pending_bundles || 0}</div>
-                    </div>
-                `;
-            } else {
-                deploySection.classList.add('hidden');
-                
-                const allSeasons = Object.keys(seasonStats).sort();
-                statsContainer.innerHTML = allSeasons.map(season => `
-                    <div class="bg-white p-6 rounded-lg border border-gray-200">
-                        <div class="text-sm font-medium text-gray-500">${season}</div>
-                        <div class="text-lg font-bold text-gray-900">${seasonStats[season].total_bundles} 번들</div>
-                        <div class="text-sm text-gray-600">${seasonStats[season].pending_bundles} 대기</div>
-                    </div>
-                `).join('');
-            }
-        }
+        // 시즌별 통계 표시 함수 제거됨 - 간소화된 UI
 
         function displayApprovedBundles(data) {
             const submissionsList = document.getElementById('submissionsList');
@@ -308,28 +221,28 @@
             // 제출 개수 업데이트
             submissionCount.textContent = `총 ${data.approvedBundles.length}개의 승인된 제출`;
             
-            // 승인된 제출 목록 카드 렌더링
+            // 승인된 제출 목록 카드 렌더링 (컴팩트)
             submissionsList.innerHTML = data.approvedBundles.map(bundle => `
-                <div class="submission-card cursor-pointer p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
+                <div class="submission-card cursor-pointer p-3 border border-gray-200 rounded-md hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
                      data-submission-id="${bundle.approved_bundle_id}"
                      onclick="selectSubmission('${bundle.approved_bundle_id}')">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="font-medium text-gray-900">제출 : ${bundle.academy_name}</h4>
-                        <div class="text-sm font-bold text-blue-600">${bundle.target_season}</div>
+                    <div class="flex items-center justify-between mb-1">
+                        <h4 class="text-sm font-medium text-gray-900 truncate">제출 : ${bundle.academy_name}</h4>
+                        <div class="text-xs font-bold text-blue-600">${bundle.target_season}</div>
                     </div>
-                    <div class="text-sm text-gray-600 mb-2">
-                        ${bundle.contact_name} | ${bundle.phone}
-                        ${bundle.instructor_name ? ` | 강사: ${bundle.instructor_name}` : ''}
+                    <div class="text-xs text-gray-600 mb-2 truncate">
+                        ${bundle.contact_name}
+                        ${bundle.instructor_name ? ` | ${bundle.instructor_name}` : ''}
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="text-sm">
+                        <div class="text-xs">
                             <span class="text-gray-500">번들 수 :</span>
                             <span class="font-medium text-gray-900">${bundle.bundle_count}개</span>
                         </div>
                         <div class="text-xs">
                             ${bundle.deployed_to_supabase ? 
-                                `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">배포 완료</span>` : 
-                                `<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full">배포 대기</span>`
+                                `<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs">배포됨</span>` : 
+                                `<span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs">대기</span>`
                             }
                         </div>
                     </div>
@@ -342,54 +255,7 @@
             }
         }
 
-        function deploySeason() {
-            if (!currentSeason) {
-                showError('시즌을 선택해주세요');
-                return;
-            }
-            
-            const seasonStats = currentData.seasonStats[currentSeason];
-            if (!seasonStats || seasonStats.pending_bundles === 0) {
-                showError('배포할 데이터가 없습니다');
-                return;
-            }
-            
-            document.getElementById('deployInfo').innerHTML = `
-                <div class="text-sm">
-                    <div><strong>시즌:</strong> ${currentSeason}</div>
-                    <div><strong>배포할 번들:</strong> ${seasonStats.pending_bundles}개</div>
-                    <div><strong>배포할 세션:</strong> ${seasonStats.total_sessions - (seasonStats.deployed_bundles * seasonStats.total_sessions / seasonStats.total_bundles)}개 (예상)</div>
-                </div>
-            `;
-            
-            document.getElementById('deployModal').classList.remove('hidden');
-        }
-
-        async function confirmDeploy() {
-            try {
-                const response = await fetch(`/api/admin/deploy-season/${currentSeason}`, {
-                    method: 'POST'
-                });
-                
-                const result = await response.json();
-                
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-                
-                showSuccess(`${currentSeason} 시즌이 성공적으로 배포되었습니다! (번들: ${result.deployedBundles}개, 세션: ${result.deployedSessions}개)`);
-                closeDeployModal();
-                loadApprovedBundles(); // 데이터 새로고침
-                
-            } catch (error) {
-                console.error('배포 실패:', error);
-                showError('배포 중 오류가 발생했습니다: ' + error.message);
-            }
-        }
-
-        function closeDeployModal() {
-            document.getElementById('deployModal').classList.add('hidden');
-        }
+        // 배포 관련 함수들 제거됨 - 간소화된 UI
 
         // 제출 선택 함수
         function selectSubmission(submissionId) {
