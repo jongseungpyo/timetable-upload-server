@@ -1951,6 +1951,27 @@ app.get('/api/admin/bundles', requireAuth, logAdminActivity('VIEW_BUNDLES'), asy
   }
 });
 
+// ===== 학교 매핑 API =====
+
+// 학교 매핑 데이터 제공 API
+app.get('/api/admin/school-mapping', requireAuth, async (req, res) => {
+  try {
+    if (!schoolMappingData) {
+      return res.status(503).json({ error: '학교 매핑 데이터가 로드되지 않았습니다' });
+    }
+
+    res.json({
+      school_to_code: schoolMappingData.school_to_code,
+      code_to_school: schoolMappingData.code_to_school,
+      total_schools: Object.keys(schoolMappingData.school_to_code).length
+    });
+
+  } catch (error) {
+    console.error('학교 매핑 데이터 제공 실패:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== 임시 디버깅 API =====
 
 // 김민석 데이터 조회 API (임시)

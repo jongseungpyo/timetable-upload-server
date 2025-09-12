@@ -210,13 +210,26 @@
             const noData = document.getElementById('noData');
             
             if (!data.approvedBundles || data.approvedBundles.length === 0) {
-                document.querySelector('.flex.gap-6').classList.add('hidden');
-                noData.classList.remove('hidden');
+                // 데이터가 없으면 제출 목록만 비우기, 레이아웃은 유지
+                submissionsList.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-4xl mb-2">📦</div>
+                        <p class="text-sm">선택한 시즌에 승인된 제출이 없습니다</p>
+                    </div>
+                `;
+                submissionCount.textContent = '승인된 제출이 없습니다';
+                
+                // 우측 패널 초기화
+                document.getElementById('selectedSubmissionInfo').textContent = '승인된 제출을 선택해주세요';
+                document.getElementById('selectedSubmissionContent').innerHTML = `
+                    <div class="text-center py-20 text-gray-400">
+                        <div class="text-6xl mb-4">📋</div>
+                        <p class="text-lg">승인된 제출을 선택해주세요</p>
+                        <p class="text-sm">다른 시즌을 선택하거나 데이터가 있는 시즌을 확인해보세요</p>
+                    </div>
+                `;
                 return;
             }
-            
-            document.querySelector('.flex.gap-6').classList.remove('hidden');
-            noData.classList.add('hidden');
             
             // 제출 개수 업데이트
             submissionCount.textContent = `총 ${data.approvedBundles.length}개의 승인된 제출`;

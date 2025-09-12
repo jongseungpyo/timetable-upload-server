@@ -228,8 +228,11 @@
         let allSubmissions = [];
         let currentPage = 0;
 
-        // 페이지 로드 시 제출 목록 로드 및 URL 파라미터 처리
-        document.addEventListener('DOMContentLoaded', () => {
+        // 페이지 로드 시 매핑 데이터 로드 후 제출 목록 로드
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 학교 매핑 데이터 먼저 로드
+            await loadSchoolMappingData();
+            
             // URL 파라미터 확인
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
@@ -626,26 +629,46 @@
             }
         }
 
-        // 학교명 → 코드 변환 (클라이언트 버전)
+        // 학교 매핑 데이터 (서버에서 로드)
+        let schoolMappingData = null;
+
+        // 서버에서 학교 매핑 데이터 로드
+        async function loadSchoolMappingData() {
+            try {
+                const response = await fetch('/api/admin/school-mapping');
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('학교 매핑 로드 실패:', data.error);
+                    return;
+                }
+                
+                schoolMappingData = data;
+                console.log(`✅ 프론트엔드 학교 매핑 데이터 로드 완료: ${data.total_schools}개 학교`);
+                
+            } catch (error) {
+                console.error('학교 매핑 로드 실패:', error);
+            }
+        }
+
+        // 학교명을 학교 코드로 변환하는 함수 (서버와 동일한 로직)
         function convertSchoolNames(schoolText) {
-            const schoolCodeMapping = {
-                '세화고': 'B10_7010197',
-                '세화여고': 'B10_7010198', 
-                '서울고': 'B10_7010083',
-                '상문고': 'B10_7010179',
-                '반포고': 'B10_7010080',
-                '서초고': 'B10_7010087'
-            };
+            if (!schoolMappingData) {
+                console.warn('⚠️ 학교 매핑 데이터가 로드되지 않음');
+                return [schoolText];
+            }
 
             if (schoolText === '연합반') return ['UNION'];
             
             if (schoolText.includes(',')) {
-                return schoolText.split(',').map(s => s.trim()).map(school => 
-                    schoolCodeMapping[school] || school
-                ).filter(Boolean);
+                return schoolText.split(',').map(s => s.trim()).map(school => {
+                    const code = schoolMappingData.school_to_code[school];
+                    return code || school;
+                }).filter(Boolean);
             }
             
-            return [schoolCodeMapping[schoolText.trim()] || schoolText.trim()];
+            const code = schoolMappingData.school_to_code[schoolText.trim()];
+            return [code || schoolText.trim()];
         }
 
         // markAsReviewing 함수 제거됨 - 2단계 워크플로우로 변경
