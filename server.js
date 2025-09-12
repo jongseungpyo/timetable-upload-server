@@ -1562,6 +1562,11 @@ app.get('/admin/bundles', requireAuth, (req, res) => {
   res.sendFile(__dirname + '/public/admin-bundles.html');
 });
 
+// 번들 현황 페이지
+app.get('/admin/current_bundles', requireAuth, (req, res) => {
+  res.sendFile(__dirname + '/public/admin-current-bundles.html');
+});
+
 // 학원 목록 조회 API
 app.get('/api/admin/academies', requireAuth, logAdminActivity('VIEW_ACADEMIES'), async (req, res) => {
   try {

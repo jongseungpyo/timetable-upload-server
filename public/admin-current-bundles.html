@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>번들 현황 - 타임빌더 관리자</title>
+    <!-- Tailwind CSS (프로덕션용) -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">🏫 타임빌더</a>
+                    <span class="ml-2 text-gray-500">관리자</span>
+                </div>
+                
+                <!-- User info + Logout -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">관리자님 환영합니다</span>
+                    <button 
+                        onclick="logout()" 
+                        class="inline-flex items-center px-3 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                    >
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout with Sidebar -->
+    <div class="flex">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
+            <nav class="p-4">
+                <div class="space-y-2">
+                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        대시보드
+                    </a>
+                    <div class="relative group">
+                        <a href="/admin/submissions" class="admin-nav-link flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                제출 검토
+                            </div>
+                            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </a>
+                        <!-- 호버 서브메뉴 -->
+                        <div class="absolute left-full top-0 ml-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                            <div class="py-2">
+                                <a href="/admin/submissions" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                    📝 미검토 시간표
+                                </a>
+                                <a href="/admin/submissions?tab=approved" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600">
+                                    ✅ 승인된 시간표
+                                </a>
+                                <a href="/admin/submissions?tab=rejected" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">
+                                    ❌ 거절된 시간표
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/admin/bundles" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        승인된 번들
+                    </a>
+                    <a href="/admin/current_bundles" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V9a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2z"/>
+                        </svg>
+                        번들 현황
+                    </a>
+                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        학원 관리
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden">
+            <div class="p-8">
+                <!-- Page Header -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">번들 현황</h2>
+                    <p class="text-gray-600">시즌별 Supabase에 배포된 번들 현황을 확인할 수 있습니다.</p>
+                </div>
+
+                <!-- Season Tabs -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8">
+                            <button onclick="switchSeason('2025.4')" 
+                                    id="tab-2025-4" 
+                                    class="season-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                                2025.4 (2학기)
+                            </button>
+                            <button onclick="switchSeason('2026.1')" 
+                                    id="tab-2026-1" 
+                                    class="season-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                2026.1 (겨울방학)
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Season Statistics -->
+                <div id="seasonStats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <!-- Stats cards will be populated here -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading" class="text-center py-8 hidden">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p class="mt-2 text-gray-600">로딩 중...</p>
+                </div>
+
+                <!-- Bundles Table -->
+                <div id="bundlesTable" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <!-- Table will be populated here -->
+                </div>
+
+                <!-- No Data Message -->
+                <div id="noData" class="text-center py-8 hidden">
+                    <div class="text-gray-400 text-6xl mb-4">📦</div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">번들이 없습니다</h3>
+                    <p class="text-gray-600">선택한 시즌에 배포된 번들이 없습니다.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentSeason = '2025.4';
+
+        // 페이지 로드 시 초기 데이터 로드
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCurrentBundles();
+        });
+
+        function switchSeason(season) {
+            currentSeason = season;
+            
+            // 탭 스타일 업데이트
+            document.querySelectorAll('.season-tab').forEach(tab => {
+                tab.className = 'season-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+            });
+            
+            const activeTab = document.getElementById(`tab-${season.replace('.', '-')}`);
+            activeTab.className = 'season-tab whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+            
+            // 데이터 로드
+            loadCurrentBundles();
+        }
+
+        async function loadCurrentBundles() {
+            showLoading();
+            
+            try {
+                // 시즌별 통계 로드
+                const statsResponse = await fetch(`/api/admin/season-stats?season=${currentSeason}`);
+                const statsData = await statsResponse.json();
+                
+                if (statsData.error) {
+                    throw new Error(statsData.error);
+                }
+                
+                displaySeasonStats(statsData);
+                
+                // 번들 목록 로드
+                const bundlesResponse = await fetch(`/api/admin/bundles?season=${currentSeason}&limit=100`);
+                const bundlesData = await bundlesResponse.json();
+                
+                if (bundlesData.error) {
+                    throw new Error(bundlesData.error);
+                }
+                
+                displayBundlesTable(bundlesData.bundles);
+                
+            } catch (error) {
+                console.error('번들 현황 로드 실패:', error);
+                showError('번들 현황을 불러올 수 없습니다: ' + error.message);
+            }
+            
+            hideLoading();
+        }
+
+        function displaySeasonStats(stats) {
+            const statsContainer = document.getElementById('seasonStats');
+            
+            statsContainer.innerHTML = `
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="text-sm font-medium text-gray-500">총 번들</div>
+                    <div class="text-2xl font-bold text-gray-900">${stats.totalBundles || 0}</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="text-sm font-medium text-gray-500">활성 번들</div>
+                    <div class="text-2xl font-bold text-green-600">${stats.activeBundles || 0}</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="text-sm font-medium text-gray-500">총 세션</div>
+                    <div class="text-2xl font-bold text-gray-900">${stats.totalSessions || 0}</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-gray-200">
+                    <div class="text-sm font-medium text-gray-500">총 강사</div>
+                    <div class="text-2xl font-bold text-purple-600">${stats.totalTeachers || 0}</div>
+                </div>
+            `;
+        }
+
+        function displayBundlesTable(bundles) {
+            const tableContainer = document.getElementById('bundlesTable');
+            const noData = document.getElementById('noData');
+            
+            if (!bundles || bundles.length === 0) {
+                tableContainer.classList.add('hidden');
+                noData.classList.remove('hidden');
+                return;
+            }
+            
+            tableContainer.classList.remove('hidden');
+            noData.classList.add('hidden');
+            
+            tableContainer.innerHTML = `
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">${currentSeason} 시즌 번들 목록</h3>
+                    <p class="text-sm text-gray-600">총 ${bundles.length}개의 번들이 앱에 반영되어 있습니다</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">강사명</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과목</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주제</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">학원</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지역</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">세션 수</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${bundles.map(bundle => `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${bundle.teacher_name}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bundle.subject}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bundle.topic}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bundle.academy}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bundle.region || '-'}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bundle.session_count || 0}개</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${bundle.published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                            ${bundle.published ? '발행됨' : '미발행'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('bundlesTable').classList.add('hidden');
+            document.getElementById('noData').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showError(message) {
+            alert('오류: ' + message);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/admin/logout', { method: 'POST' });
+                window.location.href = '/admin/login';
+            } catch (error) {
+                console.error('로그아웃 실패:', error);
+                window.location.href = '/admin/login';
+            }
+        }
+    </script>
+</body>
+</html>
