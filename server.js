@@ -1934,6 +1934,33 @@ app.get('/api/admin/bundles', requireAuth, logAdminActivity('VIEW_BUNDLES'), asy
 
 // ===== 임시 디버깅 API =====
 
+// 김민석 데이터 조회 API (임시)
+app.get('/api/debug/kim-minseok', requireAuth, async (req, res) => {
+  try {
+    if (!railwayDB) {
+      return res.status(503).json({ error: 'Railway DB 연결되지 않음' });
+    }
+
+    const result = await railwayDB.query(`
+      SELECT approved_bundle_id, target_season, academy_name,
+             LENGTH(bundle_data::text) as bundle_data_length,
+             bundle_data
+      FROM approved_bundles 
+      WHERE bundle_data::text LIKE '%김민석%'
+      ORDER BY approved_at DESC
+    `);
+
+    res.json({
+      count: result.rows.length,
+      kimMinseokData: result.rows
+    });
+
+  } catch (error) {
+    console.error('김민석 데이터 조회 실패:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Railway DB 데이터 확인용 (임시)
 app.get('/api/debug/submissions', requireAuth, async (req, res) => {
   try {
