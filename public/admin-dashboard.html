@@ -148,6 +148,60 @@
                 </div>
                 <p class="text-xs text-gray-500 mt-1">답변 대기 중</p>
                 </div>
+
+            <!-- Season Statistics Section -->
+            <div class="col-span-full mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">시즌별 앱 반영 현황</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 2025.4 Season -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">2025.4 (2학기)</p>
+                                <p class="text-2xl font-bold text-gray-900" id="season2025_4Count">-</p>
+                            </div>
+                            <div class="h-8 w-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">앱에 반영된 번들</p>
+                    </div>
+
+                    <!-- 2026.1 Season -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-indigo-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">2026.1 (겨울방학)</p>
+                                <p class="text-2xl font-bold text-gray-900" id="season2026_1Count">-</p>
+                            </div>
+                            <div class="h-8 w-8 bg-indigo-100 rounded-md flex items-center justify-center">
+                                <svg class="h-4 w-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">앱에 반영된 번들</p>
+                    </div>
+
+                    <!-- Total Deployed -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-emerald-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">전체 반영</p>
+                                <p class="text-2xl font-bold text-gray-900" id="totalDeployedCount">-</p>
+                            </div>
+                            <div class="h-8 w-8 bg-emerald-100 rounded-md flex items-center justify-center">
+                                <svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">모든 시즌 합계</p>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -160,15 +214,23 @@
                 const response = await fetch('/api/admin/dashboard-stats');
                 const data = await response.json();
                 
-                // 통계 업데이트
+                // 기본 통계 업데이트
                 document.getElementById('pendingCount').textContent = data.pendingSubmissions || 0;
                 document.getElementById('pendingAcademiesCount').textContent = data.pendingAcademies || 0;
                 document.getElementById('approvedCount').textContent = data.approvedSubmissions || 0;
                 document.getElementById('inquiryCount').textContent = data.inquiries || 0;
                 
-                // 최근 활동 제거됨 (깔끔한 대시보드)
+                // 시즌별 통계 업데이트
+                document.getElementById('season2025_4Count').textContent = data.season_2025_4 || 0;
+                document.getElementById('season2026_1Count').textContent = data.season_2026_1 || 0;
+                document.getElementById('totalDeployedCount').textContent = (data.season_2025_4 || 0) + (data.season_2026_1 || 0);
+                
             } catch (error) {
                 console.error('대시보드 데이터 로드 실패:', error);
+                // 오류 시 기본값 표시
+                document.getElementById('season2025_4Count').textContent = '오류';
+                document.getElementById('season2026_1Count').textContent = '오류';
+                document.getElementById('totalDeployedCount').textContent = '오류';
             }
         }
 

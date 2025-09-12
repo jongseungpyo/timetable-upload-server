@@ -925,19 +925,41 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
       console.log('⚠️ Railway DB 연결되지 않음');
     }
 
-    // Supabase에서 전체 번들 수 조회
-    let totalBundles = 0;
+    // Supabase에서 시즌별 번들 수 조회
+    let season_2025_4 = 0;
+    let season_2026_1 = 0;
+    
     try {
-      const { count, error: bundleError } = await supabase
+      // 2025.4 시즌 번들 수 조회
+      const { count: count2025_4, error: error2025_4 } = await supabase
         .from('bundles_2025_4')
         .select('*', { count: 'exact', head: true });
       
-      if (bundleError) {
-        console.error('❌ Supabase 번들 조회 실패:', bundleError);
+      if (error2025_4) {
+        console.error('❌ 2025.4 번들 조회 실패:', error2025_4);
       } else {
-        totalBundles = count || 0;
-        console.log('📦 전체 번들 수:', totalBundles);
+        season_2025_4 = count2025_4 || 0;
+        console.log('📦 2025.4 시즌 번들 수:', season_2025_4);
       }
+      
+      // 2026.1 시즌 번들 수 조회 (테이블이 없으면 0)
+      try {
+        const { count: count2026_1, error: error2026_1 } = await supabase
+          .from('bundles_2026_1')
+          .select('*', { count: 'exact', head: true });
+        
+        if (error2026_1) {
+          console.warn('⚠️ 2026.1 테이블 없음 (정상):', error2026_1.message);
+          season_2026_1 = 0;
+        } else {
+          season_2026_1 = count2026_1 || 0;
+          console.log('📦 2026.1 시즌 번들 수:', season_2026_1);
+        }
+      } catch (table2026Error) {
+        console.warn('⚠️ 2026.1 테이블 접근 불가 (정상)');
+        season_2026_1 = 0;
+      }
+      
     } catch (supabaseError) {
       console.error('❌ Supabase 연결 실패:', supabaseError);
     }
@@ -960,14 +982,17 @@ app.get('/api/admin/dashboard-stats', requireAuth, logAdminActivity('VIEW_DASHBO
       pendingSubmissions,
       pendingAcademies, 
       approvedSubmissions,
-      totalBundles
+      season_2025_4,
+      season_2026_1
     });
 
     res.json({
       pendingSubmissions,
       pendingAcademies,
       approvedSubmissions,
-      totalBundles: totalBundles || 0,
+      season_2025_4,
+      season_2026_1,
+      totalBundles: season_2025_4 + season_2026_1, // 시즌별 합계
       inquiries: 0, // TODO: 문의사항 테이블 생성 후 구현
       recentActivity
     });
