@@ -1088,6 +1088,19 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
       }
       
       console.log('✅ 데이터 파싱 성공, 번들 개수:', csvData.length);
+    
+    // JSON 구조 검증
+    try {
+      const testJson = JSON.stringify(csvData);
+      JSON.parse(testJson); // 재파싱 테스트
+      console.log('✅ JSON 구조 검증 통과');
+    } catch (jsonError) {
+      console.error('❌ JSON 구조 오류:', jsonError.message);
+      console.error('문제가 있는 데이터:', JSON.stringify(csvData, null, 2).substring(0, 500));
+      return res.status(400).json({ 
+        error: 'JSON 구조 오류: ' + jsonError.message
+      });
+    }
     } catch (parseError) {
       console.error('❌ 데이터 파싱 실패:', parseError.message);
       console.error('원본 데이터 타입:', typeof submission.csv_data);
@@ -1144,7 +1157,7 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
         approved_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `, [
-      id, season, bundles, sessions,  // JSON.stringify 제거
+      id, season, JSON.stringify(bundles), JSON.stringify(sessions),  // 명시적 JSON 직렬화
       submission.academy_name, submission.instructor_name, submission.contact_name,
       submission.phone, submission.email, submission.notes, 'admin'
     ]);
@@ -1282,7 +1295,7 @@ app.post('/api/submit-timetable-web', async (req, res) => {
     `, [
       submissionId, academyName, contactName, phone || 'Unknown Phone',
       email, verificationUrl, season, notes, 
-      bundles, 'pending', new Date()  // JSON.stringify 제거
+      JSON.stringify(bundles), 'pending', new Date()  // JSON.stringify 복구
     ]);
 
     console.log(`📥 웹 테이블 시간표 제출: ${academyName} (${tableData.length}개 데이터, ID: ${submissionId})`);
