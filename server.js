@@ -1918,6 +1918,25 @@ app.get('/api/admin/bundles', requireAuth, logAdminActivity('VIEW_BUNDLES'), asy
       session_count: bundle.sessions?.length || 0
     }));
 
+    // 김민석 데이터 디버깅
+    const kimMinseokBundles = bundles.filter(b => b.teacher_name === '김민석');
+    if (kimMinseokBundles.length > 0) {
+      console.log('🔍 김민석 번들 데이터 구조:');
+      kimMinseokBundles.forEach((bundle, index) => {
+        console.log(`번들 ${index + 1}:`, {
+          bundle_id: bundle.bundle_id.substring(0, 8),
+          teacher_name: bundle.teacher_name,
+          subject: bundle.subject,
+          target_school_codes: bundle.target_school_codes,
+          target_grade: bundle.target_grade,
+          topic: bundle.topic,
+          academy: bundle.academy,
+          region: bundle.region,
+          session_count: bundle.session_count
+        });
+      });
+    }
+
     res.json({
       bundles: bundles,
       total: bundles.length,
