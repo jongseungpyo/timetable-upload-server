@@ -1070,7 +1070,31 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
     }
 
     const submission = result.rows[0];
-    const csvData = JSON.parse(submission.csv_data);
+    
+    // CSV 데이터 파싱 (오류 처리 추가)
+    let csvData;
+    try {
+      console.log('🔍 csv_data 타입:', typeof submission.csv_data);
+      console.log('🔍 csv_data 미리보기:', submission.csv_data ? submission.csv_data.substring(0, 100) : 'null');
+      
+      if (typeof submission.csv_data === 'string') {
+        csvData = JSON.parse(submission.csv_data);
+      } else if (typeof submission.csv_data === 'object') {
+        csvData = submission.csv_data; // 이미 객체인 경우
+      } else {
+        throw new Error('csv_data가 유효하지 않은 형식입니다');
+      }
+      
+      console.log('✅ JSON 파싱 성공, 번들 개수:', csvData.length);
+    } catch (parseError) {
+      console.error('❌ JSON 파싱 실패:', parseError.message);
+      console.error('원본 데이터:', submission.csv_data);
+      return res.status(400).json({ 
+        error: 'CSV 데이터 파싱 실패: ' + parseError.message,
+        rawData: submission.csv_data ? submission.csv_data.substring(0, 200) : 'null'
+      });
+    }
+    
     const bundles = [];
     const sessions = [];
 
