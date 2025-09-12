@@ -14,7 +14,7 @@
             <div class="flex justify-between items-center py-4">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">🏫 타임빌더</a>
                     <span class="ml-2 text-gray-500">관리자</span>
                 </div>
                 
@@ -47,12 +47,30 @@
                         </svg>
                         대시보드
                     </a>
-                    <a href="/admin/submissions" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        제출 검토
-                    </a>
+                    <div class="space-y-1">
+                        <button onclick="toggleSubmissionAccordion()" class="admin-nav-link active flex items-center justify-between w-full px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                제출 검토
+                            </div>
+                            <svg id="submissionAccordionIcon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div id="submissionAccordion" class="ml-8 space-y-1">
+                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md">
+                                📝 미검토 시간표
+                            </a>
+                            <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
+                                ✅ 승인된 시간표
+                            </a>
+                            <a href="/admin/submissions?tab=rejected" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
+                                ❌ 거절된 시간표
+                            </a>
+                        </div>
+                    </div>
                     <a href="/admin/bundles" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
@@ -204,8 +222,24 @@
         let allSubmissions = [];
         let currentPage = 0;
 
-        // 페이지 로드 시 제출 목록 로드
-        document.addEventListener('DOMContentLoaded', loadSubmissions);
+        // 페이지 로드 시 제출 목록 로드 및 URL 파라미터 처리
+        document.addEventListener('DOMContentLoaded', () => {
+            // URL 파라미터 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            
+            if (tab === 'approved') {
+                switchTab('reviewed');
+                switchSubTab('approved');
+            } else if (tab === 'rejected') {
+                switchTab('reviewed');
+                switchSubTab('rejected');
+            } else {
+                switchTab('pending');
+            }
+            
+            loadSubmissions();
+        });
 
         async function loadSubmissions() {
             try {
@@ -718,6 +752,29 @@
             // 데이터 로드
             loadSubmissions();
         }
+
+        // 아코디언 토글 함수
+        function toggleSubmissionAccordion() {
+            const accordion = document.getElementById('submissionAccordion');
+            const icon = document.getElementById('submissionAccordionIcon');
+            
+            if (accordion.style.display === 'none' || accordion.style.display === '') {
+                accordion.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                accordion.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // 페이지 로드 시 아코디언 상태 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            // 기본적으로 아코디언 열어두기
+            const accordion = document.getElementById('submissionAccordion');
+            const icon = document.getElementById('submissionAccordionIcon');
+            accordion.style.display = 'block';
+            icon.style.transform = 'rotate(180deg)';
+        });
 
         function refreshData() {
             loadSubmissions();
