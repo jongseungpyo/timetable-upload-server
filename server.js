@@ -623,20 +623,22 @@ app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
       // 학교 코드 변환
       const schoolCodes = convertSchoolNames(targetSchool);
       
-      // 번들 데이터
+      // 번들 데이터 (명시적 매핑)
       bundles.push({
         bundle_id: bundleId,
         teacher_name: teacher,
         subject: subject,
-        target_school_codes: schoolCodes,
-        school_level: schoolLevel,
-        target_grade: targetGrade,
         topic: topic,
+        target_grade: targetGrade,
         academy: academy,
-        region: region,
         published: true,
         status: 'active',
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        start_date: startDate,
+        region: region,
+        target_school_codes: schoolCodes,
+        school_level: schoolLevel
+        // teacher_id, title, group_id는 null로 기본값 사용
       });
       
       // 세션 데이터 (일~토요일 체크)
@@ -1777,14 +1779,32 @@ app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPL
       allSessions.push(...sessionData);
     }
 
-    // Supabase 시즌별 테이블에 배포
+    // Supabase 시즌별 테이블에 배포 (명시적 컬럼 매핑)
     const bundleTableName = `bundles_${season.replace('.', '_')}`;
     const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // 번들 데이터 명시적 매핑
+    const mappedBundles = allBundles.map(bundle => ({
+      bundle_id: bundle.bundle_id,
+      teacher_name: bundle.teacher_name,
+      subject: bundle.subject,
+      topic: bundle.topic,
+      target_grade: bundle.target_grade,
+      academy: bundle.academy,
+      published: bundle.published,
+      status: bundle.status,
+      updated_at: bundle.updated_at,
+      start_date: bundle.start_date,
+      region: bundle.region,
+      target_school_codes: bundle.target_school_codes,
+      school_level: bundle.school_level
+      // teacher_id, title, group_id는 null로 기본값 사용
+    }));
 
     // 번들 배포
     const { error: bundleError } = await supabase
       .from(bundleTableName)
-      .insert(allBundles);
+      .insert(mappedBundles);
 
     if (bundleError) throw bundleError;
 
