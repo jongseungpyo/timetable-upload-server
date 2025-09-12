@@ -1075,23 +1075,25 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
     let csvData;
     try {
       console.log('🔍 csv_data 타입:', typeof submission.csv_data);
-      console.log('🔍 csv_data 미리보기:', submission.csv_data ? submission.csv_data.substring(0, 100) : 'null');
+      console.log('🔍 csv_data가 배열인가:', Array.isArray(submission.csv_data));
       
       if (typeof submission.csv_data === 'string') {
         csvData = JSON.parse(submission.csv_data);
+      } else if (Array.isArray(submission.csv_data)) {
+        csvData = submission.csv_data; // 이미 배열인 경우
       } else if (typeof submission.csv_data === 'object') {
         csvData = submission.csv_data; // 이미 객체인 경우
       } else {
         throw new Error('csv_data가 유효하지 않은 형식입니다');
       }
       
-      console.log('✅ JSON 파싱 성공, 번들 개수:', csvData.length);
+      console.log('✅ 데이터 파싱 성공, 번들 개수:', csvData.length);
     } catch (parseError) {
-      console.error('❌ JSON 파싱 실패:', parseError.message);
-      console.error('원본 데이터:', submission.csv_data);
+      console.error('❌ 데이터 파싱 실패:', parseError.message);
+      console.error('원본 데이터 타입:', typeof submission.csv_data);
       return res.status(400).json({ 
-        error: 'CSV 데이터 파싱 실패: ' + parseError.message,
-        rawData: submission.csv_data ? submission.csv_data.substring(0, 200) : 'null'
+        error: '데이터 파싱 실패: ' + parseError.message,
+        dataType: typeof submission.csv_data
       });
     }
     
@@ -1142,7 +1144,7 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
         approved_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `, [
-      id, season, JSON.stringify(bundles), JSON.stringify(sessions),
+      id, season, bundles, sessions,  // JSON.stringify 제거
       submission.academy_name, submission.instructor_name, submission.contact_name,
       submission.phone, submission.email, submission.notes, 'admin'
     ]);
@@ -1280,7 +1282,7 @@ app.post('/api/submit-timetable-web', async (req, res) => {
     `, [
       submissionId, academyName, contactName, phone || 'Unknown Phone',
       email, verificationUrl, season, notes, 
-      JSON.stringify(bundles), 'pending', new Date()
+      bundles, 'pending', new Date()  // JSON.stringify 제거
     ]);
 
     console.log(`📥 웹 테이블 시간표 제출: ${academyName} (${tableData.length}개 데이터, ID: ${submissionId})`);
@@ -1650,8 +1652,8 @@ app.get('/api/admin/approved-bundles', requireAuth, logAdminActivity('VIEW_APPRO
     
     // 번들과 세션 개수 계산
     const approvedBundles = result.rows.map(row => {
-      const bundleData = JSON.parse(row.bundle_data);
-      const sessionData = JSON.parse(row.session_data);
+      const bundleData = Array.isArray(row.bundle_data) ? row.bundle_data : JSON.parse(row.bundle_data);
+      const sessionData = Array.isArray(row.session_data) ? row.session_data : JSON.parse(row.session_data);
       
       return {
         ...row,
@@ -1725,8 +1727,8 @@ app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPL
 
     // 모든 승인된 번들 데이터 병합
     for (const approvedBundle of result.rows) {
-      const bundleData = JSON.parse(approvedBundle.bundle_data);
-      const sessionData = JSON.parse(approvedBundle.session_data);
+      const bundleData = Array.isArray(approvedBundle.bundle_data) ? approvedBundle.bundle_data : JSON.parse(approvedBundle.bundle_data);
+      const sessionData = Array.isArray(approvedBundle.session_data) ? approvedBundle.session_data : JSON.parse(approvedBundle.session_data);
       
       allBundles.push(...bundleData);
       allSessions.push(...sessionData);
