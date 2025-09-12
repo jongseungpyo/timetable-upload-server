@@ -8,7 +8,21 @@ const bcrypt = require('bcrypt');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
+
+// 학교 매핑 데이터 로드
+let schoolMappingData = null;
+try {
+  const mappingPath = path.join(__dirname, 'school_mapping_complete.json');
+  const rawData = fs.readFileSync(mappingPath, 'utf8');
+  schoolMappingData = JSON.parse(rawData);
+  console.log('✅ 학교 매핑 데이터 로드 완료:', Object.keys(schoolMappingData.school_to_code).length + '개 학교');
+} catch (error) {
+  console.error('❌ 학교 매핑 데이터 로드 실패:', error.message);
+  console.error('학교 코드 변환이 제한적으로 동작합니다.');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -407,7 +421,29 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB 제한
 });
 
-// 학교명 → NEIS 코드 변환 매핑
+// 교육청명 → 교육청 코드 매핑
+const educationOfficeMapping = {
+  '서울특별시': 'B10',
+  '부산광역시': 'C10', 
+  '대구광역시': 'D10',
+  '인천광역시': 'E10',
+  '광주광역시': 'F10',
+  '대전광역시': 'G10',
+  '울산광역시': 'H10',
+  '세종특별자치시': 'I10',
+  '경기도': 'J10',
+  '강원특별자치도': 'K10',
+  '충청북도': 'M10',
+  '충청남도': 'N10',
+  '전라북도': 'P10',
+  '전라남도': 'Q10',
+  '경상북도': 'R10',
+  '경상남도': 'S10',
+  '제주특별자치도': 'T10',
+  '해외한국학교': 'V10'
+};
+
+// 학교명 → NEIS 코드 변환 매핑 (레거시 - 제한적)
 const schoolCodeMapping = {
   '세화고': 'B10_7010197',
   '세화고등학교': 'B10_7010197', 
@@ -425,14 +461,105 @@ const schoolCodeMapping = {
 };
 
 /**
- * 학교명을 NEIS 코드 배열로 변환
+ * 교육청 + 학교명으로 정확한 NEIS 코드 찾기
  */
-function convertSchoolNames(schoolText) {
+function convertSchoolNamesWithEducationOffice(schoolText, educationOffice) {
   if (!schoolText || schoolText.trim() === '연합반') {
     return ['UNION'];
   }
   
+  // 교육청 코드 가져오기
+  const officeCode = educationOfficeMapping[educationOffice];
+  if (!officeCode) {
+    console.warn(`⚠️ 알 수 없는 교육청: ${educationOffice}`);
+    return convertSchoolNamesLegacy(schoolText); // 레거시 방식으로 폴백
+  }
+  
   // 복합 학교 처리 (예: "반포고, 서초고")
+  if (schoolText.includes(',')) {
+    const schools = schoolText.split(',').map(s => s.trim());
+    const codes = schools
+      .map(school => findSchoolCodeByOffice(school, officeCode))
+      .filter(code => code);
+    return codes.length > 0 ? codes : ['UNION'];
+  }
+  
+  // 단일 학교
+  const school = schoolText.trim();
+  const code = findSchoolCodeByOffice(school, officeCode);
+  return code ? [code] : ['UNION'];
+}
+
+/**
+ * 교육청 코드와 학교명으로 학교 코드 찾기
+ */
+function findSchoolCodeByOffice(schoolName, officeCode) {
+  if (!schoolMappingData) {
+    console.warn('⚠️ 학교 매핑 데이터가 로드되지 않음 - 레거시 방식 사용');
+    return schoolCodeMapping[schoolName] || `${officeCode}_TEMP_${schoolName}`;
+  }
+  
+  const regionName = getRegionFromCode(officeCode);
+  
+  // 예상 패턴들로 매핑 시도
+  const patterns = [
+    `${schoolName}`,
+    `${schoolName}등학교`,
+    `${schoolName} (${regionName})`,
+    `${schoolName}등학교 (${regionName})`
+  ];
+  
+  console.log(`🔍 학교 검색: ${schoolName} (교육청: ${officeCode}/${regionName})`);
+  
+  for (const pattern of patterns) {
+    const code = schoolMappingData.school_to_code[pattern];
+    if (code && code.startsWith(officeCode)) {
+      console.log(`✅ 학교 매핑 성공: ${pattern} → ${code}`);
+      return code;
+    }
+  }
+  
+  console.warn(`⚠️ 학교 매핑 실패: ${schoolName} (${officeCode}) - 임시 코드 생성`);
+  return `${officeCode}_TEMP_${schoolName}`;
+}
+
+/**
+ * 교육청 코드에서 지역명 추출
+ */
+function getRegionFromCode(officeCode) {
+  const codeToRegion = {
+    'B10': '서울',
+    'C10': '부산', 
+    'D10': '대구',
+    'E10': '인천',
+    'F10': '광주',
+    'G10': '대전',
+    'H10': '울산',
+    'I10': '세종',
+    'J10': '경기',
+    'K10': '강원',
+    'M10': '충북',
+    'N10': '충남',
+    'P10': '전북',
+    'Q10': '전남',
+    'R10': '경북',
+    'S10': '경남',
+    'T10': '제주',
+    'V10': '해외'
+  };
+  
+  return codeToRegion[officeCode] || '';
+}
+
+/**
+ * 레거시 학교명 변환 (교육청 정보 없을 때)
+ */
+function convertSchoolNamesLegacy(schoolText) {
+  if (!schoolText || schoolText.trim() === '연합반') {
+    return ['UNION'];
+  }
+  
+  // 복합 학교 처리
   if (schoolText.includes(',')) {
     const schools = schoolText.split(',').map(s => s.trim());
     const codes = schools
@@ -950,7 +1077,9 @@ app.post('/api/admin/submissions/:id/approve', requireAuth, logAdminActivity('AP
     // 데이터 변환 (Supabase 형태로 준비)
     for (const bundleData of csvData) {
       const bundleId = generateUUID();
-      const schoolCodes = convertSchoolNames(bundleData.target_school);
+      const schoolCodes = bundleData.education_office 
+        ? convertSchoolNamesWithEducationOffice(bundleData.target_school, bundleData.education_office)
+        : convertSchoolNamesLegacy(bundleData.target_school);
 
       bundles.push({
         bundle_id: bundleId,
