@@ -46,28 +46,31 @@
                         </svg>
                         대시보드
                     </a>
-                    <div class="space-y-1">
-                        <button onclick="toggleSubmissionAccordion()" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                    <div class="relative group">
+                        <a href="/admin/submissions" class="admin-nav-link flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
                                 제출 검토
                             </div>
-                            <svg id="submissionAccordionIcon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
-                        </button>
-                        <div id="submissionAccordion" class="ml-8 space-y-1">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
-                                📝 미검토 시간표
-                            </a>
-                            <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
-                                ✅ 승인된 시간표
-                            </a>
-                            <a href="/admin/submissions?tab=rejected" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
-                                ❌ 거절된 시간표
-                            </a>
+                        </a>
+                        <!-- 호버 서브메뉴 -->
+                        <div class="absolute left-full top-0 ml-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                            <div class="py-2">
+                                <a href="/admin/submissions" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                    📝 미검토 시간표
+                                </a>
+                                <a href="/admin/submissions?tab=approved" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600">
+                                    ✅ 승인된 시간표
+                                </a>
+                                <a href="/admin/submissions?tab=rejected" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">
+                                    ❌ 거절된 시간표
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <a href="/admin/bundles" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
@@ -382,30 +385,7 @@
             return date.toLocaleDateString('ko-KR') + ' ' + date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
         }
 
-        // 아코디언 토글 함수
-        function toggleSubmissionAccordion() {
-            const accordion = document.getElementById('submissionAccordion');
-            const icon = document.getElementById('submissionAccordionIcon');
-            
-            if (accordion.style.display === 'none' || accordion.style.display === '') {
-                accordion.style.display = 'block';
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                accordion.style.display = 'none';
-                icon.style.transform = 'rotate(0deg)';
-            }
-        }
-
-        // 페이지 로드 시 아코디언 상태 설정
-        document.addEventListener('DOMContentLoaded', () => {
-            // 기본적으로 아코디언 열어두기
-            const accordion = document.getElementById('submissionAccordion');
-            const icon = document.getElementById('submissionAccordionIcon');
-            if (accordion && icon) {
-                accordion.style.display = 'block';
-                icon.style.transform = 'rotate(180deg)';
-            }
-        });
+        // 호버 기반 아코디언으로 변경 - JavaScript 토글 함수 불필요
 
         function showError(message) {
             alert('오류: ' + message);
