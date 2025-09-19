@@ -602,11 +602,12 @@
                 return session ? `${session.start_time}-${session.end_time}` : '-';
             }
 
-            // 변환된 데이터 렌더링 (전학년 → "" 처리)
+            // 변환된 데이터 렌더링 (교육청별 매핑 사용)
             const convertedContainer = document.getElementById(`convertedData_${submission.submission_id}`);
             if (convertedContainer) {
-                convertedContainer.innerHTML = csvData.map((bundle, index) => {
-                    const schoolCodes = convertSchoolNames(bundle.target_school);
+                // 비동기 처리를 위한 Promise.all 사용
+                Promise.all(csvData.map(async (bundle, index) => {
+                    const schoolCodes = await convertSchoolNamesWithEducationOffice(bundle.target_school, bundle.education_office);
                     const convertedGrade = bundle.target_grade === '전학년' ? '' : bundle.target_grade;
                     const convertedSchoolLevel = bundle.school_level === '전학급' ? '' : bundle.school_level;
                     
@@ -625,50 +626,119 @@
                             <td class="px-3 py-2 border-b">${bundle.sessions.length}개 세션</td>
                         </tr>
                     `;
-                }).join('');
+                })).then(rows => {
+                    convertedContainer.innerHTML = rows.join('');
+                }).catch(error => {
+                    console.error('변환된 데이터 렌더링 실패:', error);
+                    convertedContainer.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-red-500">데이터 변환 실패</td></tr>';
+                });
             }
         }
 
-        // 학교 매핑 데이터 (서버에서 로드)
-        let schoolMappingData = null;
+        // 교육청별 매핑 시스템 (프론트엔드와 동일)
+        const EDUCATION_OFFICE_TO_CODE = {
+            '서울특별시': 'B10',
+            '부산광역시': 'C10', 
+            '대구광역시': 'D10',
+            '인천광역시': 'E10',
+            '광주광역시': 'F10',
+            '대전광역시': 'G10',
+            '울산광역시': 'H10',
+            '세종특별자치시': 'I10',
+            '경기도': 'J10',
+            '강원특별자치도': 'K10',
+            '충청북도': 'M10',
+            '충청남도': 'N10',
+            '전라북도': 'P10',
+            '전라남도': 'Q10',
+            '경상북도': 'R10',
+            '경상남도': 'S10',
+            '제주특별자치도': 'T10'
+        };
+        
+        const CODE_TO_REGION = {
+            'B10': '서울', 'C10': '부산', 'D10': '대구', 'E10': '인천',
+            'F10': '광주', 'G10': '대전', 'H10': '울산', 'I10': '세종',
+            'J10': '경기', 'K10': '강원', 'M10': '충북', 'N10': '충남',
+            'P10': '전북', 'Q10': '전남', 'R10': '경북', 'S10': '경남', 'T10': '제주'
+        };
 
-        // 서버에서 학교 매핑 데이터 로드
-        async function loadSchoolMappingData() {
+        // 교육청별 매핑 캐시
+        const adminSchoolMappingCache = {};
+
+        // 교육청별 학교 매핑 로드 (관리자용)
+        async function loadEducationOfficeMapping(educationOffice) {
+            const officeCode = EDUCATION_OFFICE_TO_CODE[educationOffice];
+            if (!officeCode) {
+                console.warn(`지원하지 않는 교육청: ${educationOffice}`);
+                return null;
+            }
+            
+            if (adminSchoolMappingCache[officeCode]) {
+                return adminSchoolMappingCache[officeCode];
+            }
+            
             try {
-                const response = await fetch('/api/admin/school-mapping');
-                const data = await response.json();
-                
-                if (data.error) {
-                    console.error('학교 매핑 로드 실패:', data.error);
-                    return;
+                const regionName = CODE_TO_REGION[officeCode];
+                const response = await fetch(`/school_mappings/${officeCode}_${regionName}.json`);
+                if (!response.ok) {
+                    console.error(`매핑 파일 로드 실패: ${response.status}`);
+                    return null;
                 }
                 
-                schoolMappingData = data;
-                console.log(`✅ 프론트엔드 학교 매핑 데이터 로드 완료: ${data.total_schools}개 학교`);
+                const mapping = await response.json();
+                adminSchoolMappingCache[officeCode] = mapping;
+                
+                console.log(`✅ 관리자 ${educationOffice} 매핑 로드: ${Object.keys(mapping.school_to_code).length}개 학교`);
+                return mapping;
                 
             } catch (error) {
-                console.error('학교 매핑 로드 실패:', error);
+                console.error(`❌ ${educationOffice} 매핑 로드 실패:`, error);
+                return null;
             }
         }
 
-        // 학교명을 학교 코드로 변환하는 함수 (서버와 동일한 로직)
-        function convertSchoolNames(schoolText) {
-            if (!schoolMappingData) {
-                console.warn('⚠️ 학교 매핑 데이터가 로드되지 않음');
-                return [schoolText];
+        // 교육청별 학교명 변환 (행별 교육청 기반)
+        async function convertSchoolNamesWithEducationOffice(schoolText, educationOffice) {
+            if (!schoolText || !educationOffice) {
+                return [schoolText || 'UNKNOWN'];
             }
 
             if (schoolText === '연합반') return ['UNION'];
             
-            if (schoolText.includes(',')) {
-                return schoolText.split(',').map(s => s.trim()).map(school => {
-                    const code = schoolMappingData.school_to_code[school];
-                    return code || school;
-                }).filter(Boolean);
+            const mapping = await loadEducationOfficeMapping(educationOffice);
+            if (!mapping) {
+                console.warn(`매핑 데이터 없음: ${educationOffice}`);
+                return [schoolText]; // 원본 반환
             }
             
-            const code = schoolMappingData.school_to_code[schoolText.trim()];
+            if (schoolText.includes(',')) {
+                const schools = schoolText.split(',').map(s => s.trim());
+                const codes = schools.map(school => {
+                    const code = mapping.school_to_code[school];
+                    return code || school; // 매핑 실패 시 원본 반환
+                });
+                return codes;
+            }
+            
+            const code = mapping.school_to_code[schoolText.trim()];
             return [code || schoolText.trim()];
+        }
+
+        // 기존 함수들 호환성 유지
+        async function loadSchoolMappingData() {
+            console.log('✅ 교육청별 매핑 시스템 준비 완료');
+        }
+
+        function convertSchoolNames(schoolText, educationOffice = null) {
+            if (educationOffice) {
+                // 새로운 교육청별 변환 사용
+                return convertSchoolNamesWithEducationOffice(schoolText, educationOffice);
+            } else {
+                // 교육청 정보 없으면 원본 반환
+                console.warn('⚠️ 교육청 정보 없음, 원본 학교명 반환:', schoolText);
+                return [schoolText];
+            }
         }
 
         // markAsReviewing 함수 제거됨 - 2단계 워크플로우로 변경
