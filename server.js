@@ -655,7 +655,7 @@ app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
           sessions.push({
             session_id: generateUUID(),
             bundle_id: bundleId,
-            weekday: j,
+            weekday: j, // 0=월요일, 1=화요일, ..., 6=일요일
             start_time: startTime,
             end_time: endTime,
             status: 'active'
