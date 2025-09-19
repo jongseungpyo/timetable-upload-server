@@ -1026,9 +1026,9 @@
         function createTableRowHTML(index) {
             return `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${index + 1}</td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="강사명"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="강사명" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학">수학</option>
                         <option value="물리">물리</option>
@@ -1042,7 +1042,7 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" selected>서울특별시</option>
                         <option value="부산광역시">부산광역시</option>
@@ -1063,9 +1063,9 @@
                         <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="연합반 또는 학교명"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="연합반 또는 학교명" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교">초등학교</option>
                         <option value="중학교">중학교</option>
@@ -1073,18 +1073,18 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="주제"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="출강학원"></td>
-                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="주제" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="출강학원" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치">대치</option>
                         <option value="반포">반포</option>
@@ -1092,13 +1092,13 @@
                         <option value="기타">기타</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="09:00 ~ 12:30"></td>
+                ${createTimeInputHTML('월요일')}
+                ${createTimeInputHTML('화요일')}
+                ${createTimeInputHTML('수요일')}
+                ${createTimeInputHTML('목요일')}
+                ${createTimeInputHTML('금요일')}
+                ${createTimeInputHTML('토요일')}
+                ${createTimeInputHTML('일요일')}
                 <td class="px-2 py-1 border-b">
                     <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 text-xs">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1932,7 +1932,7 @@
             const rowHTML = `
                 <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[0] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
                         <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
@@ -1946,7 +1946,7 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
@@ -1969,7 +1969,7 @@
                 </td>
                 <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[3] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
                         <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
@@ -1977,7 +1977,7 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
                         <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
@@ -1988,7 +1988,7 @@
                 <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[7] || ''}"></td>
                 <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[8] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
                         <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
