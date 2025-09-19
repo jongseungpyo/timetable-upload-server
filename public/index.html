@@ -1324,6 +1324,11 @@
                 return { isValid: false, message: '학교명과 교육청을 모두 입력해주세요' };
             }
             
+            // 연합반은 항상 유효
+            if (schoolName.trim() === '연합반') {
+                return { isValid: true };
+            }
+            
             try {
                 const mapping = await loadSchoolMapping(educationOffice);
                 const isValid = mapping.school_to_code[schoolName] !== undefined;
