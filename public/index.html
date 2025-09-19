@@ -409,13 +409,13 @@
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">출강학원</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">개강일자</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">지역</th>
-                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">월요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">화요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">수요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">목요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">금요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">토요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[60px]">삭제</th>
                                         </tr>
                                     </thead>
@@ -450,13 +450,13 @@
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">출강학원</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">개강일자</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">지역</th>
-                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">월요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">화요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">수요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">목요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">금요일</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">토요일</th>
+                                            <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[140px]">일요일</th>
                                         </tr>
                                     </thead>
                                     <tbody id="previewTableBody">
@@ -980,13 +980,13 @@
                         <option value="기타">기타</option>
                     </select>
                 </td>
-                ${createTimeInputHTML('일요일')}
                 ${createTimeInputHTML('월요일')}
                 ${createTimeInputHTML('화요일')}
                 ${createTimeInputHTML('수요일')}
                 ${createTimeInputHTML('목요일')}
                 ${createTimeInputHTML('금요일')}
                 ${createTimeInputHTML('토요일')}
+                ${createTimeInputHTML('일요일')}
                 <td class="px-4 py-3 border-b text-center">
                     <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1223,63 +1223,459 @@
             }
         });
 
-        // CSV 파싱 및 테이블 채우기 (복합 데이터 처리 개선)
-        function parseCSVAndFillTable(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const csvContent = e.target.result;
-                const lines = csvContent.split('\n');
-                
-                // CSV 업로드 영역 숨기고 웹 테이블 표시
-                document.getElementById('csvUploadArea').classList.add('hidden');
-                document.getElementById('webTableSection').classList.remove('hidden');
-                
-                // 기존 테이블 내용 지우기
-                const tableBody = document.getElementById('timetableTableBody');
-                tableBody.innerHTML = '';
-                tableRowCount = 0;
-                
-                // CSV 데이터로 테이블 채우기 (개선된 파싱)
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue;
-                    
-                    const values = parseCSVLine(lines[i]);
-                    if (values.length < 10) continue; // 최소 필요 컬럼 수
-                    
-                    addTableRowWithCSVData(values);
+        // ===== RFC 4180 기반 CSV 파싱 시스템 =====
+        
+        // 예상 헤더 정의 (17개 컬럼, 월요일부터 일요일 순서)
+        const EXPECTED_HEADERS = [
+            "강사명", "과목", "교육청", "대상 학교", "초중고", 
+            "대상 학년", "주제", "출강 학원", "개강 일자", "지역",
+            "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"
+        ];
+        
+        // 교육청 코드 매핑
+        const EDUCATION_OFFICE_TO_CODE = {
+            '서울특별시': 'B10',
+            '부산광역시': 'C10', 
+            '대구광역시': 'D10',
+            '인천광역시': 'E10',
+            '광주광역시': 'F10',
+            '대전광역시': 'G10',
+            '울산광역시': 'H10',
+            '세종특별자치시': 'I10',
+            '경기도': 'J10',
+            '강원특별자치도': 'K10',
+            '충청북도': 'M10',
+            '충청남도': 'N10',
+            '전라북도': 'P10',
+            '전라남도': 'Q10',
+            '경상북도': 'R10',
+            '경상남도': 'S10',
+            '제주특별자치도': 'T10'
+        };
+        
+        const CODE_TO_REGION = {
+            'B10': '서울', 'C10': '부산', 'D10': '대구', 'E10': '인천',
+            'F10': '광주', 'G10': '대전', 'H10': '울산', 'I10': '세종',
+            'J10': '경기', 'K10': '강원', 'M10': '충북', 'N10': '충남',
+            'P10': '전북', 'Q10': '전남', 'R10': '경북', 'S10': '경남', 'T10': '제주'
+        };
+        
+        // 매핑 캐시
+        const schoolMappingCache = {};
+        
+        // 교육청별 학교 매핑 로드 (지연 로딩 + 캐싱)
+        async function loadSchoolMapping(educationOffice) {
+            const officeCode = EDUCATION_OFFICE_TO_CODE[educationOffice];
+            if (!officeCode) {
+                throw new Error(`지원하지 않는 교육청: ${educationOffice}`);
+            }
+            
+            if (schoolMappingCache[officeCode]) {
+                return schoolMappingCache[officeCode];
+            }
+            
+            try {
+                const regionName = CODE_TO_REGION[officeCode];
+                const response = await fetch(`/school_mappings/${officeCode}_${regionName}.json`);
+                if (!response.ok) {
+                    throw new Error(`매핑 파일 로드 실패: ${response.status}`);
                 }
                 
-                // 미리보기 섹션 표시
-                document.getElementById('dataPreviewSection').classList.remove('hidden');
-                generatePreview();
+                const mapping = await response.json();
+                schoolMappingCache[officeCode] = mapping;
                 
-                showAlert('CSV 파일이 성공적으로 로드되었습니다. 테이블에서 확인/수정 후 제출하세요.', 'success', 'timetableResult');
-            };
-            
-            reader.readAsText(file, 'utf-8');
+                console.log(`✅ ${educationOffice} 학교 매핑 로드 완료: ${Object.keys(mapping.school_to_code).length}개 학교`);
+                return mapping;
+                
+            } catch (error) {
+                console.error(`❌ ${educationOffice} 매핑 로드 실패:`, error);
+                throw error;
+            }
         }
-
-        // 개선된 CSV 라인 파싱 (따옴표 고려)
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
+        
+        // 학교명 검증 (원본명 + 약자 모두 확인)
+        async function validateSchoolName(schoolName, educationOffice) {
+            if (!schoolName || !educationOffice) {
+                return { isValid: false, message: '학교명과 교육청을 모두 입력해주세요' };
+            }
             
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
+            try {
+                const mapping = await loadSchoolMapping(educationOffice);
+                const isValid = mapping.school_to_code[schoolName] !== undefined;
                 
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current.trim());
-                    current = '';
+                if (!isValid) {
+                    return { 
+                        isValid: false, 
+                        message: `"${schoolName}"은(는) ${educationOffice}에서 찾을 수 없는 학교명입니다` 
+                    };
+                }
+                
+                return { isValid: true };
+                
+            } catch (error) {
+                return { 
+                    isValid: false, 
+                    message: `학교명 검증 중 오류: ${error.message}` 
+                };
+            }
+        }
+        
+        // 행 검증 상태 표시
+        function highlightRowValidation(rowElement, isValid, message = '') {
+            const schoolInput = rowElement.querySelector('td:nth-child(5) input'); // 대상 학교 입력 필드
+            const messageElement = rowElement.querySelector('.validation-message');
+            
+            if (isValid) {
+                rowElement.classList.remove('bg-red-50');
+                schoolInput.classList.remove('border-red-500');
+                schoolInput.classList.add('border-green-500');
+                if (messageElement) messageElement.remove();
+            } else {
+                rowElement.classList.add('bg-red-50');
+                schoolInput.classList.remove('border-green-500');
+                schoolInput.classList.add('border-red-500');
+                
+                // 오류 메시지 표시
+                if (!messageElement) {
+                    const msg = document.createElement('div');
+                    msg.className = 'validation-message text-red-600 text-xs mt-1';
+                    msg.textContent = message;
+                    schoolInput.parentElement.appendChild(msg);
                 } else {
-                    current += char;
+                    messageElement.textContent = message;
+                }
+            }
+        }
+        
+        // 실시간 학교명 검증 (디바운싱 적용)
+        let validationTimeout = null;
+        async function validateSchoolNameInput(inputElement) {
+            // 디바운싱: 500ms 후에 검증 실행
+            clearTimeout(validationTimeout);
+            validationTimeout = setTimeout(async () => {
+                const row = inputElement.closest('tr');
+                const educationOfficeSelect = row.querySelector('td:nth-child(4) select'); // 교육청 선택
+                const schoolNameInput = row.querySelector('td:nth-child(5) input'); // 학교명 입력
+                
+                const educationOffice = educationOfficeSelect.value;
+                const schoolName = schoolNameInput.value.trim();
+                
+                if (!schoolName || !educationOffice) {
+                    // 입력이 비어있으면 기본 상태로
+                    row.classList.remove('bg-red-50');
+                    schoolNameInput.classList.remove('border-red-500', 'border-green-500');
+                    const messageElement = row.querySelector('.validation-message');
+                    if (messageElement) messageElement.remove();
+                    return;
+                }
+                
+                try {
+                    const result = await validateSchoolName(schoolName, educationOffice);
+                    highlightRowValidation(row, result.isValid, result.message);
+                    
+                    // 제출 버튼 상태 업데이트
+                    updateSubmitButtonState();
+                    
+                } catch (error) {
+                    highlightRowValidation(row, false, '검증 중 오류가 발생했습니다');
+                }
+            }, 500);
+        }
+        
+        // 제출 버튼 상태 업데이트 (모든 행이 유효해야 활성화)
+        function updateSubmitButtonState() {
+            const submitBtn = document.getElementById('submitBtn');
+            const invalidRows = document.querySelectorAll('#timetableTableBody tr.bg-red-50');
+            
+            if (invalidRows.length > 0) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        // 1. 인코딩 감지 및 파일 읽기
+        async function detectEncodingAndRead(file) {
+            const buffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(buffer);
+            
+            // BOM 체크
+            if (uint8Array.length >= 3 && uint8Array[0] === 0xEF && uint8Array[1] === 0xBB && uint8Array[2] === 0xBF) {
+                return new TextDecoder('utf-8').decode(buffer.slice(3));
+            }
+            
+            // UTF-8 시도
+            try {
+                const text = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+                return text;
+            } catch (e) {
+                // EUC-KR 시도
+                try {
+                    const text = new TextDecoder('euc-kr', { fatal: true }).decode(buffer);
+                    return text;
+                } catch (e2) {
+                    // CP949는 브라우저에서 지원 안 함, UTF-8로 강제
+                    const text = new TextDecoder('utf-8').decode(buffer);
+                    return text;
+                }
+            }
+        }
+        
+        // 2. 구분자 자동 감지
+        function detectDelimiter(firstLine) {
+            const delimiters = [',', ';', '\t'];
+            let bestDelimiter = ',';
+            let maxCount = 0;
+            
+            for (const delimiter of delimiters) {
+                const count = (firstLine.split(delimiter).length - 1);
+                if (count > maxCount) {
+                    maxCount = count;
+                    bestDelimiter = delimiter;
                 }
             }
             
-            result.push(current.trim()); // 마지막 필드
-            return result;
+            return bestDelimiter;
+        }
+        
+        // 3. RFC 4180 표준 CSV 파서
+        class RFC4180Parser {
+            constructor(delimiter = ',') {
+                this.delimiter = delimiter;
+                this.records = [];
+                this.currentRecord = [];
+                this.currentField = '';
+                this.state = 'FIELD_START';
+                this.position = { line: 1, column: 1 };
+                this.errors = [];
+            }
+            
+            parse(text) {
+                this.records = [];
+                this.currentRecord = [];
+                this.currentField = '';
+                this.state = 'FIELD_START';
+                this.position = { line: 1, column: 1 };
+                this.errors = [];
+                
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    this.processChar(char);
+                    this.updatePosition(char);
+                }
+                
+                // 마지막 필드/레코드 처리
+                this.endField();
+                if (this.currentRecord.length > 0) {
+                    this.endRecord();
+                }
+                
+                if (this.errors.length > 0) {
+                    throw new Error(`CSV 파싱 오류:\n${this.errors.join('\n')}`);
+                }
+                
+                return this.records;
+            }
+            
+            processChar(char) {
+                switch (this.state) {
+                    case 'FIELD_START':
+                        if (char === '"') {
+                            this.state = 'IN_QUOTED_FIELD';
+                        } else if (char === this.delimiter) {
+                            this.endField();
+                        } else if (char === '\r') {
+                            // CRLF의 첫 부분, 다음 문자 확인
+                        } else if (char === '\n') {
+                            this.endField();
+                            this.endRecord();
+                        } else {
+                            this.currentField += char;
+                            this.state = 'IN_UNQUOTED_FIELD';
+                        }
+                        break;
+                        
+                    case 'IN_QUOTED_FIELD':
+                        if (char === '"') {
+                            this.state = 'QUOTE_IN_QUOTED_FIELD';
+                        } else {
+                            this.currentField += char;
+                        }
+                        break;
+                        
+                    case 'QUOTE_IN_QUOTED_FIELD':
+                        if (char === '"') {
+                            this.currentField += '"'; // 이스케이프된 따옴표
+                            this.state = 'IN_QUOTED_FIELD';
+                        } else if (char === this.delimiter) {
+                            this.endField();
+                        } else if (char === '\n' || char === '\r') {
+                            this.endField();
+                            this.endRecord();
+                        } else {
+                            this.errors.push(`라인 ${this.position.line}, 컬럼 ${this.position.column}: 따옴표 후 예상치 못한 문자 '${char}'`);
+                        }
+                        break;
+                        
+                    case 'IN_UNQUOTED_FIELD':
+                        if (char === this.delimiter) {
+                            this.endField();
+                        } else if (char === '\n' || char === '\r') {
+                            this.endField();
+                            this.endRecord();
+                        } else if (char === '"') {
+                            this.errors.push(`라인 ${this.position.line}, 컬럼 ${this.position.column}: 따옴표가 없는 필드에서 따옴표 발견`);
+                        } else {
+                            this.currentField += char;
+                        }
+                        break;
+                }
+            }
+            
+            endField() {
+                this.currentRecord.push(this.currentField.trim());
+                this.currentField = '';
+                this.state = 'FIELD_START';
+            }
+            
+            endRecord() {
+                if (this.currentRecord.length > 0) {
+                    this.records.push(this.currentRecord);
+                    this.currentRecord = [];
+                }
+            }
+            
+            updatePosition(char) {
+                if (char === '\n') {
+                    this.position.line++;
+                    this.position.column = 1;
+                } else {
+                    this.position.column++;
+                }
+            }
+        }
+        
+        // 4. 엄격 헤더 검증
+        function validateHeaders(headers) {
+            if (headers.length !== 17) {
+                throw new Error(`헤더 개수 오류: 17개 컬럼이 필요하지만 ${headers.length}개가 발견되었습니다.`);
+            }
+            
+            for (let i = 0; i < 17; i++) {
+                const expected = EXPECTED_HEADERS[i];
+                const actual = headers[i].trim().replace(/\u00A0/g, ' '); // NBSP 제거
+                
+                if (actual !== expected) {
+                    throw new Error(`헤더 ${i + 1}번째 컬럼 오류:\n예상: "${expected}"\n실제: "${actual}"\n\n올바른 헤더 순서:\n${EXPECTED_HEADERS.join(', ')}`);
+                }
+            }
+        }
+        
+        // 5. 통합 CSV 파싱 함수 (순수 함수)
+        async function parseCSVFile(file) {
+            try {
+                // 1단계: 인코딩 감지 및 읽기
+                const text = await detectEncodingAndRead(file);
+                
+                // 2단계: 구분자 감지
+                const lines = text.split(/\r?\n/);
+                if (lines.length === 0) {
+                    throw new Error('빈 파일입니다.');
+                }
+                
+                const delimiter = detectDelimiter(lines[0]);
+                
+                // 3단계: RFC 4180 파싱
+                const parser = new RFC4180Parser(delimiter);
+                const records = parser.parse(text);
+                
+                if (records.length === 0) {
+                    throw new Error('데이터가 없습니다.');
+                }
+                
+                // 4단계: 헤더 검증 (엄격 모드)
+                const headers = records[0];
+                validateHeaders(headers);
+                
+                // 5단계: 데이터 검증
+                const dataRows = records.slice(1).filter(row => row.some(cell => cell.trim()));
+                
+                if (dataRows.length === 0) {
+                    throw new Error('데이터 행이 없습니다. 헤더만 있습니다.');
+                }
+                
+                if (dataRows.length > 300) {
+                    throw new Error(`데이터가 너무 많습니다. 최대 300행까지 허용되지만 ${dataRows.length}행이 있습니다.`);
+                }
+                
+                // 각 행의 컬럼 수 검증
+                for (let i = 0; i < dataRows.length; i++) {
+                    const row = dataRows[i];
+                    if (row.length !== 17) {
+                        throw new Error(`데이터 행 ${i + 2} 오류: 17개 컬럼이 필요하지만 ${row.length}개가 있습니다.`);
+                    }
+                }
+                
+                return {
+                    headers: headers,
+                    data: dataRows,
+                    delimiter: delimiter,
+                    totalRows: dataRows.length
+                };
+                
+            } catch (error) {
+                throw new Error(`CSV 파싱 실패: ${error.message}`);
+            }
+        }
+        
+        // 6. UI 업데이트 함수 (테이블 채우기)
+        async function populateTable(parsedData) {
+            // CSV 업로드 영역 숨기고 웹 테이블 표시
+            document.getElementById('csvUploadArea').classList.add('hidden');
+            document.getElementById('webTableSection').classList.remove('hidden');
+            
+            // 기존 테이블 내용 지우기
+            const tableBody = document.getElementById('timetableTableBody');
+            tableBody.innerHTML = '';
+            tableRowCount = 0;
+            
+            // 데이터로 테이블 채우기
+            for (const rowData of parsedData.data) {
+                addTableRowWithCSVData(rowData);
+            }
+        }
+        
+        // 7. 미리보기 표시 함수
+        function showPreview() {
+            document.getElementById('dataPreviewSection').classList.remove('hidden');
+            generatePreview();
+        }
+        
+        // 8. 전체 CSV 업로드 플로우 조정
+        async function handleCSVUpload(file) {
+            try {
+                // 1단계: 순수 파싱
+                const parsedData = await parseCSVFile(file);
+                
+                // 2단계: UI 업데이트
+                await populateTable(parsedData);
+                
+                // 3단계: 미리보기 표시
+                showPreview();
+                
+                showAlert(`CSV 파일이 성공적으로 로드되었습니다. ${parsedData.totalRows}개 행을 확인하세요.`, 'success', 'timetableResult');
+                
+            } catch (error) {
+                showAlert(error.message, 'error', 'timetableResult');
+                console.error('CSV 업로드 오류:', error);
+            }
+        }
+        
+        // 기존 함수를 새로운 구조로 교체
+        function parseCSVAndFillTable(file) {
+            handleCSVUpload(file);
         }
 
         // CSV 데이터로 테이블 행 추가 (시즌 드롭다운 올바른 위치)
@@ -1311,7 +1707,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="validateSchoolNameInput(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
@@ -1320,7 +1716,7 @@
                         <option value="경기도" ${data[2] === '경기도' ? 'selected' : ''}>경기도</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="validateSchoolNameInput(this)"></td>
                 <td class="px-4 py-3 border-b">
                     <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
                         <option value="">선택</option>
@@ -1349,13 +1745,13 @@
                         <option value="기타" ${data[9] === '기타' ? 'selected' : ''}>기타</option>
                     </select>
                 </td>
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[10]))} <!-- 일요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[11]))} <!-- 월요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[12]))} <!-- 화요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[13]))} <!-- 수요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[14]))} <!-- 목요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[15]))} <!-- 금요일 -->
-                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[16]))} <!-- 토요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[10]))} <!-- 월요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[11]))} <!-- 화요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[12]))} <!-- 수요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[13]))} <!-- 목요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[14]))} <!-- 금요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[15]))} <!-- 토요일 -->
+                ${createTimeInputHTMLWithData(parseTimeFromCSV(data[16]))} <!-- 일요일 -->
                 <td class="px-4 py-3 border-b text-center">
                     <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1568,9 +1964,9 @@
             for (let row of rows) {
                 const cells = row.children;
                 
-                // 요일별 시간 정보 추출 (시작/종료 시간 분리) - 행번호 고려
+                // 요일별 시간 정보 추출 (시작/종료 시간 분리) - 월요일~일요일 순서
                 const schedule = [];
-                for (let i = 11; i <= 17; i++) { // 일요일~토요일 (11~17번째 셀, 행번호로 인해 +1)
+                for (let i = 11; i <= 17; i++) { // 월요일~일요일 (11~17번째 셀, 행번호로 인해 +1)
                     const timeCell = cells[i];
                     const startTimeInput = timeCell.querySelector('.start-time');
                     const endTimeInput = timeCell.querySelector('.end-time');
