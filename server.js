@@ -643,9 +643,9 @@ app.post('/api/upload-csv', upload.single('csvFile'), async (req, res) => {
         // teacher_id, title, group_id는 null로 기본값 사용
       });
       
-      // 세션 데이터 (일~토요일 체크)
-      const days = [9, 10, 11, 12, 13, 14, 15]; // CSV 컬럼 인덱스
-      const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+      // 세션 데이터 (월~일요일 체크)
+      const days = [10, 11, 12, 13, 14, 15, 9]; // CSV 컬럼 인덱스 (월~일 순서)
+      const dayNames = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
       
       for (let j = 0; j < days.length; j++) {
         const timeSlot = columns[days[j]];
