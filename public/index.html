@@ -440,6 +440,7 @@
                                 <table class="min-w-full border border-gray-200 rounded-lg" id="previewTable">
                                     <thead class="bg-gray-50">
                                         <tr>
+                                            <th class="px-4 py-3 text-center font-medium text-gray-700 border-b min-w-[50px]">#</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">강사명</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[80px]">과목</th>
                                             <th class="px-4 py-3 text-left font-medium text-gray-700 border-b min-w-[100px]">교육청</th>
@@ -946,7 +947,19 @@
                         <option value="부산광역시">부산광역시</option>
                         <option value="대구광역시">대구광역시</option>
                         <option value="인천광역시">인천광역시</option>
+                        <option value="광주광역시">광주광역시</option>
+                        <option value="대전광역시">대전광역시</option>
+                        <option value="울산광역시">울산광역시</option>
+                        <option value="세종특별자치시">세종특별자치시</option>
                         <option value="경기도">경기도</option>
+                        <option value="강원특별자치도">강원특별자치도</option>
+                        <option value="충청북도">충청북도</option>
+                        <option value="충청남도">충청남도</option>
+                        <option value="전라북도">전라북도</option>
+                        <option value="전라남도">전라남도</option>
+                        <option value="경상북도">경상북도</option>
+                        <option value="경상남도">경상남도</option>
+                        <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="연합반 또는 학교명" required></td>
@@ -1034,7 +1047,19 @@
                         <option value="부산광역시">부산광역시</option>
                         <option value="대구광역시">대구광역시</option>
                         <option value="인천광역시">인천광역시</option>
+                        <option value="광주광역시">광주광역시</option>
+                        <option value="대전광역시">대전광역시</option>
+                        <option value="울산광역시">울산광역시</option>
+                        <option value="세종특별자치시">세종특별자치시</option>
                         <option value="경기도">경기도</option>
+                        <option value="강원특별자치도">강원특별자치도</option>
+                        <option value="충청북도">충청북도</option>
+                        <option value="충청남도">충청남도</option>
+                        <option value="전라북도">전라북도</option>
+                        <option value="전라남도">전라남도</option>
+                        <option value="경상북도">경상북도</option>
+                        <option value="경상남도">경상남도</option>
+                        <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="연합반 또는 학교명"></td>
@@ -1645,6 +1670,38 @@
             for (const rowData of parsedData.data) {
                 addTableRowWithCSVData(rowData);
             }
+            
+            // CSV 업로드 후 모든 행 검증 실행
+            setTimeout(async () => {
+                await validateAllRows();
+            }, 100); // DOM 업데이트 후 검증
+        }
+        
+        // 모든 행에 대해 학교명 검증 실행
+        async function validateAllRows() {
+            const rows = document.querySelectorAll('#timetableTableBody tr');
+            
+            for (const row of rows) {
+                const educationOfficeSelect = row.querySelector('td:nth-child(4) select');
+                const schoolNameInput = row.querySelector('td:nth-child(5) input');
+                
+                if (educationOfficeSelect && schoolNameInput) {
+                    const educationOffice = educationOfficeSelect.value;
+                    const schoolName = schoolNameInput.value.trim();
+                    
+                    if (schoolName && educationOffice) {
+                        try {
+                            const result = await validateSchoolName(schoolName, educationOffice);
+                            highlightRowValidation(row, result.isValid, result.message);
+                        } catch (error) {
+                            highlightRowValidation(row, false, '검증 중 오류가 발생했습니다');
+                        }
+                    }
+                }
+            }
+            
+            // 제출 버튼 상태 업데이트
+            updateSubmitButtonState();
         }
         
         // 7. 미리보기 표시 함수
@@ -1713,7 +1770,19 @@
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
                         <option value="대구광역시" ${data[2] === '대구광역시' ? 'selected' : ''}>대구광역시</option>
                         <option value="인천광역시" ${data[2] === '인천광역시' ? 'selected' : ''}>인천광역시</option>
+                        <option value="광주광역시" ${data[2] === '광주광역시' ? 'selected' : ''}>광주광역시</option>
+                        <option value="대전광역시" ${data[2] === '대전광역시' ? 'selected' : ''}>대전광역시</option>
+                        <option value="울산광역시" ${data[2] === '울산광역시' ? 'selected' : ''}>울산광역시</option>
+                        <option value="세종특별자치시" ${data[2] === '세종특별자치시' ? 'selected' : ''}>세종특별자치시</option>
                         <option value="경기도" ${data[2] === '경기도' ? 'selected' : ''}>경기도</option>
+                        <option value="강원특별자치도" ${data[2] === '강원특별자치도' ? 'selected' : ''}>강원특별자치도</option>
+                        <option value="충청북도" ${data[2] === '충청북도' ? 'selected' : ''}>충청북도</option>
+                        <option value="충청남도" ${data[2] === '충청남도' ? 'selected' : ''}>충청남도</option>
+                        <option value="전라북도" ${data[2] === '전라북도' ? 'selected' : ''}>전라북도</option>
+                        <option value="전라남도" ${data[2] === '전라남도' ? 'selected' : ''}>전라남도</option>
+                        <option value="경상북도" ${data[2] === '경상북도' ? 'selected' : ''}>경상북도</option>
+                        <option value="경상남도" ${data[2] === '경상남도' ? 'selected' : ''}>경상남도</option>
+                        <option value="제주특별자치도" ${data[2] === '제주특별자치도' ? 'selected' : ''}>제주특별자치도</option>
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="validateSchoolNameInput(this)"></td>
@@ -1831,7 +1900,19 @@
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
                         <option value="대구광역시" ${data[2] === '대구광역시' ? 'selected' : ''}>대구광역시</option>
                         <option value="인천광역시" ${data[2] === '인천광역시' ? 'selected' : ''}>인천광역시</option>
+                        <option value="광주광역시" ${data[2] === '광주광역시' ? 'selected' : ''}>광주광역시</option>
+                        <option value="대전광역시" ${data[2] === '대전광역시' ? 'selected' : ''}>대전광역시</option>
+                        <option value="울산광역시" ${data[2] === '울산광역시' ? 'selected' : ''}>울산광역시</option>
+                        <option value="세종특별자치시" ${data[2] === '세종특별자치시' ? 'selected' : ''}>세종특별자치시</option>
                         <option value="경기도" ${data[2] === '경기도' ? 'selected' : ''}>경기도</option>
+                        <option value="강원특별자치도" ${data[2] === '강원특별자치도' ? 'selected' : ''}>강원특별자치도</option>
+                        <option value="충청북도" ${data[2] === '충청북도' ? 'selected' : ''}>충청북도</option>
+                        <option value="충청남도" ${data[2] === '충청남도' ? 'selected' : ''}>충청남도</option>
+                        <option value="전라북도" ${data[2] === '전라북도' ? 'selected' : ''}>전라북도</option>
+                        <option value="전라남도" ${data[2] === '전라남도' ? 'selected' : ''}>전라남도</option>
+                        <option value="경상북도" ${data[2] === '경상북도' ? 'selected' : ''}>경상북도</option>
+                        <option value="경상남도" ${data[2] === '경상남도' ? 'selected' : ''}>경상남도</option>
+                        <option value="제주특별자치도" ${data[2] === '제주특별자치도' ? 'selected' : ''}>제주특별자치도</option>
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[3] || ''}"></td>
@@ -1910,8 +1991,9 @@
             const tableData = extractTableData();
             const previewTableBody = document.getElementById('previewTableBody');
             
-            previewTableBody.innerHTML = tableData.map(row => `
+            previewTableBody.innerHTML = tableData.map((row, index) => `
                 <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 border-b text-sm text-center font-medium text-gray-500">${index + 1}</td>
                     <td class="px-4 py-3 border-b text-sm">${row.teacher_name}</td>
                     <td class="px-4 py-3 border-b text-sm">${row.subject}</td>
                     <td class="px-4 py-3 border-b text-sm">${row.education_office}</td>
