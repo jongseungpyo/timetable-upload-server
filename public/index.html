@@ -922,9 +922,9 @@
         function createTableRowHTML(index) {
             return `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${index + 1}</td>
-                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required oninput="validateRow(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학">수학</option>
                         <option value="물리">물리</option>
@@ -941,7 +941,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" selected>서울특별시</option>
                         <option value="부산광역시">부산광역시</option>
@@ -962,9 +962,9 @@
                         <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="연합반 또는 학교명" required></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="연합반 또는 학교명" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="전학급">전학급</option>
                         <option value="초등학교">초등학교</option>
@@ -973,7 +973,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="전학년">전학년</option>
                         <option value="1">1</option>
@@ -981,11 +981,11 @@
                         <option value="3">3</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="주제"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="주제" oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="출강학원"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="9/7 또는 2025.3.15"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치">대치</option>
                         <option value="반포">반포</option>
@@ -1426,6 +1426,29 @@
             }
         }
         
+        // 실시간 미리보기 업데이트 (디바운싱 적용)
+        let previewUpdateTimeout = null;
+        function updatePreviewRealtime() {
+            clearTimeout(previewUpdateTimeout);
+            previewUpdateTimeout = setTimeout(() => {
+                generatePreview();
+            }, 300); // 300ms 후 미리보기 업데이트
+        }
+        
+        // 테이블 필드 변경 시 호출되는 통합 함수
+        function onTableFieldChange(inputElement) {
+            // 1. 학교명 검증 (필요한 경우)
+            const isSchoolField = inputElement.closest('td:nth-child(5)'); // 학교명 필드
+            const isEducationOfficeField = inputElement.closest('td:nth-child(4)'); // 교육청 필드
+            
+            if (isSchoolField || isEducationOfficeField) {
+                validateSchoolNameInput(inputElement);
+            }
+            
+            // 2. 미리보기 실시간 업데이트
+            updatePreviewRealtime();
+        }
+        
         // 1. 인코딩 감지 및 파일 읽기
         async function detectEncodingAndRead(file) {
             const buffer = await file.arrayBuffer();
@@ -1750,9 +1773,9 @@
             
             row.innerHTML = `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${tableRowCount + 1}</td>
-                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required oninput="validateRow(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
                         <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
@@ -1769,7 +1792,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="validateSchoolNameInput(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
@@ -1790,9 +1813,9 @@
                         <option value="제주특별자치도" ${data[2] === '제주특별자치도' ? 'selected' : ''}>제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="validateSchoolNameInput(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required>
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
                         <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
@@ -1800,18 +1823,18 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
                         <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
                         <option value="3" ${data[5] === '3' ? 'selected' : ''}>3</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[6] || ''}"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[7] || ''}"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[8] || ''}" placeholder="9/7 또는 2025.3.15"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[6] || ''}" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[7] || ''}" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[8] || ''}" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
                         <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
@@ -1844,9 +1867,9 @@
             return `
                 <td class="px-2 py-3 border-b min-w-[140px]">
                     <div class="flex items-center space-x-1 text-xs">
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작" oninput="onTableFieldChange(this)">
                         <span class="text-gray-400">~</span>
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료" oninput="onTableFieldChange(this)">
                     </div>
                 </td>
             `;
@@ -2336,9 +2359,9 @@
             return `
                 <td class="px-2 py-3 border-b min-w-[140px]">
                     <div class="flex items-center space-x-1 text-xs">
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}" oninput="onTableFieldChange(this)">
                         <span class="text-gray-400">~</span>
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}" oninput="onTableFieldChange(this)">
                     </div>
                 </td>
             `;
