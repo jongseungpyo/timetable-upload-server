@@ -308,7 +308,8 @@ app.use(helmet({
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분
   max: 100, // 최대 100회 요청
-  message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.'
+  message: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.',
+  trustProxy: true // Railway 프록시 환경에서 신뢰
 });
 app.use('/api/', limiter);
 
@@ -316,7 +317,8 @@ app.use('/api/', limiter);
 const adminLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분  
   max: 5, // 최대 5회 로그인 시도
-  message: '로그인 시도 횟수가 초과되었습니다.'
+  message: '로그인 시도 횟수가 초과되었습니다.',
+  trustProxy: true // Railway 프록시 환경에서 신뢰
 });
 
 // 세션 관리 (Railway 호환)
