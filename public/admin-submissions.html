@@ -543,7 +543,7 @@
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">주제</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">학원</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">지역</th>
-                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">세션</th>
+                                                <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">시간대</th>
                                             </tr>
                                         </thead>
                                         <tbody id="convertedData_${submission.submission_id}">
@@ -645,7 +645,7 @@
                             <td class="px-3 py-2 border-b">${bundle.topic}</td>
                             <td class="px-3 py-2 border-b">${bundle.academy}</td>
                             <td class="px-3 py-2 border-b">${bundle.region}</td>
-                            <td class="px-3 py-2 border-b">${bundle.sessions.length}개 세션</td>
+                            <td class="px-3 py-2 border-b">${formatSessionsDisplay(bundle.sessions)}</td>
                         </tr>
                     `;
                 })).then(rows => {
@@ -761,6 +761,16 @@
                 console.warn('⚠️ 교육청 정보 없음, 원본 학교명 반환:', schoolText);
                 return [schoolText];
             }
+        }
+
+        // 세션 데이터 포맷팅 (current_bundles와 동일)
+        function formatSessionsDisplay(sessions) {
+            if (!sessions || sessions.length === 0) return '-';
+            
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            return sessions.map(session => 
+                `${dayNames[session.weekday]}${session.start_time}-${session.end_time}`
+            ).join(', ');
         }
 
         // markAsReviewing 함수 제거됨 - 2단계 워크플로우로 변경
