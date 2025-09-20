@@ -360,11 +360,11 @@
             `;
         }
 
-        // 번들의 세션 정보 포맷팅
+        // 번들의 세션 정보 포맷팅 (월요일=0 기준)
         function formatSessionsForBundle(sessions) {
             if (!sessions || sessions.length === 0) return '-';
             
-            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
             return sessions.map(session => 
                 `${dayNames[session.weekday]}${session.start_time}-${session.end_time}`
             ).join(', ');
