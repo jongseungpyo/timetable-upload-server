@@ -6,6 +6,8 @@
     <title>제출 검토 - 타임빌더 관리자</title>
     <!-- Tailwind CSS (프로덕션용) -->
     <link rel="stylesheet" href="/styles.css">
+    <!-- 공통 사이드바 로더 -->
+    <script src="/admin-sidebar-loader.js"></script>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Header -->
@@ -35,63 +37,8 @@
         </div>
     </header>
 
-    <!-- Main Layout with Sidebar -->
+    <!-- Main Layout with Dynamic Sidebar -->
     <div class="flex">
-        <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
-            <nav class="p-4">
-                <div class="space-y-2">
-                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        대시보드
-                    </a>
-                    <div class="space-y-1">
-                        <button onclick="toggleSubmissionAccordion()" class="admin-nav-link active flex items-center justify-between w-full px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                                제출 검토
-                            </div>
-                            <svg id="submissionAccordionIcon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div id="submissionAccordion" class="ml-8 space-y-1">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md">
-                                📝 미검토 시간표
-                            </a>
-                            <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
-                                ✅ 승인된 시간표
-                            </a>
-                            <a href="/admin/submissions?tab=rejected" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md">
-                                ❌ 거절된 시간표
-                            </a>
-                        </div>
-                    </div>
-                    <a href="/admin/bundles" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                        승인된 번들
-                    </a>
-                    <a href="/admin/current_bundles" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V9a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2z"/>
-                        </svg>
-                        번들 현황
-                    </a>
-                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        학원 관리
-                    </a>
-                </div>
-            </nav>
-        </aside>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-hidden">
