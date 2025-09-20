@@ -763,11 +763,11 @@
             }
         }
 
-        // 세션 데이터 포맷팅 (current_bundles와 동일)
+        // 세션 데이터 포맷팅 (월요일=0 기준)
         function formatSessionsDisplay(sessions) {
             if (!sessions || sessions.length === 0) return '-';
             
-            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
             return sessions.map(session => 
                 `${dayNames[session.weekday]}${session.start_time}-${session.end_time}`
             ).join(', ');
