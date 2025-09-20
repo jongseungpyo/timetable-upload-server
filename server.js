@@ -12,16 +12,58 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-// 학교 매핑 데이터 로드
-let schoolMappingData = null;
+// 교육청별 학교 매핑 데이터 로드
+const educationOfficeMappings = {};
+const EDUCATION_OFFICE_TO_CODE = {
+  '서울특별시': 'B10', '부산광역시': 'C10', '대구광역시': 'D10', '인천광역시': 'E10',
+  '광주광역시': 'F10', '대전광역시': 'G10', '울산광역시': 'H10', '세종특별자치시': 'I10',
+  '경기도': 'J10', '강원특별자치도': 'K10', '충청북도': 'M10', '충청남도': 'N10',
+  '전라북도': 'P10', '전라남도': 'Q10', '경상북도': 'R10', '경상남도': 'S10', '제주특별자치도': 'T10'
+};
+const CODE_TO_REGION = {
+  'B10': '서울', 'C10': '부산', 'D10': '대구', 'E10': '인천',
+  'F10': '광주', 'G10': '대전', 'H10': '울산', 'I10': '세종',
+  'J10': '경기', 'K10': '강원', 'M10': '충북', 'N10': '충남',
+  'P10': '전북', 'Q10': '전남', 'R10': '경북', 'S10': '경남', 'T10': '제주'
+};
+
+// 교육청별 매핑 파일 로드 함수
+function loadEducationOfficeMapping(educationOffice) {
+  const officeCode = EDUCATION_OFFICE_TO_CODE[educationOffice];
+  if (!officeCode) {
+    console.warn(`⚠️ 지원하지 않는 교육청: ${educationOffice}`);
+    return null;
+  }
+  
+  if (educationOfficeMappings[officeCode]) {
+    return educationOfficeMappings[officeCode];
+  }
+  
+  try {
+    const regionName = CODE_TO_REGION[officeCode];
+    const mappingPath = path.join(__dirname, 'public', 'school_mappings', `${officeCode}_${regionName}.json`);
+    const rawData = fs.readFileSync(mappingPath, 'utf8');
+    const mapping = JSON.parse(rawData);
+    
+    educationOfficeMappings[officeCode] = mapping;
+    console.log(`✅ ${educationOffice} 학교 매핑 로드: ${Object.keys(mapping.school_to_code).length}개 학교`);
+    return mapping;
+    
+  } catch (error) {
+    console.error(`❌ ${educationOffice} 매핑 로드 실패:`, error.message);
+    return null;
+  }
+}
+
+// 서버 시작 시 주요 교육청 매핑 미리 로드
 try {
-  const mappingPath = path.join(__dirname, 'school_mapping_complete.json');
-  const rawData = fs.readFileSync(mappingPath, 'utf8');
-  schoolMappingData = JSON.parse(rawData);
-  console.log('✅ 학교 매핑 데이터 로드 완료:', Object.keys(schoolMappingData.school_to_code).length + '개 학교');
+  loadEducationOfficeMapping('서울특별시');
+  loadEducationOfficeMapping('경기도');
+  loadEducationOfficeMapping('경상북도');
+  loadEducationOfficeMapping('제주특별자치도');
+  console.log('✅ 주요 교육청 매핑 사전 로드 완료');
 } catch (error) {
-  console.error('❌ 학교 매핑 데이터 로드 실패:', error.message);
-  console.error('학교 코드 변환이 제한적으로 동작합니다.');
+  console.error('❌ 매핑 사전 로드 실패:', error.message);
 }
 
 const app = express();
@@ -470,59 +512,40 @@ function convertSchoolNamesWithEducationOffice(schoolText, educationOffice) {
     return ['UNION'];
   }
   
-  // 교육청 코드 가져오기
-  const officeCode = educationOfficeMapping[educationOffice];
-  if (!officeCode) {
-    console.warn(`⚠️ 알 수 없는 교육청: ${educationOffice}`);
-    return convertSchoolNamesLegacy(schoolText); // 레거시 방식으로 폴백
-  }
-  
   // 복합 학교 처리 (예: "반포고, 서초고")
   if (schoolText.includes(',')) {
     const schools = schoolText.split(',').map(s => s.trim());
     const codes = schools
-      .map(school => findSchoolCodeByOffice(school, officeCode))
+      .map(school => findSchoolCodeByEducationOffice(school, educationOffice))
       .filter(code => code);
     return codes.length > 0 ? codes : ['UNION'];
   }
   
   // 단일 학교
   const school = schoolText.trim();
-  const code = findSchoolCodeByOffice(school, officeCode);
+  const code = findSchoolCodeByEducationOffice(school, educationOffice);
   return code ? [code] : ['UNION'];
 }
 
 /**
- * 교육청 코드와 학교명으로 학교 코드 찾기
+ * 교육청별 매핑에서 학교 코드 찾기 (새로운 시스템)
  */
-function findSchoolCodeByOffice(schoolName, officeCode) {
-  if (!schoolMappingData) {
-    console.warn('⚠️ 학교 매핑 데이터가 로드되지 않음 - 레거시 방식 사용');
-    return schoolCodeMapping[schoolName] || `${officeCode}_TEMP_${schoolName}`;
+function findSchoolCodeByEducationOffice(schoolName, educationOffice) {
+  const mapping = loadEducationOfficeMapping(educationOffice);
+  if (!mapping) {
+    console.warn(`⚠️ ${educationOffice} 매핑 로드 실패 - 원본 반환`);
+    return schoolName;
   }
   
-  const regionName = getRegionFromCode(officeCode);
-  
-  // 예상 패턴들로 매핑 시도
-  const patterns = [
-    `${schoolName}`,
-    `${schoolName}등학교`,
-    `${schoolName} (${regionName})`,
-    `${schoolName}등학교 (${regionName})`
-  ];
-  
-  console.log(`🔍 학교 검색: ${schoolName} (교육청: ${officeCode}/${regionName})`);
-  
-  for (const pattern of patterns) {
-    const code = schoolMappingData.school_to_code[pattern];
-    if (code && code.startsWith(officeCode)) {
-      console.log(`✅ 학교 매핑 성공: ${pattern} → ${code}`);
-      return code;
-    }
+  // 원본명과 약자 모두 확인
+  const schoolCode = mapping.school_to_code[schoolName];
+  if (schoolCode) {
+    console.log(`✅ 학교 매핑 성공: ${schoolName} (${educationOffice}) → ${schoolCode}`);
+    return schoolCode;
   }
   
-  console.warn(`⚠️ 학교 매핑 실패: ${schoolName} (${officeCode}) - 임시 코드 생성`);
-  return `${officeCode}_TEMP_${schoolName}`;
+  console.warn(`⚠️ 학교 매핑 실패: ${schoolName} (${educationOffice}) - 원본 반환`);
+  return schoolName; // TEMP 코드 대신 원본 반환
 }
 
 /**
