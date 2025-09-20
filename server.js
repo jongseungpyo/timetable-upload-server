@@ -1768,6 +1768,90 @@ app.get('/api/admin/approved-bundles', requireAuth, logAdminActivity('VIEW_APPRO
   }
 });
 
+// 개별 번들 배포 API
+app.post('/api/admin/deploy-bundle/:bundleId', requireAuth, logAdminActivity('DEPLOY_BUNDLE'), async (req, res) => {
+  try {
+    const { bundleId } = req.params;
+    const { season } = req.body;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 지정해주세요' });
+    }
+
+    // 해당 번들 조회
+    const result = await railwayDB.query(`
+      SELECT * FROM approved_bundles 
+      WHERE approved_bundle_id = $1 AND deployed_to_supabase = false
+    `, [bundleId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '배포 가능한 번들을 찾을 수 없습니다' });
+    }
+
+    const bundle = result.rows[0];
+    const bundleData = Array.isArray(bundle.bundle_data) ? bundle.bundle_data : JSON.parse(bundle.bundle_data);
+    const sessionData = Array.isArray(bundle.session_data) ? bundle.session_data : JSON.parse(bundle.session_data);
+
+    // Supabase 시즌별 테이블에 배포
+    const bundleTableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // 번들 배포
+    const { error: bundleError } = await supabase
+      .from(bundleTableName)
+      .insert(bundleData);
+
+    if (bundleError) throw bundleError;
+
+    // 세션 배포
+    const { error: sessionError } = await supabase
+      .from(sessionTableName)
+      .insert(sessionData);
+
+    if (sessionError) throw sessionError;
+
+    // approved_bundles 테이블에 배포 완료 표시
+    await railwayDB.query(`
+      UPDATE approved_bundles 
+      SET deployed_to_supabase = true, deployed_at = NOW(), updated_at = NOW()
+      WHERE approved_bundle_id = $1
+    `, [bundleId]);
+
+    console.log(`🚀 개별 번들 배포 완료: ${bundle.academy_name} → ${season}`);
+    
+    res.json({
+      success: true,
+      message: `${season} 시즌에 배포가 완료되었습니다`,
+      deployedBundles: bundleData.length,
+      deployedSessions: sessionData.length
+    });
+
+  } catch (error) {
+    console.error('개별 번들 배포 실패:', error);
+    res.status(500).json({ error: '배포 실패: ' + error.message });
+  }
+});
+
+// 번들 삭제 API
+app.delete('/api/admin/approved-bundles/:bundleId', requireAuth, logAdminActivity('DELETE_BUNDLE'), async (req, res) => {
+  try {
+    const { bundleId } = req.params;
+    
+    // 번들 삭제
+    await railwayDB.query(`
+      DELETE FROM approved_bundles 
+      WHERE approved_bundle_id = $1
+    `, [bundleId]);
+
+    console.log(`🗑️ 번들 삭제 완료: ${bundleId}`);
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('번들 삭제 실패:', error);
+    res.status(500).json({ error: '삭제 실패: ' + error.message });
+  }
+});
+
 // 시즌별 Supabase 배포 API
 app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPLOY_SEASON'), async (req, res) => {
   try {

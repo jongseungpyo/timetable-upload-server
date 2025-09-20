@@ -259,16 +259,33 @@
                         ${bundle.contact_name}
                         ${bundle.instructor_name ? ` | ${bundle.instructor_name}` : ''}
                     </div>
-                    <div class="flex items-center justify-between">
-                        <div class="text-xs">
-                            <span class="text-gray-500">번들 수 :</span>
-                            <span class="font-medium text-gray-900">${bundle.bundle_count}개</span>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs">
+                                <span class="text-gray-500">번들 수 :</span>
+                                <span class="font-medium text-gray-900">${bundle.bundle_count}개</span>
+                            </div>
+                            <div class="text-xs">
+                                ${bundle.deployed_to_supabase ? 
+                                    `<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs">배포됨</span>` : 
+                                    `<span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs">대기</span>`
+                                }
+                            </div>
                         </div>
-                        <div class="text-xs">
-                            ${bundle.deployed_to_supabase ? 
-                                `<span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-xs">배포됨</span>` : 
-                                `<span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded text-xs">대기</span>`
+                        <div class="flex items-center space-x-2">
+                            ${!bundle.deployed_to_supabase ? 
+                                `<button onclick="deployBundle('${bundle.approved_bundle_id}', '${bundle.target_season}'); event.stopPropagation();" 
+                                        class="flex-1 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                                    배포
+                                </button>` : 
+                                `<button disabled class="flex-1 px-2 py-1 bg-gray-300 text-gray-500 text-xs rounded cursor-not-allowed">
+                                    배포완료
+                                </button>`
                             }
+                            <button onclick="deleteBundle('${bundle.approved_bundle_id}'); event.stopPropagation();" 
+                                    class="flex-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition-colors">
+                                삭제
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -394,6 +411,52 @@
 
         function showSuccess(message) {
             alert('성공: ' + message);
+        }
+
+        // 개별 번들 배포
+        async function deployBundle(bundleId, season) {
+            if (!confirm('이 번들을 Supabase에 배포하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/deploy-bundle/${bundleId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ season })
+                });
+                
+                if (response.ok) {
+                    alert('배포가 완료되었습니다!');
+                    loadApprovedBundles(); // 데이터 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(`배포 실패: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('배포 실패:', error);
+                alert('배포 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 번들 삭제
+        async function deleteBundle(bundleId) {
+            if (!confirm('이 번들을 삭제하시겠습니까? 삭제된 번들은 복구할 수 없습니다.')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/approved-bundles/${bundleId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('번들이 삭제되었습니다.');
+                    loadApprovedBundles(); // 데이터 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(`삭제 실패: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('삭제 실패:', error);
+                alert('삭제 중 오류가 발생했습니다.');
+            }
         }
 
         // 아코디언 토글 함수
