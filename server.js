@@ -1864,18 +1864,18 @@ app.post('/api/admin/clear-season/:season', requireAuth, logAdminActivity('CLEAR
     const bundleTableName = `bundles_${season.replace('.', '_')}`;
     const sessionTableName = `sessions_${season.replace('.', '_')}`;
 
-    // Supabase 테이블 초기화
+    // Supabase 테이블 초기화 (모든 레코드 삭제)
     const { error: sessionError } = await supabase
       .from(sessionTableName)
       .delete()
-      .neq('bundle_id', ''); // 모든 레코드 삭제
+      .gte('weekday', 0); // weekday >= 0 조건으로 모든 레코드 삭제
 
     if (sessionError) throw sessionError;
 
     const { error: bundleError } = await supabase
       .from(bundleTableName)
       .delete()
-      .neq('bundle_id', ''); // 모든 레코드 삭제
+      .not('bundle_id', 'is', null); // bundle_id가 null이 아닌 모든 레코드 삭제
 
     if (bundleError) throw bundleError;
 
