@@ -728,10 +728,6 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
-// 관리자 직접 업로드 (CSV → Supabase 직접) - submit.html 사용
-app.get('/direct-upload', requireAuth, (req, res) => {
-  res.sendFile(__dirname + '/public/submit.html');
-});
 
 // 광고 문의 제출 API
 app.post('/api/submit-inquiry', async (req, res) => {
