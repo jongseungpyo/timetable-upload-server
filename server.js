@@ -1852,6 +1852,54 @@ app.delete('/api/admin/approved-bundles/:bundleId', requireAuth, logAdminActivit
   }
 });
 
+// Supabase 시즌 테이블 초기화 API
+app.post('/api/admin/clear-season/:season', requireAuth, logAdminActivity('CLEAR_SEASON'), async (req, res) => {
+  try {
+    const { season } = req.params;
+    
+    if (!season) {
+      return res.status(400).json({ error: '시즌을 지정해주세요' });
+    }
+
+    const bundleTableName = `bundles_${season.replace('.', '_')}`;
+    const sessionTableName = `sessions_${season.replace('.', '_')}`;
+
+    // Supabase 테이블 초기화
+    const { error: sessionError } = await supabase
+      .from(sessionTableName)
+      .delete()
+      .neq('bundle_id', ''); // 모든 레코드 삭제
+
+    if (sessionError) throw sessionError;
+
+    const { error: bundleError } = await supabase
+      .from(bundleTableName)
+      .delete()
+      .neq('bundle_id', ''); // 모든 레코드 삭제
+
+    if (bundleError) throw bundleError;
+
+    // approved_bundles 테이블의 배포 상태도 초기화
+    await railwayDB.query(`
+      UPDATE approved_bundles 
+      SET deployed_to_supabase = false, deployed_at = NULL, updated_at = NOW()
+      WHERE target_season = $1
+    `, [season]);
+
+    console.log(`🗑️ ${season} 시즌 Supabase 테이블 초기화 완료`);
+    
+    res.json({
+      success: true,
+      message: `${season} 시즌 테이블이 초기화되었습니다`,
+      clearedTables: [bundleTableName, sessionTableName]
+    });
+
+  } catch (error) {
+    console.error('시즌 테이블 초기화 실패:', error);
+    res.status(500).json({ error: '초기화 실패: ' + error.message });
+  }
+});
+
 // 시즌별 Supabase 배포 API
 app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPLOY_SEASON'), async (req, res) => {
   try {

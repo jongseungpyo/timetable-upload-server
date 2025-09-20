@@ -142,6 +142,11 @@
                                 조회
                             </button>
                         </div>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <button onclick="clearSeasonData()" class="flex-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded">
+                                Supabase 시즌 초기화
+                            </button>
+                        </div>
                         <p class="text-xs text-gray-600" id="submissionCount">로딩 중...</p>
                     </div>
                     <div class="flex-1 overflow-y-auto p-4 space-y-3" id="submissionsList">
@@ -456,6 +461,37 @@
             } catch (error) {
                 console.error('삭제 실패:', error);
                 alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // Supabase 시즌 데이터 초기화
+        async function clearSeasonData() {
+            const season = document.getElementById('seasonFilter').value;
+            if (!season) {
+                alert('초기화할 시즌을 먼저 선택해주세요.');
+                return;
+            }
+
+            if (!confirm(`⚠️ 경고: ${season} 시즌의 Supabase 데이터를 모두 삭제합니다.\n\n이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?\n\n(일요일=0 → 월요일=0 시스템 변경으로 인한 데이터 정리)`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/clear-season/${season}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`${season} 시즌 Supabase 테이블이 초기화되었습니다.\n\n이제 새로운 월요일=0 시스템으로 재배포할 수 있습니다.`);
+                    loadApprovedBundles(); // 데이터 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(`초기화 실패: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('초기화 실패:', error);
+                alert('초기화 중 오류가 발생했습니다.');
             }
         }
 
