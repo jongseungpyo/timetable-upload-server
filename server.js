@@ -1900,6 +1900,89 @@ app.post('/api/admin/clear-season/:season', requireAuth, logAdminActivity('CLEAR
   }
 });
 
+// Supabase에서 개별 번들 삭제 API
+app.delete('/api/admin/delete-supabase-bundle/:bundleId', requireAuth, logAdminActivity('DELETE_SUPABASE_BUNDLE'), async (req, res) => {
+  try {
+    const { bundleId } = req.params;
+    
+    if (!bundleId) {
+      return res.status(400).json({ error: '번들 ID를 지정해주세요' });
+    }
+
+    // 먼저 번들이 어느 시즌에 속하는지 확인
+    let bundleData = null;
+    let targetSeason = null;
+    
+    // 2025.4 시즌부터 확인 (가장 최근 시즌부터)
+    const seasons = ['2025.4', '2026.1', '2025.3', '2025.2', '2025.1'];
+    
+    for (const season of seasons) {
+      const tableName = `bundles_${season.replace('.', '_')}`;
+      try {
+        const { data, error } = await supabase
+          .from(tableName)
+          .select('*')
+          .eq('bundle_id', bundleId)
+          .single();
+          
+        if (!error && data) {
+          bundleData = data;
+          targetSeason = season;
+          break;
+        }
+      } catch (err) {
+        // 테이블이 없거나 데이터가 없는 경우 계속 진행
+        continue;
+      }
+    }
+
+    if (!bundleData || !targetSeason) {
+      return res.status(404).json({ error: '해당 번들을 찾을 수 없습니다' });
+    }
+
+    const bundleTableName = `bundles_${targetSeason.replace('.', '_')}`;
+    const sessionTableName = `sessions_${targetSeason.replace('.', '_')}`;
+
+    // 관련 세션 먼저 삭제
+    const { error: sessionError, count: deletedSessions } = await supabase
+      .from(sessionTableName)
+      .delete()
+      .eq('bundle_id', bundleId);
+
+    if (sessionError) throw sessionError;
+
+    // 번들 삭제
+    const { error: bundleError } = await supabase
+      .from(bundleTableName)
+      .delete()
+      .eq('bundle_id', bundleId);
+
+    if (bundleError) throw bundleError;
+
+    console.log(`🗑️ Supabase 개별 번들 삭제 완료: ${bundleId} (${targetSeason})`);
+    console.log(`   - 강사: ${bundleData.teacher_name}`);
+    console.log(`   - 과목: ${bundleData.subject}`);
+    console.log(`   - 삭제된 세션: ${deletedSessions || 0}개`);
+    
+    res.json({
+      success: true,
+      message: `번들이 성공적으로 삭제되었습니다`,
+      bundleId,
+      targetSeason,
+      deletedSessions: deletedSessions || 0,
+      bundleInfo: {
+        teacher_name: bundleData.teacher_name,
+        subject: bundleData.subject,
+        academy: bundleData.academy
+      }
+    });
+
+  } catch (error) {
+    console.error('Supabase 번들 삭제 실패:', error);
+    res.status(500).json({ error: '삭제 실패: ' + error.message });
+  }
+});
+
 // 시즌별 Supabase 배포 API
 app.post('/api/admin/deploy-season/:season', requireAuth, logAdminActivity('DEPLOY_SEASON'), async (req, res) => {
   try {
