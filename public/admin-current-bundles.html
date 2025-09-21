@@ -239,6 +239,31 @@
                     <div class="text-2xl font-bold text-purple-600">${stats.totalTeachers || 0}</div>
                 </div>
             `;
+            
+            // 시즌별 위험 작업 패널 추가
+            const dangerPanel = document.createElement('div');
+            dangerPanel.className = 'col-span-full mt-6';
+            dangerPanel.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                        <h3 class="text-lg font-semibold text-red-800">위험 작업 - ${currentSeason} 시즌</h3>
+                    </div>
+                    <p class="text-sm text-red-700 mb-4">
+                        이 시즌의 모든 데이터를 삭제합니다. 이 작업은 되돌릴 수 없으니 신중하게 진행해주세요.
+                    </p>
+                    <button 
+                        onclick="clearCurrentSeason()"
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors"
+                    >
+                        ⚠️ ${currentSeason} 시즌 데이터 초기화
+                    </button>
+                </div>
+            `;
+            
+            statsContainer.appendChild(dangerPanel);
         }
 
         function displayBundlesTable(bundles) {
@@ -328,6 +353,46 @@
                 // 닫기
                 accordion.style.maxHeight = '0px';
                 icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // 현재 시즌 데이터 초기화 (강화된 안전 절차)
+        async function clearCurrentSeason() {
+            const season = currentSeason;
+            if (!season) {
+                alert('시즌이 선택되지 않았습니다.');
+                return;
+            }
+
+            // 3단계 확인 절차
+            const step1 = confirm(`⚠️ 위험: ${season} 시즌의 모든 Supabase 데이터를 삭제하려고 합니다.\n\n이 작업은 되돌릴 수 없습니다.\n\n계속하시겠습니까?`);
+            if (!step1) return;
+
+            const step2 = confirm(`⚠️ 재확인: 정말로 ${season} 시즌 데이터를 모두 삭제하시겠습니까?\n\n삭제될 데이터:\n- bundles_${season.replace('.', '_')} 테이블\n- sessions_${season.replace('.', '_')} 테이블\n\n이 작업은 되돌릴 수 없습니다!`);
+            if (!step2) return;
+
+            const finalConfirm = prompt(`최종 확인: "${season}" 시즌을 삭제하려면 정확히 "${season}"을 입력해주세요:`);
+            if (finalConfirm !== season) {
+                alert('시즌명이 일치하지 않습니다. 취소되었습니다.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/clear-season/${season}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`✅ ${season} 시즌 Supabase 테이블이 완전히 삭제되었습니다.\n\n새로운 데이터를 재배포할 수 있습니다.`);
+                    loadCurrentBundles(); // 데이터 새로고침
+                } else {
+                    const data = await response.json();
+                    alert(`❌ 초기화 실패: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('초기화 실패:', error);
+                alert('❌ 초기화 중 오류가 발생했습니다.');
             }
         }
 
