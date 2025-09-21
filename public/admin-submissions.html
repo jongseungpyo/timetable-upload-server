@@ -14,7 +14,7 @@
             <div class="flex justify-between items-center py-4">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">🏫 타임빌더</a>
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-navy-600 hover:text-navy-700 transition-colors cursor-pointer">🏫 타임빌더</a>
                     <span class="ml-2 text-gray-500">관리자</span>
                 </div>
                 
@@ -41,7 +41,7 @@
         <aside class="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
             <nav class="p-4">
                 <div class="space-y-2">
-                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md">
+                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -49,7 +49,7 @@
                     </a>
                     <!-- 2. 제출검토 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -61,7 +61,7 @@
                             </svg>
                         </button>
                         <div id="submissions-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 120px;">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-navy-600 hover:bg-navy-50 rounded-md transition-colors">
                                 📝 미검토 시간표
                             </a>
                             <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors">
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- 3. 학원 가입 승인 -->
-                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -83,7 +83,7 @@
 
                     <!-- 4. 번들 관리 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
@@ -95,7 +95,7 @@
                             </svg>
                         </button>
                         <div id="bundles-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📦 승인된 번들
                             </a>
                             <a href="/admin/current_bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-md transition-colors">
@@ -123,9 +123,9 @@
                 <nav class="-mb-px flex space-x-8">
                     <button onclick="switchTab('pending')" 
                             id="tab-pending" 
-                            class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                            class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-navy-500 text-navy-600">
                         📝 미검토 
-                        <span id="pending-count" class="ml-1 bg-blue-100 text-blue-600 py-1 px-2 rounded-full text-xs">0</span>
+                        <span id="pending-count" class="ml-1 bg-navy-100 text-navy-600 py-1 px-2 rounded-full text-xs">0</span>
                     </button>
                     <button onclick="switchTab('reviewed')" 
                             id="tab-reviewed" 
@@ -206,7 +206,7 @@
                             <label for="seasonSelect" class="block text-sm font-medium text-gray-700 mb-2">
                                 반영할 시즌을 선택하세요
                             </label>
-                            <select id="seasonSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select id="seasonSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                                 <option value="2025.4">2025.4 (2학기)</option>
                                 <option value="2026.1">2026.1 (겨울방학)</option>
                                 <option value="2026.2">2026.2 (1학기)</option>
@@ -228,7 +228,7 @@
                         </button>
                         <button 
                             onclick="confirmApproval()" 
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                            class="px-4 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm rounded-md transition-colors"
                         >
                             승인 확정
                         </button>
@@ -471,7 +471,7 @@
                         ${submission.verification_url ? `
                             <div class="mb-6">
                                 <span class="text-sm text-gray-500">검증 링크:</span>
-                                <a href="${submission.verification_url}" target="_blank" class="ml-2 text-blue-600 hover:text-blue-700 text-sm">${submission.verification_url}</a>
+                                <a href="${submission.verification_url}" target="_blank" class="ml-2 text-navy-600 hover:text-navy-700 text-sm">${submission.verification_url}</a>
                             </div>
                         ` : ''}
 
@@ -521,12 +521,12 @@
                             <!-- Converted Data -->
                             <div>
                                 <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    <span class="w-2 h-2 bg-navy-500 rounded-full mr-2"></span>
                                     변환된 시간표 (DB 저장용)
                                 </h4>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full text-xs border border-gray-200 rounded-lg">
-                                        <thead class="bg-blue-50">
+                                        <thead class="bg-navy-50">
                                             <tr>
                                                 <th class="px-3 py-2 text-center font-medium text-gray-700 border-b">#</th>
                                                 <th class="px-3 py-2 text-left font-medium text-gray-700 border-b">강사명</th>
@@ -595,7 +595,7 @@
                         <td class="px-3 py-2 border-b text-center font-medium text-gray-500">${index + 1}</td>
                         <td class="px-3 py-2 border-b">${bundle.teacher_name}</td>
                         <td class="px-3 py-2 border-b">${bundle.subject}</td>
-                        <td class="px-3 py-2 border-b font-medium text-blue-600">${JSON.stringify(bundle.target_school_codes || [bundle.target_school])}</td>
+                        <td class="px-3 py-2 border-b font-medium text-navy-600">${JSON.stringify(bundle.target_school_codes || [bundle.target_school])}</td>
                         <td class="px-3 py-2 border-b">${bundle.target_grade || '-'}</td>
                         <td class="px-3 py-2 border-b">${bundle.topic}</td>
                         <td class="px-3 py-2 border-b">${bundle.academy}</td>
@@ -632,7 +632,7 @@
                             <td class="px-3 py-2 border-b">${bundle.teacher_name}</td>
                             <td class="px-3 py-2 border-b">${bundle.subject}</td>
                             <td class="px-3 py-2 border-b">
-                                <code class="bg-gray-100 px-2 py-1 rounded text-blue-600">${JSON.stringify(schoolCodes)}</code>
+                                <code class="bg-gray-100 px-2 py-1 rounded text-navy-600">${JSON.stringify(schoolCodes)}</code>
                             </td>
                             <td class="px-3 py-2 border-b">${convertedGrade || '-'}</td>
                             <td class="px-3 py-2 border-b">${bundle.topic}</td>
@@ -844,7 +844,7 @@
             });
             
             const activeTab = document.getElementById(`tab-${tab}`);
-            activeTab.className = 'tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+            activeTab.className = 'tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-navy-500 text-navy-600';
             
             // 서브탭 표시/숨김
             const reviewedSubtabs = document.getElementById('reviewed-subtabs');

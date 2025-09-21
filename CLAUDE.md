@@ -67,6 +67,14 @@ npm run build-css-prod
 npm start
 ```
 
+**Node.js Requirements:**
+- Node.js >= 20.0.0 (specified in package.json engines)
+
+**CSS Build Process:**
+- TailwindCSS compilation from `src/styles.css` to `public/styles.css`
+- Development mode includes watch mode for real-time updates
+- Production mode includes minification for optimized builds
+
 ## Key Components
 
 **School Mapping System (Updated):**
@@ -163,6 +171,15 @@ No formal test framework is configured. Manual testing is done through the web i
 **Test Accounts:**
 - Admin: `admin/admin123`
 - Academy: `test@timebuilder.com/test123` (requires admin approval)
+
+**Key API Endpoints:**
+- `/api/upload-csv` - CSV file upload processing
+- `/api/submit-timetable-web` - Web form timetable submission
+- `/api/academy/register` - Academy registration
+- `/api/academy/login` - Academy authentication
+- `/api/admin/submissions` - Admin submission management
+- `/api/admin/deploy-bundle/:bundleId` - Individual bundle deployment
+- `/api/admin/clear-season/:season` - Season data clearing
 
 ## Data Migration Notes
 

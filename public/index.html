@@ -25,7 +25,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo (클릭 시 메인으로) -->
                 <div class="flex-shrink-0">
-                    <a href="#home" onclick="showSection('home')" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
+                    <a href="#home" onclick="showSection('home')" class="text-2xl font-bold text-navy-600 hover:text-navy-700 transition-colors cursor-pointer">
                         🏫 타임빌더
                     </a>
                 </div>
@@ -33,15 +33,15 @@
                 <!-- Navigation Links (로그인 상태에 따라) -->
                 <div class="hidden md:block" id="mainNavigation">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#timetable" onclick="checkAuthAndShowSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                        <a href="#timetable" onclick="checkAuthAndShowSection('timetable')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50 transition-colors">
                             시간표 제출
                         </a>
-                        <a href="#advertising" onclick="checkAuthAndShowSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                        <a href="#advertising" onclick="checkAuthAndShowSection('advertising')" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50 transition-colors">
                             광고 문의
                         </a>
                         <!-- 로그인 시 마이페이지 메뉴 -->
                         <div class="relative" id="myPageMenu" style="display: none;">
-                            <button onclick="toggleMyPageDropdown()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center">
+                            <button onclick="toggleMyPageDropdown()" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50 transition-colors flex items-center">
                                 마이페이지
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -82,17 +82,17 @@
                         </svg>
                         로그인
                     </button>
-                    <button onclick="showRegisterModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                    <a href="/register.html" class="inline-flex items-center px-4 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                         회원가입
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-navy-600 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -104,12 +104,12 @@
         <!-- Mobile Navigation -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">메인</a>
-                <a href="#timetable" onclick="checkAuthAndShowSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">시간표 제출</a>
-                <a href="#advertising" onclick="checkAuthAndShowSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50">광고 문의</a>
+                <a href="#home" onclick="showSection('home'); toggleMobileMenu()" class="mobile-nav-link active block px-3 py-2 rounded-md text-base font-medium text-navy-600 bg-navy-50">메인</a>
+                <a href="#timetable" onclick="checkAuthAndShowSection('timetable'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50">시간표 제출</a>
+                <a href="#advertising" onclick="checkAuthAndShowSection('advertising'); toggleMobileMenu()" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50">광고 문의</a>
                 <div class="pt-2 border-t border-gray-100 space-y-2">
                     <button onclick="showLoginModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">로그인</button>
-                    <button onclick="showRegisterModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-blue-50">회원가입</button>
+                    <a href="/register.html" class="block px-3 py-2 rounded-md text-base font-medium text-navy-600 bg-navy-50">회원가입</a>
                 </div>
             </div>
         </div>
@@ -125,7 +125,7 @@
             <!-- Hero Section -->
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                    학생을 위한 <span class="text-blue-600">맞춤 시간표</span>
+                    학생을 위한 <span class="text-navy-600">맞춤 시간표</span>
                 </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
                     타임빌더는 학생들이 자신에게 맞는 학원 수업을 쉽게 찾고 관리할 수 있도록 도와주는 플랫폼입니다. 
@@ -136,8 +136,8 @@
             <!-- Features Section -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-navy-100 rounded-2xl mb-4">
+                        <svg class="w-8 h-8 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </div>
@@ -167,12 +167,12 @@
             </div>
 
             <!-- CTA Section -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-center text-white">
+            <div class="bg-gradient-to-r from-navy-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-center text-white">
                 <h3 class="text-2xl md:text-3xl font-bold mb-4">학원 운영자이신가요?</h3>
-                <p class="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
+                <p class="text-navy-100 text-lg mb-6 max-w-2xl mx-auto">
                     타임빌더에 학원의 시간표 정보를 등록하고 더 많은 학생들과 만나보세요
                 </p>
-                <button onclick="checkAuthAndShowSection('timetable')" class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
+                <button onclick="checkAuthAndShowSection('timetable')" class="inline-flex items-center px-6 py-3 bg-white text-navy-600 font-medium rounded-lg hover:bg-navy-50 transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
@@ -192,9 +192,9 @@
             </div>
 
             <!-- Requirements Card -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <div class="bg-navy-50 border border-navy-200 rounded-lg p-6 mb-8">
                 <div class="flex justify-between items-start mb-4">
-                    <h3 class="font-semibold text-blue-900 flex items-center">
+                    <h3 class="font-semibold text-navy-900 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                         </svg>
@@ -214,7 +214,7 @@
                         <a 
                             href="/timetable_template.xlsx" 
                             download="시간표_양식.xlsx"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                            class="inline-flex items-center px-4 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-medium rounded-md transition-colors"
                         >
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -223,7 +223,7 @@
                         </a>
                     </div>
                 </div>
-                <ul class="space-y-2 text-blue-800">
+                <ul class="space-y-2 text-navy-800">
                     <li class="flex items-start">
                         <svg class="w-4 h-4 mr-2 mt-0.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -231,7 +231,7 @@
                         <div>
                             <strong>엑셀 양식 사용:</strong> 
                             <span class="text-green-700">작성 가이드</span>를 먼저 확인하고, 
-                            <span class="text-blue-700">엑셀 양식</span>을 다운로드하여 작성 후 CSV로 저장하여 제출하세요
+                            <span class="text-navy-700">엑셀 양식</span>을 다운로드하여 작성 후 CSV로 저장하여 제출하세요
                         </div>
                     </li>
                     <li class="flex items-center">
@@ -267,7 +267,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-6">시간표 제출 방법</h3>
                     <!-- Method Tabs (더 큰 크기와 명확한 위치) -->
                     <div class="flex justify-center space-x-6 mb-4">
-                        <button onclick="showSubmissionMethod('upload')" id="uploadTab" class="submission-tab active flex items-center px-8 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded-lg transition-colors">
+                        <button onclick="showSubmissionMethod('upload')" id="uploadTab" class="submission-tab active flex items-center px-8 py-3 text-base font-medium text-white bg-navy-600 hover:bg-navy-700 border border-navy-600 rounded-lg transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
@@ -310,7 +310,7 @@
                                 id="seasonYear" 
                                 name="seasonYear" 
                                 required
-                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                             >
                                 <option value="">년도 선택</option>
                                 <option value="2025" selected>2025년</option>
@@ -324,7 +324,7 @@
                                 id="seasonQuarter" 
                                 name="seasonQuarter" 
                                 required
-                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                             >
                                 <option value="">분기 선택</option>
                                 <option value="1">1분기 (겨울방학)</option>
@@ -344,7 +344,7 @@
                             name="verificationUrl" 
                             required
                             placeholder="https://academy.example.com 또는 네이버 블로그 링크"
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         >
                         <p class="text-xs text-gray-600 mt-1">
                             학원 홈페이지, 네이버 블로그, 또는 학원 정보를 확인할 수 있는 공식 링크를 입력하세요.
@@ -357,7 +357,7 @@
                         <div id="csvUploadArea" class="space-y-2">
                             <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 입력</label>
                             <div 
-                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" 
+                                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-navy-400 transition-colors cursor-pointer" 
                                 id="uploadArea"
                             >
                                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -369,7 +369,7 @@
                                 <div id="fileName" class="mt-4 text-sm font-medium text-green-600"></div>
                             </div>
                             <div class="text-center mt-4">
-                                <button type="button" onclick="showDirectInput()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                <button type="button" onclick="showDirectInput()" class="text-navy-600 hover:text-navy-700 text-sm font-medium">
                                     또는 직접 입력하기
                                 </button>
                             </div>
@@ -386,7 +386,7 @@
                                     <button type="button" onclick="addTableRow()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors">
                                         + 행 추가
                                     </button>
-                                    <button type="button" onclick="saveAndUpdatePreview()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                                    <button type="button" onclick="saveAndUpdatePreview()" class="px-3 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm rounded-md transition-colors">
                                         💾 저장 & 미리보기 업데이트
                                     </button>
                                     <button type="button" onclick="resetToUpload()" class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
@@ -431,8 +431,8 @@
                     <div id="dataPreviewSection" class="hidden">
                         <div class="space-y-4">
                             <h4 class="text-sm font-medium text-gray-700">제출 데이터 미리보기</h4>
-                            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                                <p class="text-sm text-blue-800">
+                            <div class="bg-navy-50 rounded-lg p-4 border border-navy-200">
+                                <p class="text-sm text-navy-800">
                                     아래 테이블의 내용이 관리자에게 전송됩니다. 내용을 확인하고 제출해주세요.
                                 </p>
                             </div>
@@ -475,7 +475,7 @@
                             name="notes" 
                             rows="3" 
                             placeholder="특별한 요청사항이나 참고할 내용이 있으시면 적어주세요"
-                            class="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         ></textarea>
                     </div>
 
@@ -485,7 +485,7 @@
                             type="button" 
                             onclick="submitTimetable()"
                             id="submitBtn"
-                            class="inline-flex items-center justify-center rounded-md text-base font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 h-12 py-3 px-8"
+                            class="inline-flex items-center justify-center rounded-md text-base font-medium transition-colors bg-navy-600 text-white hover:bg-navy-700 h-12 py-3 px-8"
                         >
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -498,7 +498,7 @@
                     <div id="progress" class="hidden">
                         <div class="text-center mb-4 text-sm text-gray-600">업로드 중...</div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="progressFill" class="bg-blue-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 60%"></div>
+                            <div id="progressFill" class="bg-navy-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 60%"></div>
                         </div>
                     </div>
 
@@ -524,8 +524,8 @@
                     
                     <div class="space-y-4">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="flex-shrink-0 w-10 h-10 bg-navy-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-navy-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                                 </svg>
@@ -557,28 +557,28 @@
                     <form id="inquiryForm" class="space-y-4">
                         <div>
                             <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">회사명/기관명 *</label>
-                            <input type="text" id="companyName" name="companyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <input type="text" id="companyName" name="companyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="contactPerson" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
-                                <input type="text" id="contactPerson" name="contactPerson" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="text" id="contactPerson" name="contactPerson" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                             </div>
                             <div>
                                 <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
-                                <input type="tel" id="contactPhone" name="contactPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <input type="tel" id="contactPhone" name="contactPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                             </div>
                         </div>
                         
                         <div>
                             <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
-                            <input type="email" id="contactEmail" name="contactEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <input type="email" id="contactEmail" name="contactEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                         </div>
                         
                         <div>
                             <label for="inquiryType" class="block text-sm font-medium text-gray-700 mb-1">문의 유형 *</label>
-                            <select id="inquiryType" name="inquiryType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select id="inquiryType" name="inquiryType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                                 <option value="">선택해주세요</option>
                                 <option value="advertising">앱 내 광고</option>
                                 <option value="partnership">제휴 제안</option>
@@ -595,14 +595,14 @@
                                 rows="5" 
                                 required
                                 placeholder="구체적인 문의 내용을 작성해주세요"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
                             ></textarea>
                         </div>
                         
                         <button 
                             type="submit" 
                             id="inquiryBtn"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors"
+                            class="w-full bg-navy-600 hover:bg-navy-700 text-white font-medium py-3 px-4 rounded-md transition-colors"
                         >
                             문의 보내기
                         </button>
@@ -618,7 +618,7 @@
     <footer class="bg-white border-t border-gray-200 mt-16">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600 mb-4">🏫 타임빌더</div>
+                <div class="text-2xl font-bold text-navy-600 mb-4">🏫 타임빌더</div>
                 <p class="text-gray-600 mb-6">학생들을 위한 맞춤 시간표 서비스</p>
                 <div class="text-sm text-gray-500">
                     © 2025 파인(Fine). 모든 권리 보유. | 
@@ -647,13 +647,13 @@
                 <form id="academyLoginForm" class="space-y-4">
                     <div>
                         <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                        <input type="email" id="loginEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="email" id="loginEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
                     <div>
                         <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                        <input type="password" id="loginPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="password" id="loginPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    <button type="submit" class="w-full bg-navy-600 hover:bg-navy-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
                         로그인
                     </button>
                     <div id="loginModalResult"></div>
@@ -661,9 +661,9 @@
                     <div class="text-center pt-4">
                         <p class="text-sm text-gray-600">
                             계정이 없으신가요? 
-                            <button type="button" onclick="closeLoginModal(); showRegisterModal()" class="text-blue-600 hover:text-blue-700 font-medium">
+                            <a href="/register.html" class="text-navy-600 hover:text-navy-700 font-medium">
                                 회원가입하기
-                            </button>
+                            </a>
                         </p>
                     </div>
                 </form>
@@ -671,61 +671,6 @@
         </div>
     </div>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-900">회원가입</h3>
-                    <button onclick="closeRegisterModal()" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="px-6 py-6">
-                <form id="academyRegisterForm" class="space-y-4">
-                    <div>
-                        <label for="registerAcademyName" class="block text-sm font-medium text-gray-700 mb-1">학원명 *</label>
-                        <input type="text" id="registerAcademyName" name="academyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="registerContactName" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
-                            <input type="text" id="registerContactName" name="contactName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="registerPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
-                            <input type="tel" id="registerPhone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
-                        <input type="email" id="registerEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 *</label>
-                        <input type="password" id="registerPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
-                        회원가입
-                    </button>
-                    <div id="registerModalResult"></div>
-                    
-                    <div class="text-center pt-4">
-                        <p class="text-sm text-gray-600">
-                            이미 계정이 있으신가요? 
-                            <button type="button" onclick="closeRegisterModal(); showLoginModal()" class="text-blue-600 hover:text-blue-700 font-medium">
-                                로그인하기
-                            </button>
-                        </p>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Profile Edit Modal -->
     <div id="profileEditModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -745,27 +690,27 @@
                 <form id="profileEditForm" class="space-y-4">
                     <div>
                         <label for="editAcademyName" class="block text-sm font-medium text-gray-700 mb-1">학원명 *</label>
-                        <input type="text" id="editAcademyName" name="academyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="text" id="editAcademyName" name="academyName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
                     
                     <div>
                         <label for="editContactName" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
-                        <input type="text" id="editContactName" name="contactName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="text" id="editContactName" name="contactName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
                     
                     <div>
                         <label for="editPhone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
-                        <input type="tel" id="editPhone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="tel" id="editPhone" name="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
                     
                     <div>
                         <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
-                        <input type="email" id="editEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="email" id="editEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
                     </div>
                     
                     <div class="border-t border-gray-200 pt-4">
                         <label for="editPassword" class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
-                        <input type="password" id="editPassword" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="변경하지 않으려면 비워두세요">
+                        <input type="password" id="editPassword" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500" placeholder="변경하지 않으려면 비워두세요">
                         <p class="text-xs text-gray-500 mt-1">비밀번호를 변경하지 않으려면 이 필드를 비워두세요.</p>
                     </div>
                     
@@ -773,7 +718,7 @@
                         <button type="button" onclick="closeProfileEditModal()" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors">
                             취소
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                        <button type="submit" class="px-4 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm rounded-md transition-colors">
                             저장
                         </button>
                     </div>
@@ -852,13 +797,13 @@
         function updateNavigation(activeSection) {
             // 데스크톱 네비게이션
             document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active', 'text-blue-600', 'bg-blue-50');
+                link.classList.remove('active', 'text-navy-600', 'bg-navy-50');
                 link.classList.add('text-gray-600');
             });
             
             // 모바일 네비게이션
             document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                link.classList.remove('active', 'text-blue-600', 'bg-blue-50');
+                link.classList.remove('active', 'text-navy-600', 'bg-navy-50');
                 link.classList.add('text-gray-600');
             });
             
@@ -867,12 +812,12 @@
             const activeMobileLink = document.querySelector(`a[href="#${activeSection}"].mobile-nav-link`);
             
             if (activeDesktopLink) {
-                activeDesktopLink.classList.add('active', 'text-blue-600', 'bg-blue-50');
+                activeDesktopLink.classList.add('active', 'text-navy-600', 'bg-navy-50');
                 activeDesktopLink.classList.remove('text-gray-600');
             }
             
             if (activeMobileLink) {
-                activeMobileLink.classList.add('active', 'text-blue-600', 'bg-blue-50');
+                activeMobileLink.classList.add('active', 'text-navy-600', 'bg-navy-50');
                 activeMobileLink.classList.remove('text-gray-600');
             }
         }
@@ -886,7 +831,7 @@
         function showSubmissionMethod(method) {
             // 탭 버튼 스타일 초기화
             document.querySelectorAll('.submission-tab').forEach(tab => {
-                tab.classList.remove('text-white', 'bg-blue-600', 'border-blue-600');
+                tab.classList.remove('text-white', 'bg-navy-600', 'border-navy-600');
                 tab.classList.add('text-gray-700', 'bg-white', 'border-gray-300');
             });
             
@@ -894,7 +839,7 @@
                 // CSV 업로드 탭 활성화
                 const uploadTab = document.getElementById('uploadTab');
                 uploadTab.classList.remove('text-gray-700', 'bg-white', 'border-gray-300');
-                uploadTab.classList.add('text-white', 'bg-blue-600', 'border-blue-600');
+                uploadTab.classList.add('text-white', 'bg-navy-600', 'border-navy-600');
                 
                 // CSV 업로드 영역 표시, 웹 테이블 숨기기
                 document.getElementById('csvUploadArea').classList.remove('hidden');
@@ -905,7 +850,7 @@
                 // 직접 작성 탭 활성화  
                 const directTab = document.getElementById('directTab');
                 directTab.classList.remove('text-gray-700', 'bg-white', 'border-gray-300');
-                directTab.classList.add('text-white', 'bg-blue-600', 'border-blue-600');
+                directTab.classList.add('text-white', 'bg-navy-600', 'border-navy-600');
                 
                 // 웹 테이블 표시, CSV 업로드 영역 숨기기
                 document.getElementById('csvUploadArea').classList.add('hidden');
@@ -922,9 +867,9 @@
         function createTableRowHTML(index) {
             return `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${index + 1}</td>
-                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="강사명" required oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" placeholder="강사명" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학">수학</option>
                         <option value="물리">물리</option>
@@ -941,7 +886,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" selected>서울특별시</option>
                         <option value="부산광역시">부산광역시</option>
@@ -962,9 +907,9 @@
                         <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="세화고, 반포고 또는 연합반" required oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" placeholder="세화고, 반포고 또는 연합반" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="전학급">전학급</option>
                         <option value="초등학교">초등학교</option>
@@ -973,7 +918,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="전학년">전학년</option>
                         <option value="1">1</option>
@@ -981,11 +926,11 @@
                         <option value="3">3</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="주제" oninput="onTableFieldChange(this)"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="출강학원"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" placeholder="주제" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" placeholder="출강학원"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치">대치</option>
                         <option value="반포">반포</option>
@@ -1026,9 +971,9 @@
         function createTableRowHTML(index) {
             return `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${index + 1}</td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="강사명" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" placeholder="강사명" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학">수학</option>
                         <option value="물리">물리</option>
@@ -1042,7 +987,7 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" selected>서울특별시</option>
                         <option value="부산광역시">부산광역시</option>
@@ -1063,9 +1008,9 @@
                         <option value="제주특별자치도">제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="연합반 또는 학교명" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" placeholder="연합반 또는 학교명" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교">초등학교</option>
                         <option value="중학교">중학교</option>
@@ -1073,18 +1018,18 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="주제" oninput="onTableFieldChange(this)"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" placeholder="출강학원" oninput="onTableFieldChange(this)"></td>
-                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" placeholder="주제" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" placeholder="출강학원" oninput="onTableFieldChange(this)"></td>
+                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" oninput="onTableFieldChange(this)"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치">대치</option>
                         <option value="반포">반포</option>
@@ -1222,16 +1167,16 @@
         
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+            uploadArea.classList.add('border-navy-400', 'bg-navy-50');
         });
         
         uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            uploadArea.classList.remove('border-navy-400', 'bg-navy-50');
         });
         
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            uploadArea.classList.remove('border-navy-400', 'bg-navy-50');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 fileInput.files = files;
@@ -1797,9 +1742,9 @@
             
             row.innerHTML = `
                 <td class="px-4 py-3 border-b text-center font-medium text-gray-500">${tableRowCount + 1}</td>
-                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[0] || ''}" required oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="row-input w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" value="${data[0] || ''}" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
                         <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
@@ -1816,7 +1761,7 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
@@ -1837,9 +1782,9 @@
                         <option value="제주특별자치도" ${data[2] === '제주특별자치도' ? 'selected' : ''}>제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" value="${data[3] || ''}" required oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" required onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
                         <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
@@ -1847,18 +1792,18 @@
                     </select>
                 </td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
                         <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
                         <option value="3" ${data[5] === '3' ? 'selected' : ''}>3</option>
                     </select>
                 </td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[6] || ''}" oninput="onTableFieldChange(this)"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[7] || ''}" oninput="onTableFieldChange(this)"></td>
-                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" value="${data[8] || ''}" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" value="${data[6] || ''}" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" value="${data[7] || ''}" oninput="onTableFieldChange(this)"></td>
+                <td class="px-4 py-3 border-b"><input type="text" class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" value="${data[8] || ''}" placeholder="9/7 또는 2025.3.15" oninput="onTableFieldChange(this)"></td>
                 <td class="px-4 py-3 border-b">
-                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-blue-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-sm border-gray-300 focus:ring-2 focus:ring-navy-500 rounded px-2 py-1" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
                         <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
@@ -1891,9 +1836,9 @@
             return `
                 <td class="px-2 py-3 border-b min-w-[140px]">
                     <div class="flex items-center space-x-1 text-xs">
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" title="${dayName} 시작" oninput="onTableFieldChange(this)">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-navy-500 rounded start-time" title="${dayName} 시작" oninput="onTableFieldChange(this)">
                         <span class="text-gray-400">~</span>
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" title="${dayName} 종료" oninput="onTableFieldChange(this)">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-navy-500 rounded end-time" title="${dayName} 종료" oninput="onTableFieldChange(this)">
                     </div>
                 </td>
             `;
@@ -1930,9 +1875,9 @@
             row.className = 'hover:bg-gray-50';
             
             const rowHTML = `
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[0] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[0] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="수학" ${data[1] === '수학' ? 'selected' : ''}>수학</option>
                         <option value="물리" ${data[1] === '물리' ? 'selected' : ''}>물리</option>
@@ -1946,7 +1891,7 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="서울특별시" ${data[2] === '서울특별시' ? 'selected' : ''}>서울특별시</option>
                         <option value="부산광역시" ${data[2] === '부산광역시' ? 'selected' : ''}>부산광역시</option>
@@ -1967,9 +1912,9 @@
                         <option value="제주특별자치도" ${data[2] === '제주특별자치도' ? 'selected' : ''}>제주특별자치도</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[3] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[3] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="초등학교" ${data[4] === '초등학교' ? 'selected' : ''}>초등학교</option>
                         <option value="중학교" ${data[4] === '중학교' ? 'selected' : ''}>중학교</option>
@@ -1977,18 +1922,18 @@
                     </select>
                 </td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="1" ${data[5] === '1' ? 'selected' : ''}>1</option>
                         <option value="2" ${data[5] === '2' ? 'selected' : ''}>2</option>
                         <option value="3" ${data[5] === '3' ? 'selected' : ''}>3</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[6] || ''}"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[7] || ''}"></td>
-                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[8] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[6] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[7] || ''}"></td>
+                <td class="px-2 py-1 border-b"><input type="text" placeholder="예: 9/7" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[8] || ''}"></td>
                 <td class="px-2 py-1 border-b">
-                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" onchange="onTableFieldChange(this)">
+                    <select class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" onchange="onTableFieldChange(this)">
                         <option value="">선택</option>
                         <option value="대치" ${data[9] === '대치' ? 'selected' : ''}>대치</option>
                         <option value="반포" ${data[9] === '반포' ? 'selected' : ''}>반포</option>
@@ -1996,13 +1941,13 @@
                         <option value="기타" ${data[9] === '기타' ? 'selected' : ''}>기타</option>
                     </select>
                 </td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[10] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[11] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[12] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[13] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[14] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[15] || ''}" placeholder="09:00 ~ 12:30"></td>
-                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-blue-500 rounded" value="${data[16] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[10] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[11] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[12] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[13] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[14] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[15] || ''}" placeholder="09:00 ~ 12:30"></td>
+                <td class="px-2 py-1 border-b"><input type="text" class="w-full text-xs border-0 focus:ring-1 focus:ring-navy-500 rounded" value="${data[16] || ''}" placeholder="09:00 ~ 12:30"></td>
                 <td class="px-2 py-1 border-b">
                     <button type="button" onclick="removeTableRow(this)" class="text-red-600 hover:text-red-800 text-xs">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2383,9 +2328,9 @@
             return `
                 <td class="px-2 py-3 border-b min-w-[140px]">
                     <div class="flex items-center space-x-1 text-xs">
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded start-time" value="${timeData.start}" oninput="onTableFieldChange(this)">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-navy-500 rounded start-time" value="${timeData.start}" oninput="onTableFieldChange(this)">
                         <span class="text-gray-400">~</span>
-                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-blue-500 rounded end-time" value="${timeData.end}" oninput="onTableFieldChange(this)">
+                        <input type="time" class="flex-1 text-xs border-gray-300 focus:ring-1 focus:ring-navy-500 rounded end-time" value="${timeData.end}" oninput="onTableFieldChange(this)">
                     </div>
                 </td>
             `;
@@ -2395,7 +2340,7 @@
             const alertClasses = {
                 success: 'bg-green-50 border border-green-200 text-green-800',
                 error: 'bg-red-50 border border-red-200 text-red-800',
-                info: 'bg-blue-50 border border-blue-200 text-blue-800'
+                info: 'bg-navy-50 border border-navy-200 text-navy-800'
             };
             
             document.getElementById(containerId).innerHTML = `
@@ -2414,13 +2359,6 @@
             document.getElementById('loginModal').classList.add('hidden');
         }
 
-        function showRegisterModal() {
-            document.getElementById('registerModal').classList.remove('hidden');
-        }
-
-        function closeRegisterModal() {
-            document.getElementById('registerModal').classList.add('hidden');
-        }
 
         // 학원 대시보드 모달 관리
         function showDashboardModal() {
@@ -2468,40 +2406,6 @@
             }
         });
 
-        // 학원 회원가입 처리
-        document.getElementById('academyRegisterForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            
-            try {
-                const response = await fetch('/api/academy/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        academyName: formData.get('academyName'),
-                        contactName: formData.get('contactName'),
-                        phone: formData.get('phone'),
-                        email: formData.get('email'),
-                        password: formData.get('password')
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert('회원가입이 완료되었습니다. 로그인해주세요.', 'success', 'registerModalResult');
-                    setTimeout(() => {
-                        closeRegisterModal();
-                        showLoginModal();
-                    }, 1500);
-                } else {
-                    showAlert(data.error, 'error', 'registerModalResult');
-                }
-            } catch (error) {
-                showAlert(`회원가입 오류: ${error.message}`, 'error', 'registerModalResult');
-            }
-        });
 
         // 학원 제출 내역 로드
         async function loadAcademySubmissions() {
@@ -2544,7 +2448,7 @@
                         </svg>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">제출 내역이 없습니다</h3>
                         <p class="text-gray-500 mb-4">아직 제출한 시간표가 없습니다.</p>
-                        <button onclick="closeDashboardModal(); showSection('timetable')" class="text-blue-600 hover:text-blue-700">지금 시간표 제출하기</button>
+                        <button onclick="closeDashboardModal(); showSection('timetable')" class="text-navy-600 hover:text-navy-700">지금 시간표 제출하기</button>
                     </div>
                 `;
                 return;
@@ -2553,7 +2457,7 @@
             container.innerHTML = submissions.map(submission => {
                 const statusColors = {
                     'pending': 'bg-yellow-100 text-yellow-800',
-                    'reviewing': 'bg-blue-100 text-blue-800',
+                    'reviewing': 'bg-navy-100 text-navy-800',
                     'approved': 'bg-green-100 text-green-800',
                     'rejected': 'bg-red-100 text-red-800'
                 };
@@ -2623,12 +2527,12 @@
                         </svg>
                         로그인
                     </button>
-                    <button onclick="showRegisterModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                    <a href="/register.html" class="inline-flex items-center px-4 py-2 bg-navy-600 hover:bg-navy-700 text-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                         회원가입
-                    </button>
+                    </a>
                 `;
             }
         }

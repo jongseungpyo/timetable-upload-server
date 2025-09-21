@@ -14,7 +14,7 @@
             <div class="flex justify-between items-center py-4">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-blue-600">🏫 타임빌더</h1>
+                    <h1 class="text-2xl font-bold text-navy-600">🏫 타임빌더</h1>
                     <span class="ml-2 text-gray-500">관리자</span>
                 </div>
                 
@@ -41,7 +41,7 @@
         <aside class="w-64 bg-white shadow-sm border-r border-gray-200 min-h-screen">
             <nav class="p-4">
                 <div class="space-y-2">
-                    <a href="/admin/dashboard" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                    <a href="/admin/dashboard" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-navy-50 text-navy-600 rounded-md border-l-4 border-navy-500">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -49,7 +49,7 @@
                     </a>
                     <!-- 2. 제출검토 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -61,7 +61,7 @@
                             </svg>
                         </button>
                         <div id="submissions-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📝 미검토 시간표
                             </a>
                             <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors">
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- 3. 학원 가입 승인 -->
-                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -83,7 +83,7 @@
 
                     <!-- 4. 번들 관리 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
@@ -95,7 +95,7 @@
                             </svg>
                         </button>
                         <div id="bundles-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📦 승인된 번들
                             </a>
                             <a href="/admin/current_bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-md transition-colors">
@@ -181,14 +181,14 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">시즌별 앱 반영 현황</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- 2025.4 Season -->
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-blue-500">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 border-l-4 border-l-navy-500">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600">2025.4 (2학기)</p>
                                 <p class="text-2xl font-bold text-gray-900" id="season2025_4Count">-</p>
                             </div>
-                            <div class="h-8 w-8 bg-blue-100 rounded-md flex items-center justify-center">
-                                <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="h-8 w-8 bg-navy-100 rounded-md flex items-center justify-center">
+                                <svg class="h-4 w-4 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
                                 </svg>
                             </div>

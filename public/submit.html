@@ -19,7 +19,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         .upload-area.dragover {
-            @apply border-blue-500 bg-blue-50;
+            @apply border-navy-500 bg-navy-50;
         }
     </style>
 </head>
@@ -29,7 +29,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
-                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">🏫 타임빌더</a>
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-navy-600 hover:text-navy-700 transition-colors cursor-pointer">🏫 타임빌더</a>
                     <span class="ml-2 text-gray-500">관리자</span>
                 </div>
             </div>
@@ -43,7 +43,7 @@
             <nav class="p-4">
                 <div class="space-y-2">
                     <!-- 1. 대시보드 -->
-                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -52,7 +52,7 @@
 
                     <!-- 2. 제출검토 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -64,7 +64,7 @@
                             </svg>
                         </button>
                         <div id="submissions-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📝 미검토 시간표
                             </a>
                             <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors">
@@ -77,7 +77,7 @@
                     </div>
 
                     <!-- 3. 학원 가입 승인 -->
-                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                    <a href="/admin/academies" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -86,7 +86,7 @@
 
                     <!-- 4. 번들 관리 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
@@ -98,7 +98,7 @@
                             </svg>
                         </button>
                         <div id="bundles-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📦 승인된 번들
                             </a>
                             <a href="/admin/current_bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-md transition-colors">
@@ -108,7 +108,7 @@
                     </div>
 
                     <!-- 5. 직접 업로드 -->
-                    <a href="/direct-upload" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                    <a href="/direct-upload" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-navy-50 text-navy-600 rounded-md border-l-4 border-navy-500">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
@@ -129,14 +129,14 @@
         </div>
 
         <!-- Requirements Card -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <h3 class="font-semibold text-blue-900 mb-4 flex items-center">
+        <div class="bg-navy-50 border border-navy-200 rounded-lg p-6 mb-8">
+            <h3 class="font-semibold text-navy-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                 </svg>
                 제출 요구사항
             </h3>
-            <ul class="space-y-2 text-blue-800">
+            <ul class="space-y-2 text-navy-800">
                 <li class="flex items-center">
                     <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -180,7 +180,7 @@
                             id="academyName" 
                             name="academyName" 
                             required
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         >
                     </div>
                     <div class="space-y-2">
@@ -189,7 +189,7 @@
                             type="text" 
                             id="instructorName" 
                             name="instructorName"
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         >
                     </div>
                 </div>
@@ -203,7 +203,7 @@
                             id="contactName" 
                             name="contactName" 
                             required
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         >
                     </div>
                     <div class="space-y-2">
@@ -213,7 +213,7 @@
                             id="phone" 
                             name="phone" 
                             required
-                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                         >
                     </div>
                 </div>
@@ -224,7 +224,7 @@
                         type="email" 
                         id="email" 
                         name="email"
-                        class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                     >
                 </div>
 
@@ -235,7 +235,7 @@
                         name="notes" 
                         rows="3" 
                         placeholder="특별한 요청사항이나 참고할 내용이 있으시면 적어주세요"
-                        class="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:border-transparent"
                     ></textarea>
                 </div>
 
@@ -243,7 +243,7 @@
                 <div class="space-y-2">
                     <label for="csvFile" class="text-sm font-medium text-gray-700">시간표 CSV 파일 *</label>
                     <div 
-                        class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer upload-area" 
+                        class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-navy-400 transition-colors cursor-pointer upload-area" 
                         id="uploadArea"
                     >
                         <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -261,7 +261,7 @@
                     <button 
                         type="submit" 
                         id="submitBtn"
-                        class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-8"
+                        class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-navy-600 text-white hover:bg-navy-700 h-10 py-2 px-8"
                     >
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -274,7 +274,7 @@
                 <div id="progress" class="hidden">
                     <div class="text-center mb-4 text-sm text-gray-600">업로드 중...</div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div id="progressFill" class="bg-blue-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 60%"></div>
+                        <div id="progressFill" class="bg-navy-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 60%"></div>
                     </div>
                 </div>
 
@@ -467,7 +467,7 @@
             const alertClasses = {
                 success: 'bg-green-50 border border-green-200 text-green-800',
                 error: 'bg-red-50 border border-red-200 text-red-800',
-                info: 'bg-blue-50 border border-blue-200 text-blue-800'
+                info: 'bg-navy-50 border border-navy-200 text-navy-800'
             };
             
             result.innerHTML = `

@@ -13,7 +13,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center">
-                    <a href="/admin/dashboard" class="text-2xl font-bold text-blue-600 hover:text-blue-700">🏫 타임빌더</a>
+                    <a href="/admin/dashboard" class="text-2xl font-bold text-navy-600 hover:text-navy-700">🏫 타임빌더</a>
                     <span class="ml-2 text-gray-500">/ 학원 관리</span>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -47,7 +47,7 @@
             <nav class="p-4">
                 <div class="space-y-2">
                     <!-- 1. 대시보드 -->
-                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                    <a href="/admin/dashboard" class="admin-nav-link flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -56,7 +56,7 @@
 
                     <!-- 2. 제출검토 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('submissions')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -68,7 +68,7 @@
                             </svg>
                         </button>
                         <div id="submissions-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/submissions" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📝 미검토 시간표
                             </a>
                             <a href="/admin/submissions?tab=approved" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-md transition-colors">
@@ -81,7 +81,7 @@
                     </div>
 
                     <!-- 3. 학원 가입 승인 -->
-                    <a href="/admin/academies" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-blue-50 text-blue-600 rounded-md border-l-4 border-blue-500">
+                    <a href="/admin/academies" class="admin-nav-link active flex items-center px-3 py-2 text-sm font-medium bg-navy-50 text-navy-600 rounded-md border-l-4 border-navy-500">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -90,7 +90,7 @@
 
                     <!-- 4. 번들 관리 (아코디언) -->
                     <div class="space-y-1">
-                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-all duration-200">
+                        <button onclick="toggleAccordion('bundles')" class="admin-nav-link flex items-center justify-between w-full px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-navy-600 rounded-md transition-all duration-200">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 7a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"/>
@@ -102,7 +102,7 @@
                             </svg>
                         </button>
                         <div id="bundles-accordion" class="ml-8 space-y-1 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0px;">
-                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors">
+                            <a href="/admin/bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-navy-50 hover:text-navy-600 rounded-md transition-colors">
                                 📦 승인된 번들
                             </a>
                             <a href="/admin/current_bundles" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-md transition-colors">
@@ -187,7 +187,7 @@
             
             // 탭 활성 상태 업데이트
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'border-orange-500', 'text-orange-600', 'border-green-500', 'text-green-600', 'border-red-500', 'text-red-600', 'border-blue-500', 'text-blue-600');
+                btn.classList.remove('active', 'border-orange-500', 'text-orange-600', 'border-green-500', 'text-green-600', 'border-red-500', 'text-red-600', 'border-navy-500', 'text-navy-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
             });
             
@@ -195,7 +195,7 @@
                 'pending': { border: 'border-orange-500', text: 'text-orange-600' },
                 'active': { border: 'border-green-500', text: 'text-green-600' },
                 'suspended': { border: 'border-red-500', text: 'text-red-600' },
-                'all': { border: 'border-blue-500', text: 'text-blue-600' }
+                'all': { border: 'border-navy-500', text: 'text-navy-600' }
             };
             
             const activeTab = document.getElementById(status + 'Tab');

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 타임빌더</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script>
+        // CSS 파일이 로드되지 않으면 CDN 사용
+        const link = document.createElement('link');
+        link.onerror = () => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.tailwindcss.com';
+            document.head.appendChild(script);
+        };
+        document.head.appendChild(link);
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="/" class="text-2xl font-bold text-navy-600 hover:text-navy-700 transition-colors">
+                        🏫 타임빌더
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-navy-600 hover:bg-navy-50 transition-colors">
+                            홈으로
+                        </a>
+                        <button onclick="showLoginModal()" class="px-4 py-2 text-sm font-medium text-navy-600 border border-navy-600 rounded-md hover:bg-navy-50 transition-colors">
+                            로그인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <h2 class="mt-6 text-3xl font-bold text-gray-900">회원가입</h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    타임빌더에서 시간표를 관리하세요
+                </p>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="flex items-center justify-center space-x-4 mb-8">
+                <div class="flex items-center">
+                    <div id="step1-indicator" class="flex items-center justify-center w-8 h-8 bg-navy-600 text-white rounded-full text-sm font-medium">
+                        1
+                    </div>
+                    <span id="step1-label" class="ml-2 text-sm font-medium text-navy-600">개인정보 동의</span>
+                </div>
+                <div class="w-8 h-0.5 bg-gray-300" id="progress-line1"></div>
+                <div class="flex items-center">
+                    <div id="step2-indicator" class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-500 rounded-full text-sm font-medium">
+                        2
+                    </div>
+                    <span id="step2-label" class="ml-2 text-sm font-medium text-gray-500">정보 입력</span>
+                </div>
+                <div class="w-8 h-0.5 bg-gray-300" id="progress-line2"></div>
+                <div class="flex items-center">
+                    <div id="step3-indicator" class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-500 rounded-full text-sm font-medium">
+                        3
+                    </div>
+                    <span id="step3-label" class="ml-2 text-sm font-medium text-gray-500">완료</span>
+                </div>
+            </div>
+
+            <!-- Step 1: 개인정보 동의 -->
+            <div id="step1" class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">개인정보 수집 및 이용 동의</h3>
+                
+                <!-- 필수 동의 항목 -->
+                <div class="space-y-4">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-900">[필수] 개인정보 수집 및 이용 동의</h4>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="required-privacy" class="w-4 h-4 text-navy-600 border-gray-300 rounded focus:ring-navy-500">
+                                <span class="ml-2 text-sm text-gray-600">동의</span>
+                            </label>
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                            <p><strong>1. 개인정보 수집 목적</strong></p>
+                            <p>- 회원가입 및 서비스 제공</p>
+                            <p>- 시간표 관리 서비스 제공</p>
+                            <p>- 고객 문의 응대</p>
+                            <br>
+                            <p><strong>2. 수집하는 개인정보 항목</strong></p>
+                            <p>- 학원명, 담당자명, 연락처, 이메일</p>
+                            <br>
+                            <p><strong>3. 개인정보 보유 및 이용기간</strong></p>
+                            <p>- 회원 탈퇴 시까지</p>
+                            <br>
+                            <p><strong>4. 동의 거부권</strong></p>
+                            <p>개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으나, 동의를 거부할 경우 서비스 이용이 제한될 수 있습니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-900">[필수] 서비스 이용약관 동의</h4>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="required-terms" class="w-4 h-4 text-navy-600 border-gray-300 rounded focus:ring-navy-500">
+                                <span class="ml-2 text-sm text-gray-600">동의</span>
+                            </label>
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                            <p><strong>제1조 (목적)</strong></p>
+                            <p>본 약관은 타임빌더(이하 "회사")가 제공하는 시간표 관리 서비스(이하 "서비스")의 이용조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.</p>
+                            <br>
+                            <p><strong>제2조 (정의)</strong></p>
+                            <p>1. "서비스"란 회사가 제공하는 시간표 업로드 및 관리 서비스를 의미합니다.</p>
+                            <p>2. "회원"이란 본 약관에 따라 서비스를 이용하는 고객을 의미합니다.</p>
+                            <br>
+                            <p><strong>제3조 (약관의 효력 및 변경)</strong></p>
+                            <p>본 약관은 서비스를 이용하고자 하는 모든 회원에 대하여 그 효력을 발생합니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 선택 동의 항목 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium text-gray-900">[선택] 마케팅 정보 수신 동의</h4>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="optional-marketing" class="w-4 h-4 text-navy-600 border-gray-300 rounded focus:ring-navy-500">
+                                <span class="ml-2 text-sm text-gray-600">동의</span>
+                            </label>
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded">
+                            <p>새로운 서비스 및 이벤트 정보를 이메일로 받아보실 수 있습니다.</p>
+                            <p>동의하지 않으셔도 서비스 이용에는 제한이 없습니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- 전체 동의 -->
+                    <div class="border-t pt-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="agree-all" class="w-4 h-4 text-navy-600 border-gray-300 rounded focus:ring-navy-500">
+                            <span class="ml-2 text-sm font-medium text-gray-900">위 내용에 모두 동의합니다</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button id="step1-next" class="w-full bg-gray-300 text-gray-500 font-medium py-3 px-4 rounded-md cursor-not-allowed" disabled>
+                        다음 단계
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: 정보 입력 -->
+            <div id="step2" class="hidden bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">학원 정보 입력</h3>
+                
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label for="academyName" class="block text-sm font-medium text-gray-700 mb-1">학원명 *</label>
+                        <input 
+                            type="text" 
+                            id="academyName" 
+                            name="academyName" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                            placeholder="예: OO학원"
+                        >
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contactName" class="block text-sm font-medium text-gray-700 mb-1">담당자명 *</label>
+                            <input 
+                                type="text" 
+                                id="contactName" 
+                                name="contactName" 
+                                required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                                placeholder="홍길동"
+                            >
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">연락처 *</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                                placeholder="010-1234-5678"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일 *</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                            placeholder="example@academy.com"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 *</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                            placeholder="8자 이상 입력해주세요"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">영문, 숫자 조합으로 8자 이상 입력해주세요</p>
+                    </div>
+                    
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인 *</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500"
+                            placeholder="비밀번호를 다시 입력해주세요"
+                        >
+                    </div>
+
+                    <div id="step2-error" class="hidden text-red-600 text-sm"></div>
+                </form>
+
+                <div class="mt-6 flex space-x-3">
+                    <button id="step2-prev" class="flex-1 bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-md hover:bg-gray-300 transition-colors">
+                        이전
+                    </button>
+                    <button id="step2-next" class="flex-1 bg-navy-600 text-white font-medium py-3 px-4 rounded-md hover:bg-navy-700 transition-colors">
+                        회원가입
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: 완료 -->
+            <div id="step3" class="hidden bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">회원가입이 완료되었습니다!</h3>
+                <p class="text-gray-600 mb-6">
+                    관리자 승인 후 서비스를 이용하실 수 있습니다.<br>
+                    승인 완료 시 이메일로 안내해드리겠습니다.
+                </p>
+                <div class="space-y-3">
+                    <button onclick="showLoginModal()" class="w-full bg-navy-600 text-white font-medium py-3 px-4 rounded-md hover:bg-navy-700 transition-colors">
+                        로그인하기
+                    </button>
+                    <a href="/" class="block w-full bg-gray-200 text-gray-700 font-medium py-3 px-4 rounded-md hover:bg-gray-300 transition-colors text-center">
+                        홈으로 가기
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer Links -->
+            <div class="text-center text-sm text-gray-600">
+                <span>이미 계정이 있으신가요? </span>
+                <button onclick="showLoginModal()" class="text-navy-600 hover:text-navy-700 font-medium">
+                    로그인하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal (재사용을 위해 포함) -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-900">로그인</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 py-6">
+                <form id="academyLoginForm" class="space-y-4">
+                    <div>
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                        <input type="email" id="loginEmail" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                        <input type="password" id="loginPassword" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-navy-500 focus:border-navy-500">
+                    </div>
+                    <button type="submit" class="w-full bg-navy-600 hover:bg-navy-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                        로그인
+                    </button>
+                    <div id="loginModalResult"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        // 진행 상태 업데이트
+        function updateProgress(step) {
+            // 모든 step 초기화
+            for (let i = 1; i <= 3; i++) {
+                const indicator = document.getElementById(`step${i}-indicator`);
+                const label = document.getElementById(`step${i}-label`);
+                
+                if (i < step) {
+                    // 완료된 단계
+                    indicator.className = 'flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded-full text-sm font-medium';
+                    indicator.innerHTML = '✓';
+                    label.className = 'ml-2 text-sm font-medium text-green-600';
+                } else if (i === step) {
+                    // 현재 단계
+                    indicator.className = 'flex items-center justify-center w-8 h-8 bg-navy-600 text-white rounded-full text-sm font-medium';
+                    indicator.innerHTML = i;
+                    label.className = 'ml-2 text-sm font-medium text-navy-600';
+                } else {
+                    // 미완료 단계
+                    indicator.className = 'flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-500 rounded-full text-sm font-medium';
+                    indicator.innerHTML = i;
+                    label.className = 'ml-2 text-sm font-medium text-gray-500';
+                }
+            }
+
+            // 진행선 업데이트
+            for (let i = 1; i <= 2; i++) {
+                const line = document.getElementById(`progress-line${i}`);
+                if (step > i) {
+                    line.className = 'w-8 h-0.5 bg-green-600';
+                } else {
+                    line.className = 'w-8 h-0.5 bg-gray-300';
+                }
+            }
+        }
+
+        // 단계 표시/숨김
+        function showStep(step) {
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                if (i === step) {
+                    stepElement.classList.remove('hidden');
+                } else {
+                    stepElement.classList.add('hidden');
+                }
+            }
+            currentStep = step;
+            updateProgress(step);
+        }
+
+        // 동의 체크박스 관리
+        document.addEventListener('DOMContentLoaded', function() {
+            const requiredPrivacy = document.getElementById('required-privacy');
+            const requiredTerms = document.getElementById('required-terms');
+            const optionalMarketing = document.getElementById('optional-marketing');
+            const agreeAll = document.getElementById('agree-all');
+            const step1Next = document.getElementById('step1-next');
+
+            function checkRequiredConsents() {
+                const allRequired = requiredPrivacy.checked && requiredTerms.checked;
+                if (allRequired) {
+                    step1Next.className = 'w-full bg-navy-600 text-white font-medium py-3 px-4 rounded-md hover:bg-navy-700 transition-colors cursor-pointer';
+                    step1Next.disabled = false;
+                } else {
+                    step1Next.className = 'w-full bg-gray-300 text-gray-500 font-medium py-3 px-4 rounded-md cursor-not-allowed';
+                    step1Next.disabled = true;
+                }
+            }
+
+            // 전체 동의 체크박스
+            agreeAll.addEventListener('change', function() {
+                requiredPrivacy.checked = this.checked;
+                requiredTerms.checked = this.checked;
+                optionalMarketing.checked = this.checked;
+                checkRequiredConsents();
+            });
+
+            // 개별 체크박스들
+            [requiredPrivacy, requiredTerms, optionalMarketing].forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    agreeAll.checked = requiredPrivacy.checked && requiredTerms.checked && optionalMarketing.checked;
+                    checkRequiredConsents();
+                });
+            });
+
+            // 다음 단계 버튼
+            step1Next.addEventListener('click', function() {
+                if (!this.disabled) {
+                    showStep(2);
+                }
+            });
+
+            // 이전 단계 버튼
+            document.getElementById('step2-prev').addEventListener('click', function() {
+                showStep(1);
+            });
+
+            // 회원가입 폼 제출
+            document.getElementById('step2-next').addEventListener('click', async function() {
+                const form = document.getElementById('registerForm');
+                const formData = new FormData(form);
+                const errorDiv = document.getElementById('step2-error');
+
+                // 비밀번호 확인
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+
+                if (password !== confirmPassword) {
+                    errorDiv.textContent = '비밀번호가 일치하지 않습니다.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    errorDiv.textContent = '비밀번호는 8자 이상이어야 합니다.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/academy/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            academyName: formData.get('academyName'),
+                            contactName: formData.get('contactName'),
+                            phone: formData.get('phone'),
+                            email: formData.get('email'),
+                            password: formData.get('password')
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showStep(3);
+                    } else {
+                        errorDiv.textContent = data.error || '회원가입에 실패했습니다.';
+                        errorDiv.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    errorDiv.textContent = `회원가입 오류: ${error.message}`;
+                    errorDiv.classList.remove('hidden');
+                }
+            });
+        });
+
+        // 로그인 모달 관리
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        // 로그인 폼 처리
+        document.getElementById('academyLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/api/academy/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        password: formData.get('password')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('academy_token', data.token);
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('loginModalResult').innerHTML = `<div class="text-red-600 text-sm mt-2">${data.error}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('loginModalResult').innerHTML = `<div class="text-red-600 text-sm mt-2">로그인 오류: ${error.message}</div>`;
+            }
+        });
+
+        // 초기화
+        updateProgress(1);
+    </script>
+</body>
+</html>
